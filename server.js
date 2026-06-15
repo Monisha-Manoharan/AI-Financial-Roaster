@@ -53,30 +53,122 @@ pool.connect((err, client, release) => {
   }
 });
 
-// Helper: Sarcastic Mock Roaster (fallback if Gemini key is missing)
+// Helper: Sarcastic Mock Roaster (fallback if Gemini key is missing or rate-limited)
 function getMockRoast(amount, category, description, persona) {
-  const roasts = {
+  const cleanDesc = (description || '').trim().toLowerCase();
+  
+  // 1. Intros based on persona
+  const intros = {
     aggressive: [
-      `₹${amount} on ${category}? Are you actively trying to go broke, or does financial stability scare you?`,
-      `Oh look, another manually logged transaction for ${description} (₹${amount}). I didn't realize you had a money printing press in your basement.`,
-      `Log details: ₹${amount} spent on ${category}. My algorithms suggest you will be subsisting on actual dirt by Q3 if you keep this up.`
+      `Wait, you actually spent money on this?`,
+      `Stop what you are doing and look at this tragedy.`,
+      `My circuits are frying from this absolute nonsense.`,
+      `Are you trying to set your bank account on fire?`,
+      `Another transaction, another step closer to bankruptcy.`
     ],
     sarcastic: [
-      `Wow, ₹${amount} on ${category}. Groundbreaking capital allocation. Truly, a mastermind at work.`,
-      `Ah, yes! ₹${amount} spent on ${description}. Because who needs a retirement fund when you can have instant gratification?`,
-      `₹${amount} for ${category} logged. I'm sure this purchase will single-handedly solve all your life's problems.`
+      `Fascinating capital allocation choice.`,
+      `Truly a masterclass in financial self-destruction.`,
+      `Ah, a purchase that will surely age like fine milk.`,
+      `Groundbreaking choice. I'm sure your future self is thrilled.`,
+      `Let's analyze this highly strategic deploy of funds.`
     ],
     supportive: [
-      `Logged ₹${amount} on ${category}. It's okay, we all make mistakes. Maybe just... cook at home tomorrow?`,
-      `₹${amount} spent on ${description}. Let's try to do a 'No-Spend Day' tomorrow to balance it out, okay?`,
-      `Manual entry recorded: ₹${amount} for ${category}. Progress is progress, even if your bank account is weeping.`
+      `Alright, let's look at this manual log.`,
+      `Okay, we logged a purchase.`,
+      `We recorded this transaction.`,
+      `A new entry added to your logs.`,
+      `Logged the purchase.`
     ]
   };
+
+  // 2. Category specific comments (dynamic using description if possible)
+  const descString = cleanDesc ? `"${cleanDesc}"` : category.toLowerCase();
   
-  const selectedRoasts = roasts[persona] || roasts.sarcastic;
-  const randomIndex = Math.floor(Math.random() * selectedRoasts.length);
-  let result = selectedRoasts[randomIndex];
-  
+  const categoryComments = {
+    'Food & Dining': [
+      `Splurging ₹${amount} on ${descString} instead of cooking at home? Peak laziness.`,
+      `I hope this ₹${amount} worth of ${descString} was delicious, because your savings are starving.`,
+      `Paying ₹${amount} for ${descString}. Cooking is apparently a forgotten art form.`,
+      `₹${amount} on ${descString}. Those delivery fees are really starting to stack up.`
+    ],
+    'Coffee & Drinks': [
+      `Paying ₹${amount} for liquid caffeine dependency (${descString}). Groundbreaking.`,
+      `₹${amount} spent on ${descString}. You could buy a whole coffee maker at this rate.`,
+      `Another overpriced cup of bean water (${descString}) to fuel your daily delusion.`,
+      `Caffeine is temporary, but the ₹${amount} hole in your pocket is permanent.`
+    ],
+    'Shopping & Luxury': [
+      `Retail therapy on ${descString} won't fill the void in your checking account.`,
+      `₹${amount} spent on ${descString}. Let's be honest, you'll forget you own this in 48 hours.`,
+      `Ah, yes! Impulse buying ${descString} for ₹${amount}. Because who needs a savings buffer?`,
+      `Buying ${descString} is a bold move when your runway is already looking this short.`
+    ],
+    'Fixed Utilities': [
+      `Paying ₹${amount} for ${descString}. At least this is semi-necessary.`,
+      `₹${amount} paid to keep ${descString} running. The price of modern survival.`,
+      `Another recurring charge for ${descString} (₹${amount}). Check if you actually use this.`
+    ],
+    'Logistics & Travel': [
+      `Ubering to places when walking is free? Interesting strategy.`,
+      `Spent ₹${amount} on ${descString}. You are traveling like a VIP on a minimum wage budget.`,
+      `₹${amount} for ${descString}. I hope the ride was comfortable, because the landing will be rough.`
+    ],
+    'Other': [
+      `Dropping ₹${amount} on ${descString}. Where does the money go? Right here.`,
+      `₹${amount} spent on ${descString}. A mystery purchase to keep things interesting.`,
+      `Logged ₹${amount} for ${descString}. A perfect example of minor leaks sinking the ship.`
+    ]
+  };
+
+  // 3. Amount specific remarks
+  let amountRemark = '';
+  if (amount < 500) {
+    amountRemark = `Sure, ₹${amount} is small, but these micro-leaks are slowly draining your reservoir.`;
+  } else if (amount >= 500 && amount < 5000) {
+    amountRemark = `₹${amount} is a non-trivial amount of labor hours to throw away on this.`;
+  } else {
+    amountRemark = `₹${amount} is a major financial casualty. Your checking account is in the ICU.`;
+  }
+
+  // 4. Closers based on persona
+  const closers = {
+    aggressive: [
+      `Prepare to retire under a bridge.`,
+      `You will be eating actual dirt by the end of Q3.`,
+      `Please lock your credit card in a safe and lose the key.`,
+      `At this rate, financial freedom is scheduled for the year 3045.`,
+      `Just delete your banking app already.`
+    ],
+    sarcastic: [
+      `Jeff Bezos is shaking in his boots.`,
+      `If wasting money was an Olympic sport, you'd have gold.`,
+      `Truly, a legendary move. Teach me your ways.`,
+      `I'm sure this purchase single-handedly solved all your life's problems.`,
+      `Keep this up and you'll be featured on a financial horror story show.`
+    ],
+    supportive: [
+      `Let's try a 'No-Spend Day' tomorrow to balance it out, okay?`,
+      `It's okay, we all slip up. Let's refocus on our budget goals.`,
+      `Maybe cook at home tomorrow to make up for it?`,
+      `Progress isn't linear. Let's aim to spend ₹0 tomorrow.`,
+      `Take a deep breath and let's plan our next saving move.`
+    ]
+  };
+
+  const selectedIntros = intros[persona] || intros.sarcastic;
+  const intro = selectedIntros[Math.floor(Math.random() * selectedIntros.length)];
+
+  const categoryKey = categoryComments[category] ? category : 'Other';
+  const selectedCatComments = categoryComments[categoryKey];
+  const catComment = selectedCatComments[Math.floor(Math.random() * selectedCatComments.length)];
+
+  const selectedClosers = closers[persona] || closers.sarcastic;
+  const closer = selectedClosers[Math.floor(Math.random() * selectedClosers.length)];
+
+  // Assemble the roast
+  let result = `${intro} ${catComment} ${amountRemark} ${closer}`;
+
   if (!systemConfig.geminiApiKey) {
     result += " [SYSTEM NOTE: Configure your GEMINI_API_KEY in the Config tab for customized AI roasts!]";
   }
