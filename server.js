@@ -62,7 +62,7 @@ function getMockRoast(amount, category, description, persona) {
 }
 
 // Helper: Query Gemini API for Roast
-async function generateGeminiRoast(context, queryText, persona) {
+async function generateGeminiRoast(context, queryText, persona, transactionDetails = null) {
   const apiKey = systemConfig.geminiApiKey;
   if (!apiKey) {
     return null;
@@ -81,10 +81,20 @@ async function generateGeminiRoast(context, queryText, persona) {
       personaInstructions = 'You are a supportive-ish coach, but still slightly disappointed. Give mildly condescending advice, suggest realistic alternatives (like cooking at home), and sound like a disappointed parent.';
     }
 
-    const prompt = `
-System Prompt: ${personaInstructions}
-Rules: Keep the response under 3-4 sentences. Focus on the transaction amounts and categories provided.
+    let prompt = `System Prompt: ${personaInstructions}
+Rules: Keep the response under 3-4 sentences. Focus on the transaction amounts and categories provided. Be direct and specific.
+`;
 
+    if (transactionDetails) {
+      prompt += `
+Transaction Details to roast specifically:
+- Amount: ₹${transactionDetails.amount}
+- Category: ${transactionDetails.category}
+- Description: ${transactionDetails.description || 'None'}
+`;
+    }
+
+    prompt += `
 Context on User's spending:
 ${context}
 
@@ -96,32 +106,8 @@ ${queryText}
     const response = await result.response;
     return response.text();
   } catch (error) {
-    const is429 = error.message && (
-      error.message.includes('429') ||
-      error.message.includes('Too Many Requests') ||
-      error.message.includes('quota')
-    );
-    if (is429) {
-      const fallbacks = {
-        aggressive: [
-          "Even my API quota gave up on you. Your finances are so tragic they broke the server.",
-          "Rate-limited. You've somehow managed to exhaust both your wallet AND my patience.",
-          "The AI is on a break — even algorithms need therapy after seeing your spending."
-        ],
-        sarcastic: [
-          "The irony — you spent so much, you crashed the very system judging you. Impressive.",
-          "My quota's gone. Much like your savings will be if you keep this up.",
-          "Even the cloud has limits. Unlike, apparently, your appetite for financial self-destruction."
-        ],
-        supportive: [
-          "I'm taking a breather. You should too — from spending.",
-          "Temporarily offline, but I believe in your ability to make slightly less terrible choices.",
-          "Even coaches need a minute. Use this one to reconsider your life choices."
-        ]
-      };
-      const pool = fallbacks[persona] || fallbacks.aggressive;
-      return pool[Math.floor(Math.random() * pool.length)];
-    }
+    // If Gemini fails for any reason (e.g. rate limit, quota, invalid API key), return null
+    // so that the server code automatically fails over to the dynamic mock roaster
     console.error('Gemini API Error:', error.status || '', error.message?.slice(0, 120));
     return null;
   }
@@ -157,7 +143,7 @@ app.post('/api/expenses', async (req, res) => {
     let roast = '';
     if (systemConfig.realtimeShame) {
       const context = `Manual Entry Logged: Spent ₹${amount} on ${category} (${description}).`;
-      const geminiRoast = await generateGeminiRoast(context, `Roast this purchase immediately.`, systemConfig.persona);
+      const geminiRoast = await generateGeminiRoast(context, `Roast this purchase immediately.`, systemConfig.persona, { amount, category, description });
       roast = geminiRoast || getMockRoast(amount, category, description, systemConfig.persona);
     }
 
@@ -290,7 +276,7 @@ app.post('/api/chat', async (req, res) => {
 
       // Roast it
       const context = `Manual Entry Logged via Chat NLP: Spent ₹${parsedAmount} on ${parsedCategory} (${parsedDescription}).`;
-      const geminiRoast = await generateGeminiRoast(context, `Roast this purchase immediately.`, systemConfig.persona);
+      const geminiRoast = await generateGeminiRoast(context, `Roast this purchase immediately.`, systemConfig.persona, { amount: parsedAmount, category: parsedCategory, description: parsedDescription });
       const roast = geminiRoast || getMockRoast(parsedAmount, parsedCategory, parsedDescription, systemConfig.persona);
 
       return res.json({
@@ -338,7 +324,7 @@ app.post('/api/chat', async (req, res) => {
         const count = parseInt(result.rows[0].count);
 
         const context = `User category query: ${matchedCategory}. Total spent in last 30 days: ₹${total} over ${count} entries.`;
-        const geminiRoast = await generateGeminiRoast(context, `Generate a brutal roast focused on the sum ₹${total} spent on ${matchedCategory}.`, systemConfig.persona);
+        const geminiRoast = await generateGeminiRoast(context, `Generate a brutal roast focused on the sum ₹${total} spent on ${matchedCategory}.`, systemConfig.persona, { amount: total, category: matchedCategory, description: matchedCategory });
         const roast = geminiRoast || `You spent ₹${total} on ${matchedCategory} over ${count} transactions. ${getMockRoast(total, matchedCategory, matchedCategory, systemConfig.persona)}`;
 
         return res.json({
