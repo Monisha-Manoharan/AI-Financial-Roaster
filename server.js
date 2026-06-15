@@ -2,7 +2,24 @@ const express = require('express');
 const { Pool } = require('pg');
 const { GoogleGenerativeAI } = require('@google/generative-ai');
 const path = require('path');
+const fs = require('fs');
 require('dotenv').config();
+
+// Helper: Programmatically write/update key in .env file
+function updateEnvFile(key, value) {
+  const envPath = path.join(__dirname, '.env');
+  let envContent = '';
+  if (fs.existsSync(envPath)) {
+    envContent = fs.readFileSync(envPath, 'utf8');
+  }
+  const reg = new RegExp(`^${key}=.*$`, 'm');
+  if (reg.test(envContent)) {
+    envContent = envContent.replace(reg, `${key}=${value}`);
+  } else {
+    envContent += `\n${key}=${value}`;
+  }
+  fs.writeFileSync(envPath, envContent, 'utf8');
+}
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -65,7 +82,7 @@ function getMockRoast(amount, category, description, persona) {
 async function generateGeminiRoast(context, queryText, persona, transactionDetails = null) {
   const apiKey = systemConfig.geminiApiKey;
   if (!apiKey) {
-    return null;
+    return '[ROASTER_AI Error]: Gemini API Key is missing. Please set it in Settings or your .env file.';
   }
 
   try {
@@ -106,10 +123,8 @@ ${queryText}
     const response = await result.response;
     return response.text();
   } catch (error) {
-    // If Gemini fails for any reason (e.g. rate limit, quota, invalid API key), return null
-    // so that the server code automatically fails over to the dynamic mock roaster
     console.error('Gemini API Error:', error.status || '', error.message?.slice(0, 120));
-    return null;
+    return `[ROASTER_AI Error]: Gemini API returned error: ${error.message}`;
   }
 }
 
@@ -143,8 +158,7 @@ app.post('/api/expenses', async (req, res) => {
     let roast = '';
     if (systemConfig.realtimeShame) {
       const context = `Manual Entry Logged: Spent ₹${amount} on ${category} (${description}).`;
-      const geminiRoast = await generateGeminiRoast(context, `Roast this purchase immediately.`, systemConfig.persona, { amount, category, description });
-      roast = geminiRoast || getMockRoast(amount, category, description, systemConfig.persona);
+      roast = await generateGeminiRoast(context, `Roast this purchase immediately.`, systemConfig.persona, { amount, category, description });
     }
 
     res.status(201).json({ expense: newExpense, roast });
@@ -204,8 +218,7 @@ app.get('/api/stats', async (req, res) => {
       const expensesText = allExpensesResult.rows.map(r => `- ₹${r.amount} on ${r.category} (${r.description})`).join('\n');
       
       const context = `Total 30-day burn: ₹${totalBurn}. Remaining budget from ₹50,000: ₹${remainingBudget}. Estimated runway: ${runwayDays} days.\nRecent expenses:\n${expensesText}`;
-      const geminiCritique = await generateGeminiRoast(context, `Give a comprehensive roast of my overall financial state.`, systemConfig.persona);
-      critique = geminiCritique || getMockRoast(totalBurn, 'lifestyle', 'overall budget overrun', systemConfig.persona);
+      critique = await generateGeminiRoast(context, `Give a comprehensive roast of my overall financial state.`, systemConfig.persona);
     }
 
     res.json({
@@ -276,8 +289,7 @@ app.post('/api/chat', async (req, res) => {
 
       // Roast it
       const context = `Manual Entry Logged via Chat NLP: Spent ₹${parsedAmount} on ${parsedCategory} (${parsedDescription}).`;
-      const geminiRoast = await generateGeminiRoast(context, `Roast this purchase immediately.`, systemConfig.persona, { amount: parsedAmount, category: parsedCategory, description: parsedDescription });
-      const roast = geminiRoast || getMockRoast(parsedAmount, parsedCategory, parsedDescription, systemConfig.persona);
+      const roast = await generateGeminiRoast(context, `Roast this purchase immediately.`, systemConfig.persona, { amount: parsedAmount, category: parsedCategory, description: parsedDescription });
 
       return res.json({
         type: 'LOG_CONFIRMATION',
@@ -324,8 +336,7 @@ app.post('/api/chat', async (req, res) => {
         const count = parseInt(result.rows[0].count);
 
         const context = `User category query: ${matchedCategory}. Total spent in last 30 days: ₹${total} over ${count} entries.`;
-        const geminiRoast = await generateGeminiRoast(context, `Generate a brutal roast focused on the sum ₹${total} spent on ${matchedCategory}.`, systemConfig.persona, { amount: total, category: matchedCategory, description: matchedCategory });
-        const roast = geminiRoast || `You spent ₹${total} on ${matchedCategory} over ${count} transactions. ${getMockRoast(total, matchedCategory, matchedCategory, systemConfig.persona)}`;
+        const roast = await generateGeminiRoast(context, `Generate a brutal roast focused on the sum ₹${total} spent on ${matchedCategory}.`, systemConfig.persona, { amount: total, category: matchedCategory, description: matchedCategory });
 
         return res.json({
           type: 'QUERY_RESPONSE',
@@ -349,8 +360,7 @@ app.post('/api/chat', async (req, res) => {
     const breakdown = result.rows.map(r => `${r.category}: ₹${r.total}`).join(', ');
 
     const context = `Current 30-day spending breakdown: ${breakdown || 'No expenses logged yet'}.`;
-    const geminiRoast = await generateGeminiRoast(context, `Respond to user message: "${message}" and roast their financial attitude.`, systemConfig.persona);
-    const roast = geminiRoast || `I parsed your message: "${message}". If you wanted me to log a transaction, write e.g., "spent 500 on coffee". Otherwise, configure your Gemini API Key in Settings to talk to my actual brain!`;
+    const roast = await generateGeminiRoast(context, `Respond to user message: "${message}" and roast their financial attitude.`, systemConfig.persona);
 
     res.json({
       type: 'CONVERSATION',
@@ -391,9 +401,10 @@ app.post('/api/config', (req, res) => {
   const { geminiApiKey, persona, dailyBriefing, realtimeShame } = req.body;
   
   if (geminiApiKey !== undefined && geminiApiKey !== '') {
-    // If user provided a new key (non-masked), update it
+    // If user provided a new key (non-masked), update it and persist it to .env
     if (!geminiApiKey.includes('...')) {
       systemConfig.geminiApiKey = geminiApiKey;
+      updateEnvFile('GEMINI_API_KEY', geminiApiKey);
     }
   }
   
