@@ -258,7 +258,7 @@ app.post('/api/chat', async (req, res) => {
     try {
       // Log it to the database
       const queryText = 'INSERT INTO expenses (amount, category, description, timestamp) VALUES ($1, $2, $3, NOW()) RETURNING *';
-      const values = [parsedAmount, parsedCategory, parsedDescription, new Date()];
+      const values = [parsedAmount, parsedCategory, parsedDescription];
       const result = await pool.query(queryText, values);
       const newExpense = result.rows[0];
 
