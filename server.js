@@ -70,7 +70,7 @@ async function generateGeminiRoast(context, queryText, persona) {
 
   try {
     const genAI = new GoogleGenerativeAI(apiKey);
-    const model = genAI.getGenerativeModel({ model: 'gemini-2.0-flash' });
+    const model = genAI.getGenerativeModel({ model: 'gemini-2.0-flash-lite' });
 
     let personaInstructions = '';
     if (persona === 'aggressive') {
@@ -96,8 +96,34 @@ ${queryText}
     const response = await result.response;
     return response.text();
   } catch (error) {
-    console.error('Gemini API Error:', error);
-    return `[Gemini API Error: ${error.message}]. Still, spending money on this was a bad idea.`;
+    const is429 = error.message && (
+      error.message.includes('429') ||
+      error.message.includes('Too Many Requests') ||
+      error.message.includes('quota')
+    );
+    if (is429) {
+      const fallbacks = {
+        aggressive: [
+          "Even my API quota gave up on you. Your finances are so tragic they broke the server.",
+          "Rate-limited. You've somehow managed to exhaust both your wallet AND my patience.",
+          "The AI is on a break — even algorithms need therapy after seeing your spending."
+        ],
+        sarcastic: [
+          "The irony — you spent so much, you crashed the very system judging you. Impressive.",
+          "My quota's gone. Much like your savings will be if you keep this up.",
+          "Even the cloud has limits. Unlike, apparently, your appetite for financial self-destruction."
+        ],
+        supportive: [
+          "I'm taking a breather. You should too — from spending.",
+          "Temporarily offline, but I believe in your ability to make slightly less terrible choices.",
+          "Even coaches need a minute. Use this one to reconsider your life choices."
+        ]
+      };
+      const pool = fallbacks[persona] || fallbacks.aggressive;
+      return pool[Math.floor(Math.random() * pool.length)];
+    }
+    console.error('Gemini API Error:', error.status || '', error.message?.slice(0, 120));
+    return null;
   }
 }
 
