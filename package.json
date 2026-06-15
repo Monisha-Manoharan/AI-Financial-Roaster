@@ -1,0 +1,15 @@
+{
+  "name": "ai-financial-roaster",
+  "version": "1.0.0",
+  "description": "An aggressive, personality-driven AI financial accountability application.",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "@google/generative-ai": "^0.21.0",
+    "dotenv": "^16.4.5",
+    "express": "^4.21.1",
+    "pg": "^8.13.1"
+  }
+}

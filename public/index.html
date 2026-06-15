@@ -1,0 +1,1218 @@
+<!DOCTYPE html>
+<html class="dark" lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>The AI Financial Roaster - Accountability Console</title>
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com" rel="preconnect" />
+    <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect" />
+    <link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;700;800&family=Inter:wght@400;600&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet" />
+    <!-- Material Symbols -->
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet" />
+    
+    <style>
+        .material-symbols-outlined {
+            font-family: 'Material Symbols Outlined';
+            font-weight: normal;
+            font-style: normal;
+            font-size: 24px;
+            line-height: 1;
+            letter-spacing: normal;
+            text-transform: none;
+            display: inline-block;
+            white-space: nowrap;
+            word-wrap: normal;
+            direction: ltr;
+            -webkit-font-feature-settings: 'liga';
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* Custom Scrollbars */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #0e0e0e;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #434933; /* outline-variant */
+            border-radius: 0px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #8d9479; /* outline */
+        }
+
+        /* Glitch and Scanlines */
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.02);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+        .glass-panel-active {
+            border: 1px solid #baf600;
+            box-shadow: 0 0 15px rgba(186, 246, 0, 0.15);
+        }
+        
+        .glitch-hover:hover {
+            transform: translate(2px, -2px);
+            box-shadow: -2px 2px 0px 0px #baf600;
+            transition: all 0.1s ease;
+        }
+        .glitch-hover-danger:hover {
+            transform: translate(-2px, 2px);
+            box-shadow: 2px -2px 0px 0px #ffb4ab;
+            transition: all 0.1s ease;
+        }
+
+        /* Ticker Animation */
+        .ticker-wrap {
+            width: 100%;
+            overflow: hidden;
+            background-color: rgba(19, 19, 19, 0.95);
+            border-top: 1px solid rgba(67, 73, 51, 0.3);
+            border-bottom: 1px solid rgba(67, 73, 51, 0.3);
+            white-space: nowrap;
+            box-sizing: border-box;
+        }
+        .ticker {
+            display: inline-block;
+            white-space: nowrap;
+            padding-right: 100%;
+            animation: ticker 30s linear infinite;
+        }
+        @keyframes ticker {
+            0% { transform: translate3d(0, 0, 0); }
+            100% { transform: translate3d(-100%, 0, 0); }
+        }
+
+        /* Blinking Terminal Cursor */
+        .terminal-cursor {
+            display: inline-block;
+            width: 8px;
+            height: 15px;
+            background-color: #baf600;
+            animation: blink 1s step-end infinite;
+            vertical-align: middle;
+            margin-left: 4px;
+        }
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0; }
+        }
+
+        /* Scanline Filter effect */
+        .crt-effect::after {
+            content: " ";
+            display: block;
+            position: fixed;
+            top: 0; left: 0; bottom: 0; right: 0;
+            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06));
+            z-index: 99999;
+            background-size: 100% 4px, 6px 100%;
+            pointer-events: none;
+            opacity: 0.15;
+        }
+
+        .scan-line {
+            height: 2px;
+            background: #baf600;
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+        input:focus + .scan-line, select:focus + .scan-line {
+            width: 100%;
+        }
+
+        /* Blocky Switch */
+        .cyber-toggle-input:checked + .cyber-toggle-bg {
+            background-color: #baf600;
+        }
+        .cyber-toggle-input:checked + .cyber-toggle-bg .cyber-toggle-knob {
+            transform: translateX(100%);
+            background-color: #131313;
+        }
+    </style>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        outline: "#8d9479",
+                        "outline-variant": "#434933",
+                        "on-background": "#e5e2e1",
+                        "surface-bright": "#393939",
+                        "surface-dim": "#131313",
+                        "on-surface-variant": "#c3caac",
+                        "on-surface": "#e5e2e1",
+                        "surface-tint": "#a3d800",
+                        "surface-container": "#201f1f",
+                        "surface-container-high": "#2a2a2a",
+                        "surface-variant": "#353534",
+                        error: "#ffb4ab",
+                        "error-container": "#93000a",
+                        "on-error-container": "#ffdad6",
+                        "on-error": "#690005",
+                        primary: "#ffffff",
+                        secondary: "#e9b3ff",
+                        "secondary-container": "#7d01b1",
+                        "primary-container": "#baf600",
+                        background: "#131313",
+                        "surface-container-highest": "#353534",
+                        "primary-fixed": "#baf600",
+                        "on-primary-fixed": "#151f00",
+                        "surface-container-lowest": "#0e0e0e",
+                        surface: "#131313"
+                    },
+                    borderRadius: {
+                        DEFAULT: "0px",
+                        lg: "0px",
+                        xl: "0px",
+                        full: "9999px",
+                        none: "0px"
+                    },
+                    spacing: {
+                        "margin-desktop": "64px",
+                        "container-max": "1200px",
+                        "margin-mobile": "20px",
+                        unit: "4px",
+                        gutter: "16px"
+                    },
+                    fontFamily: {
+                        "headline-lg": ["Geist"],
+                        "headline-lg-mobile": ["Geist"],
+                        "body-md": ["Inter"],
+                        "headline-md": ["Geist"],
+                        "roast-content": ["JetBrains Mono"],
+                        "data-label": ["JetBrains Mono"]
+                    },
+                    fontSize: {
+                        "headline-lg": ["48px", { lineHeight: "1.1", letterSpacing: "-0.04em", fontWeight: "800" }],
+                        "headline-lg-mobile": ["32px", { lineHeight: "1.1", letterSpacing: "-0.04em", fontWeight: "800" }],
+                        "body-md": ["16px", { lineHeight: "1.6", letterSpacing: "0em", fontWeight: "400" }],
+                        "headline-md": ["24px", { lineHeight: "1.2", letterSpacing: "-0.02em", fontWeight: "700" }],
+                        "roast-content": ["15px", { lineHeight: "1.5", letterSpacing: "-0.01em", fontWeight: "400" }],
+                        "data-label": ["12px", { lineHeight: "1", letterSpacing: "0.05em", fontWeight: "600" }]
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-background text-on-background font-body-md overflow-x-hidden selection:bg-primary-fixed selection:text-background crt-effect min-h-screen flex flex-col md:flex-row">
+
+    <!-- Subtle Dot Grid Background -->
+    <div class="fixed inset-0 pointer-events-none z-0" style="background-image: radial-gradient(circle at 1px 1px, rgba(255,255,255,0.03) 1px, transparent 0); background-size: 24px 24px;"></div>
+
+    <!-- Desktop SideNavBar -->
+    <aside class="bg-surface-container-lowest h-screen w-64 hidden md:flex flex-col border-r border-outline-variant/30 py-8 z-40 flex-shrink-0 fixed left-0 top-0">
+        <!-- Brand Info -->
+        <div class="px-6 mb-12">
+            <h1 class="font-headline-md text-headline-md text-primary-fixed mb-2 tracking-tighter uppercase font-black">THE_AI_ROASTER</h1>
+            <div class="flex items-center gap-2">
+                <span id="nav-db-indicator" class="w-2 h-2 rounded-full bg-primary-fixed animate-pulse"></span>
+                <span id="nav-status-label" class="text-data-label text-primary-fixed uppercase tracking-widest font-body-md">STATUS: ACTIVE</span>
+            </div>
+        </div>
+        
+        <!-- Navigation Links -->
+        <nav class="flex-col flex-1 space-y-1">
+            <button onclick="switchTab('landing')" id="side-tab-landing" class="w-full flex items-center gap-4 text-on-surface-variant px-6 py-4 font-data-label text-data-label uppercase tracking-widest border-l-4 border-transparent hover:bg-surface-variant/20 hover:text-primary transition-all text-left font-body-md">
+                <span class="material-symbols-outlined text-[20px]">home</span>
+                LANDING
+            </button>
+            <button onclick="switchTab('entry')" id="side-tab-entry" class="w-full flex items-center gap-4 text-on-surface-variant px-6 py-4 font-data-label text-data-label uppercase tracking-widest border-l-4 border-transparent hover:bg-surface-variant/20 hover:text-primary transition-all text-left font-body-md">
+                <span class="material-symbols-outlined text-[20px]">terminal</span>
+                ENTRY PROTOCOL
+            </button>
+            <button onclick="switchTab('dashboard')" id="side-tab-dashboard" class="w-full flex items-center gap-4 text-on-surface-variant px-6 py-4 font-data-label text-data-label uppercase tracking-widest border-l-4 border-transparent hover:bg-surface-variant/20 hover:text-primary transition-all text-left font-body-md">
+                <span class="material-symbols-outlined text-[20px]">grid_view</span>
+                DASHBOARD
+            </button>
+            <button onclick="switchTab('logs')" id="side-tab-logs" class="w-full flex items-center gap-4 text-on-surface-variant px-6 py-4 font-data-label text-data-label uppercase tracking-widest border-l-4 border-transparent hover:bg-surface-variant/20 hover:text-primary transition-all text-left font-body-md">
+                <span class="material-symbols-outlined text-[20px]">receipt_long</span>
+                EXPENSES & LOGS
+            </button>
+            <button onclick="switchTab('settings')" id="side-tab-settings" class="w-full flex items-center gap-4 text-on-surface-variant px-6 py-4 font-data-label text-data-label uppercase tracking-widest border-l-4 border-transparent hover:bg-surface-variant/20 hover:text-primary transition-all text-left font-body-md">
+                <span class="material-symbols-outlined text-[20px]">tune</span>
+                PERSONA SETTINGS
+            </button>
+        </nav>
+
+        <!-- Footer -->
+        <div class="px-6 mt-auto space-y-4">
+            <div class="font-data-label text-[10px] text-outline-variant/60 leading-normal uppercase">
+                Database: Supabase Cloud<br/>
+                API Model: Gemini 1.5 Flash
+            </div>
+        </div>
+    </aside>
+
+    <!-- Mobile Header -->
+    <header class="bg-background fixed top-0 w-full z-50 flex justify-between items-center px-margin-mobile h-16 border-b border-outline-variant/30 md:hidden">
+        <div class="font-roast-content text-headline-md font-bold text-primary-fixed uppercase tracking-tighter">
+            THE_AI_ROASTER
+        </div>
+        <div class="flex items-center gap-2">
+            <span class="w-2 h-2 rounded-full bg-primary-fixed animate-pulse"></span>
+            <span class="text-data-label text-[10px] text-primary-fixed uppercase tracking-widest">LIVE</span>
+        </div>
+    </header>
+
+    <!-- Main Canvas Wrapper -->
+    <div class="flex-grow flex flex-col md:pl-64 pt-16 md:pt-0 min-h-screen">
+        <main class="flex-grow p-margin-mobile md:p-margin-desktop relative z-10 pb-24 md:pb-12">
+            <div class="max-w-container-max mx-auto w-full">
+
+                <!-- 1. LANDING PAGE TAB -->
+                <div id="tab-landing" class="tab-content space-y-12 py-6">
+                    <section class="flex flex-col md:flex-row items-center gap-12 mt-4 md:mt-12">
+                        <!-- Left: Core Value Proposition -->
+                        <div class="w-full md:w-1/2 flex flex-col items-start gap-6">
+                            <div class="inline-flex items-center gap-2 px-3 py-1 glass-panel border border-outline-variant/50">
+                                <span class="w-2 h-2 rounded-full bg-primary-fixed animate-pulse"></span>
+                                <span class="font-data-label text-data-label text-on-surface-variant uppercase">Aggressive accountability v1.0</span>
+                            </div>
+                            <h1 class="font-headline-lg-mobile md:font-headline-lg text-headline-lg-mobile md:text-headline-lg text-primary">
+                                Stop spending like a billionaire on an <span class="text-primary-fixed opacity-90 drop-shadow-[0_0_10px_rgba(186,246,0,0.3)] font-black">intern budget.</span>
+                            </h1>
+                            <p class="font-body-md text-body-md text-on-surface-variant max-w-md">
+                                A personality-driven expense analyzer that replaces quiet charts with active, sarcastic AI degradation. Endure a ruthless, real-time audit of your financial failures.
+                            </p>
+                            <div class="mt-4 flex flex-col sm:flex-row gap-4 w-full sm:w-auto">
+                                <button onclick="switchTab('entry')" class="bg-primary-fixed text-on-primary-fixed font-data-label text-data-label uppercase px-8 py-4 font-bold glitch-hover transition-all duration-200 flex items-center justify-center gap-2 border border-primary-fixed">
+                                    <span class="material-symbols-outlined text-[18px]">bolt</span>
+                                    LOG & SHAME ME
+                                </button>
+                                <button onclick="switchTab('dashboard')" class="glass-panel text-on-surface font-data-label text-data-label uppercase px-8 py-4 font-bold hover:bg-surface-container-highest transition-colors duration-200 border border-outline-variant/50">
+                                    VIEW DASHBOARD
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Right: Terminal Layout Demo -->
+                        <div class="w-full md:w-1/2 relative">
+                            <div class="absolute -inset-4 bg-primary-fixed/5 blur-2xl z-0 pointer-events-none"></div>
+                            <div class="glass-panel-active overflow-hidden flex flex-col z-10 relative h-[380px]">
+                                <!-- Header -->
+                                <div class="bg-surface-container border-b border-primary-fixed/30 px-4 py-2 flex items-center justify-between">
+                                    <div class="flex items-center gap-1">
+                                        <span class="w-2.5 h-2.5 rounded-full bg-error"></span>
+                                        <span class="w-2.5 h-2.5 rounded-full bg-surface-variant"></span>
+                                        <span class="w-2.5 h-2.5 rounded-full bg-surface-variant"></span>
+                                    </div>
+                                    <span class="font-data-label text-[10px] text-primary-fixed opacity-70 tracking-widest">[AI_ROASTER_INITIATED]</span>
+                                </div>
+                                <!-- Body -->
+                                <div class="flex-grow p-6 bg-surface-container-lowest overflow-y-auto font-roast-content text-roast-content text-on-surface leading-relaxed text-sm">
+                                    <div class="opacity-40 text-xs mb-3">
+                                        &gt; CONNECTING TO SUPABASE CLOUD... [OK]<br/>
+                                        &gt; SCANNING EXPENSES LIST... [WARNING: BUDGET OUTRUN]<br/>
+                                        &gt; PERSONALITY ACTIVE: AGGRESSIVE<br/>
+                                    </div>
+                                    <div class="text-on-surface">
+                                        <span class="text-error font-bold">&gt; AUDIT REPORT: </span>
+                                        I see you logged a purchase of ₹1,500 for "Artisanal Toast" yesterday. Is this part of a complex strategy to achieve bankruptcy before age 30, or do you just lack basic impulse control? My predictive models suggest you will be subsisting on actual dirt by Q3.
+                                    </div>
+                                    <span class="terminal-cursor"></span>
+                                </div>
+                                <!-- Footer -->
+                                <div class="bg-surface-container border-t border-outline-variant/30 px-4 py-2 flex items-center justify-between font-data-label text-[10px] text-on-surface-variant">
+                                    <span>SYS_STATUS: READY</span>
+                                    <span class="text-error animate-pulse">SEVERITY: DEVASTATING</span>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+                </div>
+
+                <!-- 2. ENTRY PROTOCOL TAB -->
+                <div id="tab-entry" class="tab-content hidden space-y-8 py-6">
+                    <div class="flex items-center gap-2 mb-2">
+                        <span class="w-2 h-2 bg-primary-fixed animate-pulse"></span>
+                        <h2 class="font-data-label text-data-label tracking-[0.2em] text-primary-fixed uppercase">NODE_04: ENTRY_INTERFACE</h2>
+                    </div>
+                    
+                    <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-stretch">
+                        <!-- Left: Manual Entry Form -->
+                        <div class="lg:col-span-5 glass-panel border border-outline-variant p-6 flex flex-col justify-between">
+                            <form id="manual-expense-form" onsubmit="handleManualSubmit(event)" class="space-y-6">
+                                <div class="flex gap-1 mb-4 bg-surface-container-low p-1 w-fit border border-outline-variant">
+                                    <span class="px-4 py-1.5 font-data-label text-[11px] bg-primary-fixed text-black font-bold uppercase">Manual Expense Logger</span>
+                                </div>
+                                
+                                <div class="relative">
+                                    <label class="font-data-label text-data-label text-on-surface-variant block mb-2 uppercase">Item / Description</label>
+                                    <input required id="exp-desc" class="w-full bg-transparent border-0 border-b border-outline-variant p-2 font-body-md text-on-surface placeholder:text-on-surface-variant/30 focus:ring-0 outline-none transition-all" placeholder="e.g., Fancy Coffee at Cafe" type="text" />
+                                    <div class="scan-line"></div>
+                                </div>
+
+                                <div class="relative">
+                                    <label class="font-data-label text-data-label text-on-surface-variant block mb-2 uppercase">Amount (₹)</label>
+                                    <input required id="exp-amount" min="1" step="0.01" class="w-full bg-transparent border-0 border-b border-outline-variant p-2 font-data-label text-headline-md text-primary-fixed placeholder:text-primary-fixed/20 focus:ring-0 outline-none transition-all" placeholder="0.00" type="number" />
+                                    <div class="scan-line"></div>
+                                </div>
+
+                                <div class="relative">
+                                    <label class="font-data-label text-data-label text-on-surface-variant block mb-2 uppercase">Category</label>
+                                    <select id="exp-category" class="w-full bg-transparent border-0 border-b border-outline-variant p-2 font-body-md text-on-surface appearance-none focus:ring-0 outline-none transition-all pr-8">
+                                        <option value="Food & Dining">FOOD & DINING</option>
+                                        <option value="Coffee & Drinks">COFFEE & DRINKS</option>
+                                        <option value="Shopping & Luxury">SHOPPING & LUXURY</option>
+                                        <option value="Fixed Utilities">FIXED UTILITIES</option>
+                                        <option value="Logistics & Travel">LOGISTICS & TRAVEL</option>
+                                        <option value="Other">OTHER / MISC</option>
+                                    </select>
+                                    <div class="scan-line"></div>
+                                    <span class="material-symbols-outlined absolute right-2 bottom-2 text-on-surface-variant pointer-events-none">arrow_drop_down</span>
+                                </div>
+
+                                <button type="submit" class="w-full bg-primary-fixed text-black font-data-label text-data-label py-4 font-bold glitch-hover transition-colors uppercase">
+                                    [ LOG FINANCIAL MISTAKE ]
+                                </button>
+                            </form>
+                        </div>
+
+                        <!-- Right: Chatbot Terminal -->
+                        <div class="lg:col-span-7 border border-outline-variant bg-surface-container-lowest flex flex-col h-[480px]">
+                            <!-- Terminal Header -->
+                            <div class="bg-surface-container-low border-b border-outline-variant px-4 py-2 flex justify-between items-center">
+                                <div class="flex items-center gap-2">
+                                    <span class="material-symbols-outlined text-primary-fixed scale-75">smart_toy</span>
+                                    <span class="font-data-label text-data-label text-on-surface-variant uppercase tracking-wider">SYSTEM_ASSISTANT_V1.5</span>
+                                </div>
+                                <div class="flex gap-1.5">
+                                    <div class="w-2.5 h-2.5 rounded-full bg-error"></div>
+                                    <div class="w-2.5 h-2.5 rounded-full bg-primary-fixed/30"></div>
+                                </div>
+                            </div>
+                            <!-- Chat Transcript -->
+                            <div class="flex-grow overflow-y-auto p-6 font-roast-content text-roast-content space-y-4" id="chat-transcript">
+                                <div class="flex gap-4">
+                                    <span class="text-primary-fixed flex-shrink-0">[SYS_LOG]:</span>
+                                    <div class="text-on-surface leading-relaxed">
+                                        Ask me anything about your budget, query categories (e.g. "Roast my coffee spending"), or write manual entries (e.g. "spent 250 on coffee") to auto-parse them.
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- Input -->
+                            <div class="p-4 bg-surface-container-lowest border-t border-outline-variant flex items-center gap-3">
+                                <span class="text-primary-fixed font-data-label animate-pulse">&gt;</span>
+                                <input id="chat-input" class="flex-grow bg-transparent border-none focus:ring-0 text-roast-content placeholder:text-on-surface-variant/30 outline-none" placeholder="Type your query or manual text entry here..." type="text" onkeydown="handleChatSubmit(event)" />
+                                <span onclick="sendChatMessage()" class="material-symbols-outlined text-primary-fixed cursor-pointer hover:scale-110 transition-transform">send</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 3. USER DASHBOARD TAB -->
+                <div id="tab-dashboard" class="tab-content hidden space-y-8 py-6">
+                    <div class="flex items-center gap-2 mb-2">
+                        <span class="w-2.5 h-2.5 bg-primary-fixed animate-pulse"></span>
+                        <h2 class="font-data-label text-data-label tracking-[0.2em] text-primary-fixed uppercase">FINANCIAL_DEGRADATION_MONITOR</h2>
+                    </div>
+
+                    <!-- Bento Grid -->
+                    <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+                        <!-- Main AI Critique Card (Span 8) -->
+                        <div class="lg:col-span-8 border border-outline-variant bg-surface-container/30 backdrop-blur-xl relative flex flex-col group min-h-[350px]">
+                            <div class="absolute top-0 left-0 w-full h-[1px] bg-primary-fixed/50"></div>
+                            
+                            <!-- Header -->
+                            <div class="px-6 py-4 border-b border-outline-variant/50 flex justify-between items-center bg-surface-container-highest/50">
+                                <span class="text-data-label text-primary-fixed uppercase flex items-center gap-2 font-body-md">
+                                    <span class="material-symbols-outlined text-[16px] animate-spin" style="animation-duration: 8s;">terminal</span>
+                                    AI_CRITIQUE_CONSOLE
+                                </span>
+                                <span class="text-data-label text-on-surface-variant border border-outline-variant px-2 py-0.5 bg-surface-dim font-body-md">LIVE_FEED</span>
+                            </div>
+
+                            <!-- Body -->
+                            <div class="p-6 md:p-8 flex-1 flex flex-col md:flex-row gap-6 items-start">
+                                <div class="w-28 h-28 shrink-0 border border-primary-fixed bg-surface p-1 relative">
+                                    <div class="absolute -inset-1 border border-primary-fixed/20 animate-pulse"></div>
+                                    <img alt="AI Avatar" class="w-full h-full object-cover filter grayscale contrast-125 sepia-[.1] hue-rotate-[60deg]" src="https://lh3.googleusercontent.com/aida-public/AB6AXuC6q_BNU_JMnDYfaEZ9J1ROnXqF5JPdUiqy7rP5QyWtHeEFGEQpRtdWlB4k3QOMgmkxwTH022ajfBXRfnANdK3KhnqjyE5e7gK99iaFN-6mlnaw2hQDh_XZ05VTYU_t-z9kl2VvqvivV6DuAXE_tdhZWftiiwImvNMBruSYEhXHaHYxatrlHo_grwkFUg1nY7FtmCjfETzKG_Tj8r7EDXR9KNlhyEZPp2Myg0oZ5wBgzy6VA8Qv1ehmHnBYRwDKZFDtrGvaXKEGjEo" />
+                                </div>
+                                <div class="flex-1 space-y-4 text-roast-content text-on-surface h-full">
+                                    <p class="text-primary-fixed">&gt; executing_lifestyle_audit...</p>
+                                    <div id="dashboard-critique" class="leading-relaxed opacity-95 text-sm">
+                                        Loading AI Critique... Just wait for your financial doom.
+                                    </div>
+                                    <div class="flex items-center gap-2 mt-4 text-primary-fixed border border-primary-fixed/30 p-2.5 bg-primary-fixed/5 inline-flex">
+                                        <span class="material-symbols-outlined text-[18px]">psychology</span>
+                                        <span id="active-persona-badge" class="text-data-label uppercase font-body-md">ENGINE: AGGRESSIVE</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Metrics Column (Span 4) -->
+                        <div class="lg:col-span-4 flex flex-col gap-6">
+                            <!-- Total Burn -->
+                            <div class="border border-error/50 bg-error-container/10 p-6 flex flex-col justify-between relative overflow-hidden group hover:border-error transition-all duration-200">
+                                <div class="absolute right-2 top-2 opacity-15">
+                                    <span class="material-symbols-outlined text-[56px] text-error">local_fire_department</span>
+                                </div>
+                                <span class="text-data-label text-error uppercase mb-2 font-body-md">30-Day Total Burn</span>
+                                <h2 id="burn-amount" class="font-headline-lg-mobile md:font-headline-lg text-headline-lg-mobile md:text-headline-lg text-primary tracking-tighter mb-4">₹0.00</h2>
+                                <div class="space-y-2 mt-auto">
+                                    <div class="flex justify-between text-data-label text-on-surface-variant font-body-md">
+                                        <span>Allocated Budget</span>
+                                        <span id="burn-overrun-pct" class="text-error">0% Run</span>
+                                    </div>
+                                    <div class="flex gap-1 h-3" id="burn-segmented-bar">
+                                        <div class="flex-1 bg-surface-bright"></div>
+                                        <div class="flex-1 bg-surface-bright"></div>
+                                        <div class="flex-1 bg-surface-bright"></div>
+                                        <div class="flex-1 bg-surface-bright"></div>
+                                        <div class="flex-1 bg-surface-bright"></div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Runway -->
+                            <div class="border border-outline-variant bg-surface-container/30 p-6 flex flex-col justify-between relative overflow-hidden">
+                                <div class="absolute right-2 top-2 opacity-15">
+                                    <span class="material-symbols-outlined text-[56px] text-primary-fixed">hourglass_bottom</span>
+                                </div>
+                                <span class="text-data-label text-on-surface-variant uppercase mb-2 font-body-md">Estimated Runway</span>
+                                <h2 id="runway-days" class="font-headline-lg-mobile md:font-headline-lg text-headline-lg-mobile md:text-headline-lg text-primary-fixed tracking-tighter mb-4">0 <span class="text-headline-md text-on-surface-variant">DAYS</span></h2>
+                                <div class="space-y-2 mt-auto">
+                                    <div class="flex justify-between text-data-label text-on-surface-variant font-body-md">
+                                        <span>Status</span>
+                                        <span id="runway-status-label" class="text-primary-fixed">Calculating</span>
+                                    </div>
+                                    <div class="flex gap-1 h-3" id="runway-segmented-bar">
+                                        <div class="flex-1 bg-surface-bright"></div>
+                                        <div class="flex-1 bg-surface-bright"></div>
+                                        <div class="flex-1 bg-surface-bright"></div>
+                                        <div class="flex-1 bg-surface-bright"></div>
+                                        <div class="flex-1 bg-surface-bright"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Recent Offenses List -->
+                        <div class="lg:col-span-12 border border-outline-variant bg-surface-container/30">
+                            <div class="px-6 py-4 border-b border-outline-variant/50 flex justify-between items-center bg-surface-container-highest/20">
+                                <span class="text-data-label text-on-surface-variant uppercase font-body-md">Recent Logged Mistake Buffers</span>
+                                <button onclick="switchTab('logs')" class="text-data-label text-primary-fixed hover:text-primary transition-colors underline decoration-primary-fixed/50 underline-offset-4 font-body-md">VIEW_FULL_LOGS</button>
+                            </div>
+                            <div class="flex flex-col divide-y divide-outline-variant/20" id="dashboard-recent-list">
+                                <p class="p-6 text-center text-on-surface-variant text-sm">No expenses logged yet. Start wasting money to see entries here.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 4. EXPENSES AND LOGS TAB -->
+                <div id="tab-logs" class="tab-content hidden space-y-8 py-6">
+                    <div class="flex flex-col md:flex-row md:items-end justify-between gap-4 border-b border-outline-variant/30 pb-6">
+                        <div>
+                            <p class="font-headline-md text-[12px] text-outline uppercase tracking-widest mb-2">// LOG_INSPECTION_WORKSPACE</p>
+                            <h1 class="font-headline-lg-mobile md:font-headline-lg text-headline-lg-mobile md:text-headline-lg text-on-surface">EXPENSES_&amp;_LOGS</h1>
+                        </div>
+                        <!-- Filters -->
+                        <div class="flex gap-4 items-center">
+                            <input type="text" id="log-search" oninput="applyFilters()" placeholder="Search description..." class="bg-surface border border-outline-variant text-on-surface px-4 py-2 text-sm focus:ring-0 outline-none border-b-2 focus:border-primary-fixed transition-colors" />
+                            <select id="log-filter-category" onchange="applyFilters()" class="bg-surface border border-outline-variant text-on-surface px-4 py-2 text-sm focus:ring-0 outline-none">
+                                <option value="ALL">ALL CATEGORIES</option>
+                                <option value="Food & Dining">FOOD & DINING</option>
+                                <option value="Coffee & Drinks">COFFEE & DRINKS</option>
+                                <option value="Shopping & Luxury">SHOPPING & LUXURY</option>
+                                <option value="Fixed Utilities">FIXED UTILITIES</option>
+                                <option value="Logistics & Travel">LOGISTICS & TRAVEL</option>
+                                <option value="Other">OTHER / MISC</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Table -->
+                    <div class="border border-outline-variant bg-surface-container-lowest/80 overflow-x-auto">
+                        <table class="w-full text-left border-collapse">
+                            <thead>
+                                <tr class="bg-surface-container border-b border-outline-variant text-data-label text-[11px] text-on-surface-variant uppercase">
+                                    <th class="p-4">Timestamp</th>
+                                    <th class="p-4">Category</th>
+                                    <th class="p-4">Description</th>
+                                    <th class="p-4 text-right">Amount</th>
+                                    <th class="p-4 text-center">Action</th>
+                                </tr>
+                            </thead>
+                            <tbody id="logs-table-body" class="font-roast-content text-sm divide-y divide-outline-variant/20">
+                                <tr>
+                                    <td colspan="5" class="p-8 text-center text-on-surface-variant">Loading transaction logs from Supabase Cloud...</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- 5. PERSONA SETTINGS TAB -->
+                <div id="tab-settings" class="tab-content hidden space-y-8 py-6">
+                    <div class="mb-10 border-b border-outline-variant/30 pb-6 flex items-end justify-between">
+                        <div>
+                            <p class="font-headline-md text-[12px] text-outline uppercase tracking-widest mb-2">// SECURITY_AND_AI_PERSONA_PARAMETERS</p>
+                            <h1 class="font-headline-lg-mobile md:font-headline-lg text-headline-lg-mobile md:text-headline-lg text-on-surface">SYSTEM_CONFIG</h1>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+                        <!-- Left: Persona Settings -->
+                        <div class="lg:col-span-8 flex flex-col gap-8">
+                            <!-- Persona Override -->
+                            <section class="glass-panel border border-outline-variant/30 p-6 flex flex-col gap-6 relative overflow-hidden group">
+                                <header class="flex items-center gap-3">
+                                    <span class="material-symbols-outlined text-primary-fixed">psychology_alt</span>
+                                    <h3 class="font-headline-md text-[15px] text-primary-fixed uppercase font-semibold tracking-wider">[CORE_PERSONA_OVERRIDE]</h3>
+                                </header>
+                                <p class="font-body-md text-sm text-on-surface-variant">
+                                    Select the operational attitude of the financial critique engine. Warning: Adjusting down from 'Aggressive' may result in coddling and continued financial ruin.
+                                </p>
+                                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mt-2" id="persona-selector">
+                                    <!-- Aggressive -->
+                                    <label class="relative flex flex-col p-4 border border-primary-fixed bg-primary-fixed/5 cursor-pointer hover:bg-primary-fixed/10 transition-colors">
+                                        <input class="sr-only" name="persona-type" type="radio" value="aggressive" onchange="updatePersonaSetting('aggressive')" checked />
+                                        <div class="flex justify-between items-start mb-2">
+                                            <span class="font-data-label text-data-label text-primary-fixed uppercase tracking-widest">Aggressive</span>
+                                            <span class="material-symbols-outlined text-[18px] text-primary-fixed" style="font-variation-settings: 'FILL' 1;">radio_button_checked</span>
+                                        </div>
+                                        <p class="text-xs text-on-surface-variant font-body-md">Ruthless critique. Zero empathy. High efficacy.</p>
+                                    </label>
+                                    <!-- Sarcastic -->
+                                    <label class="relative flex flex-col p-4 border border-outline-variant/30 bg-surface/50 cursor-pointer hover:border-outline transition-colors">
+                                        <input class="sr-only" name="persona-type" type="radio" value="sarcastic" onchange="updatePersonaSetting('sarcastic')" />
+                                        <div class="flex justify-between items-start mb-2">
+                                            <span class="font-data-label text-data-label text-on-surface uppercase tracking-widest">Sarcastic</span>
+                                            <span class="material-symbols-outlined text-[18px] text-outline-variant">radio_button_unchecked</span>
+                                        </div>
+                                        <p class="text-xs text-on-surface-variant font-body-md">Passive-aggressive mockery of your transactions.</p>
+                                    </label>
+                                    <!-- Supportive-ish -->
+                                    <label class="relative flex flex-col p-4 border border-outline-variant/30 bg-surface/50 cursor-pointer hover:border-outline transition-colors">
+                                        <input class="sr-only" name="persona-type" type="radio" value="supportive" onchange="updatePersonaSetting('supportive')" />
+                                        <div class="flex justify-between items-start mb-2">
+                                            <span class="font-data-label text-data-label text-on-surface uppercase tracking-widest">Supportive-ish</span>
+                                            <span class="material-symbols-outlined text-[18px] text-outline-variant">radio_button_unchecked</span>
+                                        </div>
+                                        <p class="text-xs text-on-surface-variant font-body-md">Mildly condescending encouragement.</p>
+                                    </label>
+                                </div>
+                            </section>
+
+                            <!-- API Key Config -->
+                            <section class="glass-panel border border-outline-variant/30 p-6 flex flex-col gap-6">
+                                <header class="flex items-center gap-3">
+                                    <span class="material-symbols-outlined text-outline">key</span>
+                                    <h3 class="font-headline-md text-[15px] text-outline uppercase font-semibold tracking-wider">[API_KEY_CONFIGURATION]</h3>
+                                </header>
+                                <div class="space-y-4">
+                                    <div>
+                                        <label class="block font-data-label text-data-label text-outline mb-2">GEMINI API KEY</label>
+                                        <div class="relative flex gap-4">
+                                            <input type="password" id="input-api-key" placeholder="Enter your gemini API Key..." class="flex-grow bg-transparent border-0 border-b border-outline-variant/50 text-on-surface text-roast-content p-2 focus:ring-0 outline-none" />
+                                            <button onclick="saveApiKey()" class="bg-primary-fixed text-black px-6 py-2 font-data-label text-data-label font-bold glitch-hover">
+                                                SAVE_KEY
+                                            </button>
+                                        </div>
+                                        <p id="api-key-status-text" class="text-xs text-on-surface-variant mt-2">Checking API key status...</p>
+                                    </div>
+                                </div>
+                            </section>
+                        </div>
+
+                        <!-- Right: Toggles & Danger Zone -->
+                        <div class="lg:col-span-4 flex flex-col gap-8">
+                            <!-- Toggle Params -->
+                            <section class="glass-panel border border-outline-variant/30 p-6 flex flex-col gap-6">
+                                <header class="flex items-center gap-3">
+                                    <span class="material-symbols-outlined text-primary-fixed">notifications_active</span>
+                                    <h3 class="font-headline-md text-[15px] text-primary-fixed uppercase font-semibold tracking-wider">[NOTIFICATION_PARAMETERS]</h3>
+                                </header>
+                                <div class="flex flex-col gap-5">
+                                    <!-- Toggle 1 -->
+                                    <div class="flex items-center justify-between">
+                                        <div class="pr-4">
+                                            <div class="font-data-label text-data-label text-on-surface uppercase">Daily Deficit Briefing</div>
+                                            <div class="text-xs text-on-surface-variant mt-1">Receive daily audit statistics logs.</div>
+                                        </div>
+                                        <label class="relative inline-block w-12 h-6 cursor-pointer flex-shrink-0">
+                                            <input id="chk-daily-brief" onchange="updateToggleSettings()" class="sr-only cyber-toggle-input" type="checkbox" checked />
+                                            <div class="cyber-toggle-bg block w-full h-full bg-surface-variant border border-outline-variant/50 transition-colors duration-200">
+                                                <div class="cyber-toggle-knob absolute left-0.5 top-0.5 w-5 h-5 bg-outline transition-transform duration-200 ease-in-out"></div>
+                                            </div>
+                                        </label>
+                                    </div>
+                                    <div class="w-full h-px bg-outline-variant/20"></div>
+                                    <!-- Toggle 2 -->
+                                    <div class="flex items-center justify-between">
+                                        <div class="pr-4">
+                                            <div class="font-data-label text-data-label text-on-surface uppercase">Real-time Shame</div>
+                                            <div class="text-xs text-on-surface-variant mt-1">Shame transaction immediately on submit.</div>
+                                        </div>
+                                        <label class="relative inline-block w-12 h-6 cursor-pointer flex-shrink-0">
+                                            <input id="chk-realtime-shame" onchange="updateToggleSettings()" class="sr-only cyber-toggle-input" type="checkbox" checked />
+                                            <div class="cyber-toggle-bg block w-full h-full bg-surface-variant border border-outline-variant/50 transition-colors duration-200">
+                                                <div class="cyber-toggle-knob absolute left-0.5 top-0.5 w-5 h-5 bg-outline transition-transform duration-200 ease-in-out"></div>
+                                            </div>
+                                        </label>
+                                    </div>
+                                </div>
+                            </section>
+
+                            <!-- Danger Zone -->
+                            <section class="border border-error/30 bg-error-container/5 p-6 flex flex-col gap-4">
+                                <header class="flex items-center gap-3">
+                                    <span class="material-symbols-outlined text-error">warning</span>
+                                    <h3 class="font-headline-md text-[15px] uppercase font-semibold tracking-wider text-error">[CRITICAL_OPERATIONS]</h3>
+                                </header>
+                                <p class="font-body-md text-xs text-on-surface-variant">
+                                    Erase all historical transaction logs in Supabase and reset your AI context. This action is irreversible.
+                                </p>
+                                <button onclick="triggerSystemReboot()" class="w-full border border-error text-error font-data-label text-data-label py-3 uppercase tracking-widest hover:bg-error hover:text-background transition-all glitch-hover-danger flex justify-center items-center gap-2 mt-2">
+                                    <span class="material-symbols-outlined text-[18px]">restart_alt</span>
+                                    SYSTEM_REBOOT
+                                </button>
+                            </section>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </main>
+    </div>
+
+    <!-- Recent Roasts Ticker (Bottom Docked) -->
+    <div class="w-full z-20 py-2.5 ticker-wrap fixed bottom-16 md:bottom-0 md:pl-64">
+        <div class="ticker font-data-label text-data-label text-on-surface-variant uppercase flex gap-12 text-[10px]">
+            <span class="flex items-center gap-2"><span class="text-error material-symbols-outlined text-[12px]">trending_down</span> User 4892 spent ₹1,500 on 'aesthetic water bottles'.</span>
+            <span class="flex items-center text-on-surface-variant/35">//</span>
+            <span class="flex items-center gap-2"><span class="text-error material-symbols-outlined text-[12px]">warning</span> User 102 just financed a 2012 Altima at 24% APR.</span>
+            <span class="flex items-center text-on-surface-variant/35">//</span>
+            <span class="flex items-center gap-2"><span class="text-primary-fixed material-symbols-outlined text-[12px]">check_circle</span> User 88 cancelled their ₹999/mo premium pet psychic subscription. Progress.</span>
+            <span class="flex items-center text-on-surface-variant/35">//</span>
+            <span class="flex items-center gap-2"><span class="text-error material-symbols-outlined text-[12px]">trending_down</span> User 9942 dropped ₹4,200 on microtransactions for a free mobile game.</span>
+        </div>
+    </div>
+
+    <!-- Mobile BottomNavBar (Active Only on Mobile) -->
+    <nav class="fixed bottom-0 w-full z-50 flex justify-around items-center h-16 px-4 bg-surface-dim/95 backdrop-blur-xl md:hidden border-t border-outline-variant/30">
+        <button onclick="switchTab('landing')" id="mob-tab-landing" class="flex flex-col items-center justify-center text-on-surface-variant flex-1 h-full gap-1">
+            <span class="material-symbols-outlined text-[20px]">home</span>
+            <span class="font-data-label text-[9px]">Home</span>
+        </button>
+        <button onclick="switchTab('entry')" id="mob-tab-entry" class="flex flex-col items-center justify-center text-on-surface-variant flex-1 h-full gap-1">
+            <span class="material-symbols-outlined text-[20px]">terminal</span>
+            <span class="font-data-label text-[9px]">Entry</span>
+        </button>
+        <button onclick="switchTab('dashboard')" id="mob-tab-dashboard" class="flex flex-col items-center justify-center text-on-surface-variant flex-1 h-full gap-1">
+            <span class="material-symbols-outlined text-[20px]">grid_view</span>
+            <span class="font-data-label text-[9px]">Dash</span>
+        </button>
+        <button onclick="switchTab('logs')" id="mob-tab-logs" class="flex flex-col items-center justify-center text-on-surface-variant flex-1 h-full gap-1">
+            <span class="material-symbols-outlined text-[20px]">receipt_long</span>
+            <span class="font-data-label text-[9px]">Logs</span>
+        </button>
+        <button onclick="switchTab('settings')" id="mob-tab-settings" class="flex flex-col items-center justify-center text-on-surface-variant flex-1 h-full gap-1">
+            <span class="material-symbols-outlined text-[20px]">tune</span>
+            <span class="font-data-label text-[9px]">Config</span>
+        </button>
+    </nav>
+
+    <!-- Core SPA Javascript Logic -->
+    <script>
+        // Global variables
+        let expensesData = [];
+        let activeTab = 'landing';
+        
+        // Dynamic Tab Switching
+        function switchTab(tabId) {
+            activeTab = tabId;
+            
+            // Hide all tabs
+            document.querySelectorAll('.tab-content').forEach(element => {
+                element.classList.add('hidden');
+            });
+            // Show selected tab
+            document.getElementById(`tab-${tabId}`).classList.remove('hidden');
+
+            // Update Desktop Side Nav highlight
+            document.querySelectorAll('nav[class*="space-y-1"] button').forEach(btn => {
+                btn.className = btn.className.replace('bg-primary-container/10 text-primary-fixed border-l-4 border-primary-fixed', 'text-on-surface-variant border-l-4 border-transparent');
+            });
+            const activeSideBtn = document.getElementById(`side-tab-${tabId}`);
+            if (activeSideBtn) {
+                activeSideBtn.className = activeSideBtn.className.replace('text-on-surface-variant border-l-4 border-transparent', 'bg-primary-container/10 text-primary-fixed border-l-4 border-primary-fixed');
+            }
+
+            // Update Mobile Navigation highlight
+            document.querySelectorAll('nav[class*="md:hidden"] button').forEach(btn => {
+                btn.className = btn.className.replace('text-primary-fixed font-bold', 'text-on-surface-variant');
+            });
+            const activeMobBtn = document.getElementById(`mob-tab-${tabId}`);
+            if (activeMobBtn) {
+                activeMobBtn.className = activeMobBtn.className.replace('text-on-surface-variant', 'text-primary-fixed font-bold');
+            }
+
+            // If entering dashboard or logs, fetch latest data
+            if (tabId === 'dashboard' || tabId === 'logs') {
+                refreshData();
+            }
+        }
+
+        // Fetch Stats and Expenses from Server
+        async function refreshData() {
+            try {
+                // Fetch stats
+                const statsResponse = await fetch('/api/stats');
+                const stats = await statsResponse.json();
+                
+                // Update stats UI elements
+                document.getElementById('burn-amount').innerText = `₹${stats.totalBurn.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+                document.getElementById('runway-days').innerHTML = `${stats.runwayDays} <span class="text-headline-md text-on-surface-variant">DAYS</span>`;
+                
+                // Set runway status
+                const runwayStatus = document.getElementById('runway-status-label');
+                if (stats.runwayDays < 15) {
+                    runwayStatus.innerText = 'IMMINENT DEBT';
+                    runwayStatus.className = 'text-error';
+                } else if (stats.runwayDays < 45) {
+                    runwayStatus.innerText = 'CONGESTED';
+                    runwayStatus.className = 'text-yellow-500';
+                } else {
+                    runwayStatus.innerText = 'STABLE';
+                    runwayStatus.className = 'text-primary-fixed';
+                }
+
+                // Update burn overrun progress bar (based on ₹50,000 monthly income budget)
+                const overrunPct = Math.min(100, Math.round((stats.totalBurn / 50000) * 100));
+                document.getElementById('burn-overrun-pct').innerText = `${overrunPct}% Run`;
+                
+                const burnBar = document.getElementById('burn-segmented-bar');
+                burnBar.innerHTML = '';
+                const segments = 5;
+                const activeSegments = Math.ceil((overrunPct / 100) * segments);
+                for (let s = 0; s < segments; s++) {
+                    const block = document.createElement('div');
+                    block.className = `flex-1 ${s < activeSegments ? 'bg-error' : 'bg-surface-bright'}`;
+                    burnBar.appendChild(block);
+                }
+
+                // Update runway segments
+                const runwayBar = document.getElementById('runway-segmented-bar');
+                runwayBar.innerHTML = '';
+                const runwayScore = Math.min(5, Math.ceil(stats.runwayDays / 15));
+                for (let s = 0; s < segments; s++) {
+                    const block = document.createElement('div');
+                    block.className = `flex-1 ${s < runwayScore ? 'bg-primary-fixed' : 'bg-surface-bright'}`;
+                    runwayBar.appendChild(block);
+                }
+
+                // Render dynamic critique
+                document.getElementById('dashboard-critique').innerText = stats.critique;
+
+                // Render Dashboard Recent List
+                const recentList = document.getElementById('dashboard-recent-list');
+                recentList.innerHTML = '';
+                if (stats.recentExpenses.length === 0) {
+                    recentList.innerHTML = '<p class="p-6 text-center text-on-surface-variant text-sm">No recent transactions. You\'ve been behaves... or haven\'t logged anything.</p>';
+                } else {
+                    stats.recentExpenses.forEach(exp => {
+                        const item = document.createElement('div');
+                        item.className = 'flex items-center justify-between p-4 hover:bg-surface-variant/20 transition-colors';
+                        
+                        const dateStr = new Date(exp.timestamp).toLocaleDateString('en-IN', { day: '2-digit', month: 'short' });
+                        
+                        item.innerHTML = `
+                            <div class="flex items-center gap-4">
+                                <div class="w-9 h-9 border border-outline-variant flex items-center justify-center bg-surface-container-low">
+                                    <span class="material-symbols-outlined text-[18px] text-primary-fixed">${getCategoryIcon(exp.category)}</span>
+                                </div>
+                                <div>
+                                    <p class="text-roast-content font-bold text-on-surface">${exp.description || exp.category}</p>
+                                    <p class="text-data-label text-[10px] text-on-surface-variant uppercase">${exp.category}</p>
+                                </div>
+                            </div>
+                            <div class="text-right">
+                                <p class="text-roast-content text-error font-bold">-₹${parseFloat(exp.amount).toFixed(2)}</p>
+                                <p class="text-data-label text-[9px] text-on-surface-variant">${dateStr}</p>
+                            </div>
+                        `;
+                        recentList.appendChild(item);
+                    });
+                }
+
+                // Fetch all expenses to update logs list
+                const expensesResponse = await fetch('/api/expenses');
+                expensesData = await expensesResponse.json();
+                renderLogsTable(expensesData);
+
+            } catch (err) {
+                console.error('Error refreshing data:', err);
+            }
+        }
+
+        // Render expenses table in logs tab
+        function renderLogsTable(data) {
+            const tableBody = document.getElementById('logs-table-body');
+            tableBody.innerHTML = '';
+            
+            if (data.length === 0) {
+                tableBody.innerHTML = `
+                    <tr>
+                        <td colspan="5" class="p-8 text-center text-on-surface-variant">No transactions stored in database. Manual logs required.</td>
+                    </tr>
+                `;
+                return;
+            }
+
+            data.forEach(exp => {
+                const tr = document.createElement('tr');
+                tr.className = 'border-b border-outline-variant/10 hover:bg-surface-variant/10 transition-colors';
+                
+                const timeStr = new Date(exp.timestamp).toLocaleString('en-IN', {
+                    day: '2-digit',
+                    month: 'short',
+                    hour: '2-digit',
+                    minute: '2-digit'
+                });
+
+                tr.innerHTML = `
+                    <td class="p-4 text-on-surface-variant whitespace-nowrap">${timeStr}</td>
+                    <td class="p-4"><span class="border border-outline-variant px-2 py-0.5 bg-surface-container font-data-label text-[10px] text-on-surface-variant uppercase">${exp.category}</span></td>
+                    <td class="p-4 text-on-surface font-semibold">${exp.description || '-'}</td>
+                    <td class="p-4 text-right text-error font-bold">-₹${parseFloat(exp.amount).toFixed(2)}</td>
+                    <td class="p-4 text-center">
+                        <button onclick="deleteExpense(${exp.id})" class="text-error-container hover:text-error transition-colors p-1" title="Delete entry">
+                            <span class="material-symbols-outlined text-[18px]">delete</span>
+                        </button>
+                    </td>
+                `;
+                tableBody.appendChild(tr);
+            });
+        }
+
+        // Filter and Search logs
+        function applyFilters() {
+            const searchVal = document.getElementById('log-search').value.toLowerCase();
+            const categoryVal = document.getElementById('log-filter-category').value;
+            
+            const filtered = expensesData.filter(exp => {
+                const matchesSearch = exp.description.toLowerCase().includes(searchVal) || exp.category.toLowerCase().includes(searchVal);
+                const matchesCategory = categoryVal === 'ALL' || exp.category === categoryVal;
+                return matchesSearch && matchesCategory;
+            });
+            renderLogsTable(filtered);
+        }
+
+        // Helper icon matcher
+        function getCategoryIcon(category) {
+            switch(category) {
+                case 'Food & Dining': return 'restaurant';
+                case 'Coffee & Drinks': return 'local_cafe';
+                case 'Shopping & Luxury': return 'shopping_bag';
+                case 'Fixed Utilities': return 'receipt';
+                case 'Logistics & Travel': return 'local_taxi';
+                default: return 'credit_card';
+            }
+        }
+
+        // Submit Manual Expense Logger
+        async function handleManualSubmit(e) {
+            e.preventDefault();
+            
+            const descInput = document.getElementById('exp-desc');
+            const amtInput = document.getElementById('exp-amount');
+            const catSelect = document.getElementById('exp-category');
+            
+            const expenseObj = {
+                description: descInput.value,
+                amount: parseFloat(amtInput.value),
+                category: catSelect.value
+            };
+
+            try {
+                const response = await fetch('/api/expenses', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(expenseObj)
+                });
+                const result = await response.json();
+                
+                if (response.ok) {
+                    // Reset fields
+                    descInput.value = '';
+                    amtInput.value = '';
+                    
+                    // Trigger terminal response output on the chat
+                    if (result.roast) {
+                        appendChatMessage('SYS_LOG', `[MANUAL_ENTRY_LOGGED] Successfully parsed item: ₹${result.expense.amount} on '${result.expense.category}' (${result.expense.description}).`);
+                        appendChatMessage('ROASTER_AI', result.roast);
+                    }
+                    
+                    alert('Expense logged successfully. The AI has noted your mistake.');
+                } else {
+                    alert(`Error logging expense: ${result.error}`);
+                }
+            } catch (err) {
+                console.error(err);
+            }
+        }
+
+        // Delete expense entry
+        async function deleteExpense(id) {
+            if (confirm('Delete this entry? The AI will still remember your fiscal failure, but it will disappear from this table.')) {
+                try {
+                    const response = await fetch(`/api/expenses/${id}`, { method: 'DELETE' });
+                    if (response.ok) {
+                        refreshData();
+                    }
+                } catch(err) {
+                    console.error(err);
+                }
+            }
+        }
+
+        // Chatbot Terminal: Submit Input
+        function handleChatSubmit(e) {
+            if (e.key === 'Enter') {
+                sendChatMessage();
+            }
+        }
+
+        async function sendChatMessage() {
+            const input = document.getElementById('chat-input');
+            const message = input.value.trim();
+            if (!message) return;
+
+            // Display user message in terminal
+            appendChatMessage('USER', message);
+            input.value = '';
+
+            try {
+                // Show thinking status
+                const thinkingDiv = appendChatMessage('SYS_LOG', 'Parsing query with NLP parser & calling Gemini...');
+
+                const response = await fetch('/api/chat', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ message })
+                });
+                const result = await response.json();
+                
+                // Remove thinking status
+                thinkingDiv.remove();
+
+                if (response.ok) {
+                    if (result.type === 'LOG_CONFIRMATION') {
+                        appendChatMessage('SYS_LOG', result.message);
+                        appendChatMessage('ROASTER_AI', result.roast);
+                        refreshData(); // Refresh metrics
+                    } else if (result.type === 'QUERY_RESPONSE') {
+                        appendChatMessage('SYS_LOG', result.message);
+                        appendChatMessage('ROASTER_AI', result.roast);
+                    } else {
+                        appendChatMessage('ROASTER_AI', result.roast);
+                    }
+                } else {
+                    appendChatMessage('SYS_LOG', `[ERROR]: Failed to connect to server backend API: ${result.error}`);
+                }
+            } catch (err) {
+                appendChatMessage('SYS_LOG', `[NETWORK ERROR]: Server connection failed.`);
+            }
+        }
+
+        // Append chat messages to transcript
+        function appendChatMessage(sender, text) {
+            const transcript = document.getElementById('chat-transcript');
+            const container = document.createElement('div');
+            container.className = 'flex gap-4 mb-4';
+
+            let prefix = '[SYS_LOG]:';
+            let prefixColor = 'text-primary-fixed';
+            let textColor = 'text-on-surface';
+
+            if (sender === 'USER') {
+                prefix = '[OPERATOR]:';
+                prefixColor = 'text-on-surface-variant';
+            } else if (sender === 'ROASTER_AI') {
+                prefix = '[ROASTER_AI]:';
+                prefixColor = 'text-primary-fixed font-bold';
+            }
+
+            container.innerHTML = `
+                <span class="${prefixColor} flex-shrink-0">${prefix}</span>
+                <div class="${textColor} leading-relaxed">${text}</div>
+            `;
+            transcript.appendChild(container);
+            
+            // Scroll to bottom
+            transcript.scrollTop = transcript.scrollHeight;
+            return container;
+        }
+
+        // Settings config actions: API key
+        async function loadConfig() {
+            try {
+                const response = await fetch('/api/config');
+                const config = await response.json();
+                
+                // Update key input status text
+                const statusText = document.getElementById('api-key-status-text');
+                const navStatus = document.getElementById('nav-status-label');
+                const dbIndicator = document.getElementById('nav-db-indicator');
+                
+                if (config.hasApiKey) {
+                    statusText.innerText = `Gemini active. Configured key: ${config.geminiApiKey}`;
+                    statusText.className = 'text-xs text-primary-fixed mt-2';
+                    navStatus.innerText = 'STATUS: AGGRESSIVE';
+                    navStatus.className = 'text-data-label text-primary-fixed uppercase tracking-widest font-body-md';
+                    dbIndicator.className = 'w-2 h-2 rounded-full bg-primary-fixed animate-pulse';
+                } else {
+                    statusText.innerText = 'No GEMINI_API_KEY configured. Mock roasts will be used.';
+                    statusText.className = 'text-xs text-error mt-2';
+                    navStatus.innerText = 'STATUS: MOCKED';
+                    navStatus.className = 'text-data-label text-error uppercase tracking-widest font-body-md';
+                    dbIndicator.className = 'w-2 h-2 rounded-full bg-error animate-pulse';
+                }
+
+                // Update settings selectors
+                const radio = document.querySelector(`input[name="persona-type"][value="${config.persona}"]`);
+                if (radio) {
+                    radio.checked = true;
+                    // Reset styling on selectors
+                    updateRadioStyles(config.persona);
+                }
+
+                // Update toggles
+                document.getElementById('chk-daily-brief').checked = config.dailyBriefing;
+                document.getElementById('chk-realtime-shame').checked = config.realtimeShame;
+                
+                // Set dashboard badge
+                document.getElementById('active-persona-badge').innerText = `ENGINE: ${config.persona.toUpperCase()}`;
+
+            } catch (err) {
+                console.error(err);
+            }
+        }
+
+        function updateRadioStyles(selectedVal) {
+            document.querySelectorAll('#persona-selector label').forEach(lbl => {
+                const radioInput = lbl.querySelector('input');
+                const titleSpan = lbl.querySelector('.font-data-label');
+                const iconSpan = lbl.querySelector('.material-symbols-outlined');
+                
+                if (radioInput.value === selectedVal) {
+                    lbl.className = 'relative flex flex-col p-4 border border-primary-fixed bg-primary-fixed/5 cursor-pointer hover:bg-primary-fixed/10 transition-colors';
+                    titleSpan.className = 'font-data-label text-data-label text-primary-fixed uppercase tracking-widest';
+                    iconSpan.className = 'material-symbols-outlined text-[18px] text-primary-fixed';
+                    iconSpan.innerText = 'radio_button_checked';
+                    
+                    // Add corner square decoration to selected
+                    let decorator = lbl.querySelector('.corner-decor');
+                    if (!decorator) {
+                        decorator = document.createElement('div');
+                        decorator.className = 'corner-decor absolute bottom-0 right-0 w-2 h-2 bg-primary-fixed';
+                        lbl.appendChild(decorator);
+                    }
+                } else {
+                    lbl.className = 'relative flex flex-col p-4 border border-outline-variant/30 bg-surface/50 cursor-pointer hover:border-outline transition-colors';
+                    titleSpan.className = 'font-data-label text-data-label text-on-surface uppercase tracking-widest';
+                    iconSpan.className = 'material-symbols-outlined text-[18px] text-outline-variant';
+                    iconSpan.innerText = 'radio_button_unchecked';
+                    const dec = lbl.querySelector('.corner-decor');
+                    if (dec) dec.remove();
+                }
+            });
+        }
+
+        async function saveApiKey() {
+            const keyInput = document.getElementById('input-api-key');
+            const geminiApiKey = keyInput.value.trim();
+            if (!geminiApiKey) {
+                alert('Please enter a valid API Key.');
+                return;
+            }
+
+            try {
+                const response = await fetch('/api/config', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ geminiApiKey })
+                });
+                if (response.ok) {
+                    keyInput.value = '';
+                    alert('API Key updated successfully.');
+                    loadConfig();
+                    refreshData();
+                }
+            } catch (err) {
+                console.error(err);
+            }
+        }
+
+        async function updatePersonaSetting(persona) {
+            updateRadioStyles(persona);
+            try {
+                await fetch('/api/config', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ persona })
+                });
+                loadConfig();
+                refreshData();
+            } catch (err) {
+                console.error(err);
+            }
+        }
+
+        async function updateToggleSettings() {
+            const dailyBriefing = document.getElementById('chk-daily-brief').checked;
+            const realtimeShame = document.getElementById('chk-realtime-shame').checked;
+            
+            try {
+                await fetch('/api/config', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ dailyBriefing, realtimeShame })
+                });
+                loadConfig();
+            } catch (err) {
+                console.error(err);
+            }
+        }
+
+        // Reboot Wiping DB
+        async function triggerSystemReboot() {
+            if (confirm('CRITICAL WARNING: This will permanently delete ALL logged manual expenses in your Supabase relational database. Do you wish to proceed?')) {
+                try {
+                    const response = await fetch('/api/reboot', { method: 'POST' });
+                    const result = await response.json();
+                    if (response.ok) {
+                        alert(result.message);
+                        refreshData();
+                    }
+                } catch(err) {
+                    console.error(err);
+                }
+            }
+        }
+
+        // Initialize App
+        window.onload = function() {
+            // Load configs first
+            loadConfig();
+            // Load data
+            refreshData();
+            // Default select Landing tab
+            switchTab('landing');
+        };
+    </script>
+</body>
+</html>
