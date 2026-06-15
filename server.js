@@ -75,7 +75,12 @@ function getMockRoast(amount, category, description, persona) {
   
   const selectedRoasts = roasts[persona] || roasts.sarcastic;
   const randomIndex = Math.floor(Math.random() * selectedRoasts.length);
-  return selectedRoasts[randomIndex] + " [SYSTEM NOTE: Configure your GEMINI_API_KEY in the Config tab for customized AI roasts!]";
+  let result = selectedRoasts[randomIndex];
+  
+  if (!systemConfig.geminiApiKey) {
+    result += " [SYSTEM NOTE: Configure your GEMINI_API_KEY in the Config tab for customized AI roasts!]";
+  }
+  return result;
 }
 
 // Helper: Query Gemini API for Roast
@@ -124,7 +129,7 @@ ${queryText}
     return response.text();
   } catch (error) {
     console.error('Gemini API Error:', error.status || '', error.message?.slice(0, 120));
-    return `[ROASTER_AI Error]: Gemini API returned error: ${error.message}`;
+    return null;
   }
 }
 
@@ -158,7 +163,8 @@ app.post('/api/expenses', async (req, res) => {
     let roast = '';
     if (systemConfig.realtimeShame) {
       const context = `Manual Entry Logged: Spent ₹${amount} on ${category} (${description}).`;
-      roast = await generateGeminiRoast(context, `Roast this purchase immediately.`, systemConfig.persona, { amount, category, description });
+      const geminiRoast = await generateGeminiRoast(context, `Roast this purchase immediately.`, systemConfig.persona, { amount, category, description });
+      roast = geminiRoast || getMockRoast(amount, category, description, systemConfig.persona);
     }
 
     res.status(201).json({ expense: newExpense, roast });
@@ -218,7 +224,8 @@ app.get('/api/stats', async (req, res) => {
       const expensesText = allExpensesResult.rows.map(r => `- ₹${r.amount} on ${r.category} (${r.description})`).join('\n');
       
       const context = `Total 30-day burn: ₹${totalBurn}. Remaining budget from ₹50,000: ₹${remainingBudget}. Estimated runway: ${runwayDays} days.\nRecent expenses:\n${expensesText}`;
-      critique = await generateGeminiRoast(context, `Give a comprehensive roast of my overall financial state.`, systemConfig.persona);
+      const geminiCritique = await generateGeminiRoast(context, `Give a comprehensive roast of my overall financial state.`, systemConfig.persona);
+      critique = geminiCritique || getMockRoast(totalBurn, 'lifestyle', 'overall budget overrun', systemConfig.persona);
     }
 
     res.json({
@@ -289,7 +296,8 @@ app.post('/api/chat', async (req, res) => {
 
       // Roast it
       const context = `Manual Entry Logged via Chat NLP: Spent ₹${parsedAmount} on ${parsedCategory} (${parsedDescription}).`;
-      const roast = await generateGeminiRoast(context, `Roast this purchase immediately.`, systemConfig.persona, { amount: parsedAmount, category: parsedCategory, description: parsedDescription });
+      const geminiRoast = await generateGeminiRoast(context, `Roast this purchase immediately.`, systemConfig.persona, { amount: parsedAmount, category: parsedCategory, description: parsedDescription });
+      const roast = geminiRoast || getMockRoast(parsedAmount, parsedCategory, parsedDescription, systemConfig.persona);
 
       return res.json({
         type: 'LOG_CONFIRMATION',
@@ -336,7 +344,8 @@ app.post('/api/chat', async (req, res) => {
         const count = parseInt(result.rows[0].count);
 
         const context = `User category query: ${matchedCategory}. Total spent in last 30 days: ₹${total} over ${count} entries.`;
-        const roast = await generateGeminiRoast(context, `Generate a brutal roast focused on the sum ₹${total} spent on ${matchedCategory}.`, systemConfig.persona, { amount: total, category: matchedCategory, description: matchedCategory });
+        const geminiRoast = await generateGeminiRoast(context, `Generate a brutal roast focused on the sum ₹${total} spent on ${matchedCategory}.`, systemConfig.persona, { amount: total, category: matchedCategory, description: matchedCategory });
+        const roast = geminiRoast || `You spent ₹${total} on ${matchedCategory} over ${count} transactions. ${getMockRoast(total, matchedCategory, matchedCategory, systemConfig.persona)}`;
 
         return res.json({
           type: 'QUERY_RESPONSE',
@@ -360,7 +369,8 @@ app.post('/api/chat', async (req, res) => {
     const breakdown = result.rows.map(r => `${r.category}: ₹${r.total}`).join(', ');
 
     const context = `Current 30-day spending breakdown: ${breakdown || 'No expenses logged yet'}.`;
-    const roast = await generateGeminiRoast(context, `Respond to user message: "${message}" and roast their financial attitude.`, systemConfig.persona);
+    const geminiRoast = await generateGeminiRoast(context, `Respond to user message: "${message}" and roast their financial attitude.`, systemConfig.persona);
+    const roast = geminiRoast || `I parsed your message: "${message}". ${getMockRoast(0, 'lifestyle', 'overall spending', systemConfig.persona)}`;
 
     res.json({
       type: 'CONVERSATION',
