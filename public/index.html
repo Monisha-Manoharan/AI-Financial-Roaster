@@ -137,8 +137,6 @@
     </style>
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
-    <!-- Supabase JS Client (for Auth) -->
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script id="tailwind-config">
         tailwind.config = {
             darkMode: "class",
@@ -243,11 +241,6 @@
             <button onclick="switchTab('settings')" id="side-tab-settings" class="w-full flex items-center gap-4 text-on-surface-variant px-6 py-4 font-data-label text-data-label uppercase tracking-widest border-l-4 border-transparent hover:bg-surface-variant/20 hover:text-primary transition-all text-left font-body-md">
                 <span class="material-symbols-outlined text-[20px]">tune</span>
                 PERSONA SETTINGS
-            </button>
-            <!-- Logout Button — hidden until user is authenticated -->
-            <button onclick="handleLogout()" id="side-btn-logout" class="hidden w-full flex items-center gap-4 text-error px-6 py-4 font-data-label text-data-label uppercase tracking-widest border-l-4 border-transparent hover:bg-error/10 hover:text-error transition-all text-left font-body-md mt-4">
-                <span class="material-symbols-outlined text-[20px]">power_settings_new</span>
-                LOGOUT
             </button>
         </nav>
 
@@ -376,106 +369,8 @@
                         <span class="w-2 h-2 bg-primary-fixed animate-pulse"></span>
                         <h2 class="font-data-label text-data-label tracking-[0.2em] text-primary-fixed uppercase">NODE_04: ENTRY_INTERFACE</h2>
                     </div>
-
-                    <!-- ===== AUTH PANEL (shown when NOT logged in) ===== -->
-                    <div id="auth-panel" class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-stretch">
-                        <!-- Left: Login/Signup Form -->
-                        <div class="lg:col-span-5 glass-panel border border-outline-variant p-6 flex flex-col gap-6">
-                            <!-- Header -->
-                            <div class="space-y-1">
-                                <p class="font-data-label text-data-label text-outline uppercase tracking-wider">IDENTITY_VERIFICATION</p>
-                                <h3 class="font-headline-md text-headline-md text-primary tracking-tight">Access Terminal</h3>
-                            </div>
-
-                            <!-- Email -->
-                            <div class="relative">
-                                <label class="font-data-label text-data-label text-on-surface-variant block mb-2 uppercase">User Identifier</label>
-                                <input id="auth-email" type="email" autocomplete="email"
-                                    class="w-full bg-transparent border-0 border-b border-outline-variant p-2 font-body-md text-on-surface placeholder:text-on-surface-variant/30 focus:ring-0 outline-none transition-all"
-                                    placeholder="enter your encrypted email..."
-                                    onkeydown="if(event.key==='Enter') handleLogin()" />
-                                <div class="scan-line"></div>
-                            </div>
-
-                            <!-- Password -->
-                            <div class="relative">
-                                <label class="font-data-label text-data-label text-on-surface-variant block mb-2 uppercase">Security Passcode</label>
-                                <div class="relative flex items-center">
-                                    <input id="auth-password" type="password" autocomplete="current-password"
-                                        class="w-full bg-transparent border-0 border-b border-outline-variant p-2 font-body-md text-on-surface placeholder:text-on-surface-variant/30 focus:ring-0 outline-none transition-all pr-10"
-                                        placeholder="enter security passcode..."
-                                        onkeydown="if(event.key==='Enter') handleLogin()" />
-                                    <button type="button" onclick="toggleAuthPasswordVisibility()" class="absolute right-2 text-on-surface-variant hover:text-primary-fixed transition-colors">
-                                        <span id="auth-pw-eye" class="material-symbols-outlined text-[18px]">visibility_off</span>
-                                    </button>
-                                </div>
-                                <div class="scan-line"></div>
-                            </div>
-
-                            <!-- Auth Error Message -->
-                            <p id="auth-error-msg" class="hidden font-data-label text-[11px] text-error uppercase tracking-wider"></p>
-
-                            <!-- Primary CTA -->
-                            <button id="btn-login" onclick="handleLogin()" class="w-full bg-primary-fixed text-black font-data-label text-data-label py-4 font-bold glitch-hover transition-colors uppercase">
-                                [ INITIATE SESSION ]
-                            </button>
-
-                            <!-- Divider -->
-                            <div class="flex items-center gap-4">
-                                <div class="flex-1 border-t border-outline-variant/40"></div>
-                                <span class="font-data-label text-[10px] text-outline uppercase">or</span>
-                                <div class="flex-1 border-t border-outline-variant/40"></div>
-                            </div>
-
-                            <!-- Secondary CTA -->
-                            <button onclick="handleSignup()" class="w-full border border-outline-variant text-on-surface-variant font-data-label text-data-label py-3 font-bold glitch-hover transition-all uppercase hover:border-primary-fixed hover:text-primary-fixed">
-                                [ REQUEST ACCESS ]
-                            </button>
-                            <p class="font-data-label text-[10px] text-outline text-center">No account yet? Click to register as a new operator.</p>
-                        </div>
-
-                        <!-- Right: Pre-auth Terminal -->
-                        <div class="lg:col-span-7 border border-outline-variant bg-surface-container-lowest flex flex-col h-[480px]">
-                            <div class="bg-surface-container-low border-b border-outline-variant px-4 py-2 flex justify-between items-center">
-                                <div class="flex items-center gap-2">
-                                    <span class="material-symbols-outlined text-primary-fixed scale-75">smart_toy</span>
-                                    <span class="font-data-label text-data-label text-on-surface-variant uppercase tracking-wider">SYSTEM_ASSISTANT_V1.5</span>
-                                </div>
-                                <div class="flex gap-1.5">
-                                    <div class="w-2.5 h-2.5 rounded-full bg-error"></div>
-                                    <div class="w-2.5 h-2.5 rounded-full bg-primary-fixed/30"></div>
-                                </div>
-                            </div>
-                            <div class="flex-grow overflow-y-auto p-6 font-roast-content text-roast-content space-y-4" id="auth-terminal">
-                                <div class="flex gap-4">
-                                    <span class="text-primary-fixed flex-shrink-0">[SYS_LOG]:</span>
-                                    <div class="text-on-surface/80 leading-relaxed">IDENTITY_VERIFICATION required. Provide credentials to initiate session and access the roasting engine. Financial accountability begins once authenticated.</div>
-                                </div>
-                                <div class="flex gap-4">
-                                    <span class="text-outline flex-shrink-0">[SYSTEM]:</span>
-                                    <div class="text-on-surface-variant leading-relaxed">Connecting to Supabase Auth... <span class="text-primary-fixed animate-pulse">▋</span></div>
-                                </div>
-                            </div>
-                            <div class="p-4 bg-surface-container-lowest border-t border-outline-variant">
-                                <p class="font-data-label text-[10px] text-outline uppercase tracking-wider">AWAITING AUTHENTICATION — session locked</p>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- ===== APP PANEL (shown when logged in) ===== -->
-                    <div id="app-panel" class="hidden grid grid-cols-1 lg:grid-cols-12 gap-8 items-stretch">
-                        <!-- Logged-in user badge -->
-                        <div class="lg:col-span-12 flex items-center justify-between bg-primary-fixed/5 border border-primary-fixed/30 px-4 py-2">
-                            <div class="flex items-center gap-3">
-                                <span class="material-symbols-outlined text-primary-fixed text-[16px]">verified_user</span>
-                                <span class="font-data-label text-[11px] text-primary-fixed uppercase tracking-widest">SESSION ACTIVE — <span id="logged-in-email" class="text-on-surface">operator@terminal</span></span>
-                            </div>
-                            <button onclick="handleLogout()" class="font-data-label text-[10px] text-error uppercase tracking-wider hover:text-error/70 transition-colors flex items-center gap-1">
-                                <span class="material-symbols-outlined text-[14px]">logout</span>
-                                TERMINATE SESSION
-                            </button>
-                        </div>
-
+                    
+                    <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-stretch">
                         <!-- Left: Manual Entry Form -->
                         <div class="lg:col-span-5 glass-panel border border-outline-variant p-6 flex flex-col justify-between">
                             <form id="manual-expense-form" onsubmit="handleManualSubmit(event)" class="space-y-6">
@@ -483,7 +378,7 @@
                                     <button type="button" id="tab-log-expense" onclick="switchManualLogMode('expense')" class="flex-1 px-4 py-1.5 font-data-label text-[11px] bg-primary-fixed text-black font-bold uppercase transition-all">Log Expense</button>
                                     <button type="button" id="tab-log-income" onclick="switchManualLogMode('income')" class="flex-1 px-4 py-1.5 font-data-label text-[11px] text-on-surface-variant font-bold uppercase hover:bg-surface-container-high transition-all">Log Income</button>
                                 </div>
-
+                                
                                 <div class="relative" id="desc-field-wrapper">
                                     <label class="font-data-label text-data-label text-on-surface-variant block mb-2 uppercase">Item / Description</label>
                                     <input id="exp-desc" class="w-full bg-transparent border-0 border-b border-outline-variant p-2 font-body-md text-on-surface placeholder:text-on-surface-variant/30 focus:ring-0 outline-none transition-all" placeholder="e.g., Fancy Coffee at Cafe" type="text" />
@@ -499,11 +394,11 @@
                                 <div class="relative">
                                     <label class="font-data-label text-data-label text-on-surface-variant block mb-2 uppercase">Category</label>
                                     <select id="exp-category" class="w-full bg-transparent border-0 border-b border-outline-variant p-2 font-body-md text-on-surface appearance-none focus:ring-0 outline-none transition-all pr-8">
-                                        <option value="Food & Dining">FOOD &amp; DINING</option>
-                                        <option value="Coffee & Drinks">COFFEE &amp; DRINKS</option>
-                                        <option value="Shopping & Luxury">SHOPPING &amp; LUXURY</option>
+                                        <option value="Food & Dining">FOOD & DINING</option>
+                                        <option value="Coffee & Drinks">COFFEE & DRINKS</option>
+                                        <option value="Shopping & Luxury">SHOPPING & LUXURY</option>
                                         <option value="Fixed Utilities">FIXED UTILITIES</option>
-                                        <option value="Logistics & Travel">LOGISTICS &amp; TRAVEL</option>
+                                        <option value="Logistics & Travel">LOGISTICS & TRAVEL</option>
                                         <option value="Other">OTHER / MISC</option>
                                     </select>
                                     <div class="scan-line"></div>
@@ -518,6 +413,7 @@
 
                         <!-- Right: Chatbot Terminal -->
                         <div class="lg:col-span-7 border border-outline-variant bg-surface-container-lowest flex flex-col h-[480px]">
+                            <!-- Terminal Header -->
                             <div class="bg-surface-container-low border-b border-outline-variant px-4 py-2 flex justify-between items-center">
                                 <div class="flex items-center gap-2">
                                     <span class="material-symbols-outlined text-primary-fixed scale-75">smart_toy</span>
@@ -528,12 +424,16 @@
                                     <div class="w-2.5 h-2.5 rounded-full bg-primary-fixed/30"></div>
                                 </div>
                             </div>
+                            <!-- Chat Transcript -->
                             <div class="flex-grow overflow-y-auto p-6 font-roast-content text-roast-content space-y-4" id="chat-transcript">
                                 <div class="flex gap-4">
                                     <span class="text-primary-fixed flex-shrink-0">[SYS_LOG]:</span>
-                                    <div class="text-on-surface leading-relaxed">Ask me anything about your budget, query categories (e.g. "Roast my coffee spending"), or write manual entries (e.g. "spent 250 on coffee") to auto-parse them.</div>
+                                    <div class="text-on-surface leading-relaxed">
+                                        Ask me anything about your budget, query categories (e.g. "Roast my coffee spending"), or write manual entries (e.g. "spent 250 on coffee") to auto-parse them.
+                                    </div>
                                 </div>
                             </div>
+                            <!-- Input -->
                             <div class="p-4 bg-surface-container-lowest border-t border-outline-variant flex items-center gap-3">
                                 <span class="text-primary-fixed font-data-label animate-pulse">&gt;</span>
                                 <input id="chat-input" class="flex-grow bg-transparent border-none focus:ring-0 text-roast-content placeholder:text-on-surface-variant/30 outline-none" placeholder="Type your query or manual text entry here..." type="text" onkeydown="handleChatSubmit(event)" />
@@ -861,10 +761,6 @@
             <span class="material-symbols-outlined text-[20px]">tune</span>
             <span class="font-data-label text-[9px]">Config</span>
         </button>
-        <button onclick="handleLogout()" id="mob-btn-logout" class="hidden flex-col items-center justify-center text-error flex-1 h-full gap-1">
-            <span class="material-symbols-outlined text-[20px]">power_settings_new</span>
-            <span class="font-data-label text-[9px]">Logout</span>
-        </button>
     </nav>
 
     <!-- Core SPA Javascript Logic -->
@@ -874,8 +770,6 @@
         let incomeData = [];
         let activeTab = 'landing';
         let currentManualLogMode = 'expense';
-        let supabaseClient = null;
-        let currentUser = null;
         let currentLogTableMode = 'expense';
         
         // Non-blocking Cyberpunk Toast Notifications
@@ -1554,168 +1448,13 @@
             }
         }
 
-        // ==========================================
-        // SUPABASE AUTH SYSTEM
-        // ==========================================
-
-        async function initSupabaseAuth() {
-            try {
-                const res = await fetch('/api/supabase-config');
-                const { supabaseUrl, supabaseAnonKey } = await res.json();
-                if (!supabaseUrl || !supabaseAnonKey || supabaseAnonKey === 'REPLACE_WITH_YOUR_SUPABASE_ANON_KEY') {
-                    console.warn('[AUTH]: Supabase anon key not configured. Auth system disabled.');
-                    // Fall through as if logged in so the app still functions
-                    setAuthState(null);
-                    return;
-                }
-                supabaseClient = supabase.createClient(supabaseUrl, supabaseAnonKey);
-
-                // Listen for auth state changes (login / logout / session restore)
-                supabaseClient.auth.onAuthStateChange((event, session) => {
-                    currentUser = session ? session.user : null;
-                    setAuthState(currentUser);
-                });
-
-                // Check existing session on load
-                const { data: { session } } = await supabaseClient.auth.getSession();
-                currentUser = session ? session.user : null;
-                setAuthState(currentUser);
-            } catch (err) {
-                console.error('[AUTH] Init error:', err);
-                setAuthState(null);
-            }
-        }
-
-        function setAuthState(user) {
-            const authPanel = document.getElementById('auth-panel');
-            const appPanel  = document.getElementById('app-panel');
-            const logoutBtnSide = document.getElementById('side-btn-logout');
-            const logoutBtnMob  = document.getElementById('mob-btn-logout');
-            const emailBadge    = document.getElementById('logged-in-email');
-
-            if (user) {
-                // User is authenticated — show app, hide login
-                authPanel.classList.add('hidden');
-                appPanel.classList.remove('hidden');
-                if (logoutBtnSide) { logoutBtnSide.classList.remove('hidden'); logoutBtnSide.classList.add('flex'); }
-                if (logoutBtnMob)  { logoutBtnMob.classList.remove('hidden');  logoutBtnMob.classList.add('flex'); }
-                if (emailBadge)     emailBadge.textContent = user.email || 'operator';
-                refreshData();
-            } else {
-                // Not authenticated — show login, hide app
-                authPanel.classList.remove('hidden');
-                appPanel.classList.add('hidden');
-                if (logoutBtnSide) { logoutBtnSide.classList.add('hidden'); logoutBtnSide.classList.remove('flex'); }
-                if (logoutBtnMob)  { logoutBtnMob.classList.add('hidden');  logoutBtnMob.classList.remove('flex'); }
-            }
-        }
-
-        async function handleLogin() {
-            if (!supabaseClient) { showToast('Auth not configured. Check SUPABASE_ANON_KEY in .env', 'error'); return; }
-            const email    = document.getElementById('auth-email').value.trim();
-            const password = document.getElementById('auth-password').value;
-            const errorEl  = document.getElementById('auth-error-msg');
-            const btn      = document.getElementById('btn-login');
-
-            if (!email || !password) { showAuthError('All fields are required to initiate session.'); return; }
-
-            btn.textContent = '[ AUTHENTICATING... ]';
-            btn.disabled = true;
-            errorEl.classList.add('hidden');
-
-            const { error } = await supabaseClient.auth.signInWithPassword({ email, password });
-
-            btn.textContent = '[ INITIATE SESSION ]';
-            btn.disabled = false;
-
-            if (error) {
-                showAuthError(error.message);
-            } else {
-                document.getElementById('auth-password').value = '';
-                showToast('Session initiated. Welcome, operator.', 'success');
-                switchTab('dashboard');
-            }
-        }
-
-        async function handleSignup() {
-            if (!supabaseClient) { showToast('Auth not configured. Check SUPABASE_ANON_KEY in .env', 'error'); return; }
-            const email    = document.getElementById('auth-email').value.trim();
-            const password = document.getElementById('auth-password').value;
-
-            if (!email || !password) { showAuthError('Email and passcode required to request access.'); return; }
-            if (password.length < 6)  { showAuthError('Passcode must be at least 6 characters.'); return; }
-
-            const { error } = await supabaseClient.auth.signUp({ email, password });
-
-            if (error) {
-                showAuthError(error.message);
-            } else {
-                showToast('Access requested. Check your email to confirm registration.', 'success');
-                appendAuthTerminalMessage('[SYS_LOG]', 'Registration request sent. Check your inbox to confirm your operator account. Then return here and initiate session.');
-            }
-        }
-
-        async function handleLogout() {
-            // Clear local data caches
-            expensesData = [];
-            incomeData   = [];
-
-            if (supabaseClient) {
-                await supabaseClient.auth.signOut();
-            }
-
-            // Force auth state update
-            currentUser = null;
-            setAuthState(null);
-
-            // Switch to Entry Protocol tab
-            switchTab('entry');
-
-            // Post the farewell message in the auth terminal
-            setTimeout(() => {
-                appendAuthTerminalMessage('[SYS_LOG]', 'SESSION_TERMINATED. You can run from the roaster, but you can\'t run from your financial reality. Enter credentials to re-initiate.');
-            }, 200);
-
-            showToast('Session terminated successfully.', 'success');
-        }
-
-        function showAuthError(msg) {
-            const el = document.getElementById('auth-error-msg');
-            el.textContent = `[ERROR]: ${msg}`;
-            el.classList.remove('hidden');
-        }
-
-        function toggleAuthPasswordVisibility() {
-            const input = document.getElementById('auth-password');
-            const icon  = document.getElementById('auth-pw-eye');
-            if (input.type === 'password') {
-                input.type = 'text';
-                icon.textContent = 'visibility';
-            } else {
-                input.type = 'password';
-                icon.textContent = 'visibility_off';
-            }
-        }
-
-        function appendAuthTerminalMessage(prefix, text) {
-            const terminal = document.getElementById('auth-terminal');
-            if (!terminal) return;
-            const line = document.createElement('div');
-            line.className = 'flex gap-4';
-            const prefixColor = prefix.includes('SYS') ? 'text-primary-fixed' : 'text-outline';
-            line.innerHTML = `<span class="${prefixColor} flex-shrink-0">${prefix}:</span><div class="text-on-surface leading-relaxed">${text}</div>`;
-            terminal.appendChild(line);
-            terminal.scrollTop = terminal.scrollHeight;
-        }
-
         // Initialize App
-        window.onload = async function() {
-            // Load Supabase auth (handles showing login vs. app panel)
-            await initSupabaseAuth();
-            // Load app config and data
+        window.onload = function() {
+            // Load configs first
             loadConfig();
+            // Load data
             refreshData();
-            // Default to Landing tab
+            // Default select Landing tab
             switchTab('landing');
         };
     </script>
