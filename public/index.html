@@ -274,10 +274,6 @@
                     <section class="flex flex-col md:flex-row items-center gap-12 mt-4 md:mt-12">
                         <!-- Left: Core Value Proposition -->
                         <div class="w-full md:w-1/2 flex flex-col items-start gap-6">
-                            <div class="inline-flex items-center gap-2 px-3 py-1 glass-panel border border-outline-variant/50">
-                                <span class="w-2 h-2 rounded-full bg-primary-fixed animate-pulse"></span>
-                                <span class="font-data-label text-data-label text-on-surface-variant uppercase">Aggressive accountability v1.0</span>
-                            </div>
                             <h1 class="font-headline-lg-mobile md:font-headline-lg text-headline-lg-mobile md:text-headline-lg text-primary">
                                 Stop spending like a billionaire on an <span class="text-primary-fixed opacity-90 drop-shadow-[0_0_10px_rgba(186,246,0,0.3)] font-black">intern budget.</span>
                             </h1>
@@ -287,7 +283,7 @@
                             <div class="mt-4 flex flex-col sm:flex-row gap-4 w-full sm:w-auto">
                                 <button onclick="switchTab('entry')" class="bg-primary-fixed text-on-primary-fixed font-data-label text-data-label uppercase px-8 py-4 font-bold glitch-hover transition-all duration-200 flex items-center justify-center gap-2 border border-primary-fixed">
                                     <span class="material-symbols-outlined text-[18px]">bolt</span>
-                                    LOG & SHAME ME
+                                    LOG &amp; SHAME ME
                                 </button>
                                 <button onclick="switchTab('dashboard')" class="glass-panel text-on-surface font-data-label text-data-label uppercase px-8 py-4 font-bold hover:bg-surface-container-highest transition-colors duration-200 border border-outline-variant/50">
                                     VIEW DASHBOARD
@@ -295,36 +291,72 @@
                             </div>
                         </div>
 
-                        <!-- Right: Terminal Layout Demo -->
+                        <!-- Right: System Capabilities Panel -->
                         <div class="w-full md:w-1/2 relative">
                             <div class="absolute -inset-4 bg-primary-fixed/5 blur-2xl z-0 pointer-events-none"></div>
-                            <div class="glass-panel-active overflow-hidden flex flex-col z-10 relative h-[380px]">
+                            <div class="glass-panel-active overflow-hidden flex flex-col z-10 relative">
                                 <!-- Header -->
-                                <div class="bg-surface-container border-b border-primary-fixed/30 px-4 py-2 flex items-center justify-between">
-                                    <div class="flex items-center gap-1">
-                                        <span class="w-2.5 h-2.5 rounded-full bg-error"></span>
-                                        <span class="w-2.5 h-2.5 rounded-full bg-surface-variant"></span>
-                                        <span class="w-2.5 h-2.5 rounded-full bg-surface-variant"></span>
+                                <div class="bg-surface-container border-b border-primary-fixed/30 px-4 py-2.5 flex items-center justify-between">
+                                    <div class="flex items-center gap-1.5">
+                                        <span class="w-2.5 h-2.5 rounded-full bg-primary-fixed animate-pulse"></span>
+                                        <span class="w-2.5 h-2.5 rounded-full bg-outline-variant/50"></span>
+                                        <span class="w-2.5 h-2.5 rounded-full bg-outline-variant/50"></span>
                                     </div>
-                                    <span class="font-data-label text-[10px] text-primary-fixed opacity-70 tracking-widest">[AI_ROASTER_INITIATED]</span>
+                                    <span class="font-data-label text-[10px] text-primary-fixed opacity-70 tracking-widest">[SYSTEM_CAPABILITIES]</span>
                                 </div>
+
                                 <!-- Body -->
-                                <div class="flex-grow p-6 bg-surface-container-lowest overflow-y-auto font-roast-content text-roast-content text-on-surface leading-relaxed text-sm">
-                                    <div class="opacity-40 text-xs mb-3">
-                                        &gt; CONNECTING TO SUPABASE CLOUD... [OK]<br/>
-                                        &gt; SCANNING EXPENSES LIST... [WARNING: BUDGET OUTRUN]<br/>
-                                        &gt; PERSONALITY ACTIVE: AGGRESSIVE<br/>
+                                <div class="p-6 bg-surface-container-lowest font-roast-content text-[13px] text-on-surface leading-relaxed space-y-6">
+
+                                    <!-- Heading -->
+                                    <div class="flex items-center gap-2">
+                                        <span class="text-primary-fixed font-bold">&gt;</span>
+                                        <span class="text-primary-fixed font-bold tracking-widest uppercase text-[12px]">SYSTEM_CAPABILITIES</span>
+                                        <span class="terminal-cursor"></span>
                                     </div>
-                                    <div class="text-on-surface">
-                                        <span class="text-error font-bold">&gt; AUDIT REPORT: </span>
-                                        I see you logged a purchase of ₹1,500 for "Artisanal Toast" yesterday. Is this part of a complex strategy to achieve bankruptcy before age 30, or do you just lack basic impulse control? My predictive models suggest you will be subsisting on actual dirt by Q3.
+
+                                    <!-- Operational Attitudes -->
+                                    <div class="space-y-2">
+                                        <p class="text-on-surface-variant text-[11px] uppercase tracking-widest mb-3">// OPERATIONAL_ATTITUDES</p>
+                                        <div class="flex items-start gap-3">
+                                            <span class="text-error font-bold shrink-0">[AGGRESSIVE]</span>
+                                            <span class="text-on-surface/80">Ruthless financial critique.</span>
+                                        </div>
+                                        <div class="flex items-start gap-3">
+                                            <span class="text-primary-fixed font-bold shrink-0">[SARCASTIC]</span>
+                                            <span class="text-on-surface/80">Passive-aggressive transaction mockery.</span>
+                                        </div>
+                                        <div class="flex items-start gap-3">
+                                            <span class="text-outline font-bold shrink-0">[SUPPORTIVE-ISH]</span>
+                                            <span class="text-on-surface/80">Condescending encouragement.</span>
+                                        </div>
                                     </div>
-                                    <span class="terminal-cursor"></span>
+
+                                    <!-- Divider -->
+                                    <div class="border-t border-outline-variant/30"></div>
+
+                                    <!-- Core Features -->
+                                    <div class="space-y-2">
+                                        <p class="text-on-surface-variant text-[11px] uppercase tracking-widest mb-3">// CORE_FEATURES</p>
+                                        <div class="flex items-center gap-3">
+                                            <span class="text-primary-fixed material-symbols-outlined text-[14px]">check_circle</span>
+                                            <span class="text-on-surface/80">Real-time Supabase Income &amp; Expense Logging.</span>
+                                        </div>
+                                        <div class="flex items-center gap-3">
+                                            <span class="text-primary-fixed material-symbols-outlined text-[14px]">check_circle</span>
+                                            <span class="text-on-surface/80">Dynamic Gemini 2.0 Flash-Lite Roasting Pipeline.</span>
+                                        </div>
+                                        <div class="flex items-center gap-3">
+                                            <span class="text-primary-fixed material-symbols-outlined text-[14px]">check_circle</span>
+                                            <span class="text-on-surface/80">Spending-to-Income Ratio Audit.</span>
+                                        </div>
+                                    </div>
                                 </div>
+
                                 <!-- Footer -->
                                 <div class="bg-surface-container border-t border-outline-variant/30 px-4 py-2 flex items-center justify-between font-data-label text-[10px] text-on-surface-variant">
-                                    <span>SYS_STATUS: READY</span>
-                                    <span class="text-error animate-pulse">SEVERITY: DEVASTATING</span>
+                                    <span>SYS_STATUS: ONLINE</span>
+                                    <span class="text-primary-fixed animate-pulse">ENGINE: READY</span>
                                 </div>
                             </div>
                         </div>
@@ -725,18 +757,7 @@
         </main>
     </div>
 
-    <!-- Recent Roasts Ticker (Bottom Docked) -->
-    <div class="w-full z-20 py-2.5 ticker-wrap fixed bottom-16 md:bottom-0 md:pl-64">
-        <div class="ticker font-data-label text-data-label text-on-surface-variant uppercase flex gap-12 text-[10px]">
-            <span class="flex items-center gap-2"><span class="text-error material-symbols-outlined text-[12px]">trending_down</span> User 4892 spent ₹1,500 on 'aesthetic water bottles'.</span>
-            <span class="flex items-center text-on-surface-variant/35">//</span>
-            <span class="flex items-center gap-2"><span class="text-error material-symbols-outlined text-[12px]">warning</span> User 102 just financed a 2012 Altima at 24% APR.</span>
-            <span class="flex items-center text-on-surface-variant/35">//</span>
-            <span class="flex items-center gap-2"><span class="text-primary-fixed material-symbols-outlined text-[12px]">check_circle</span> User 88 cancelled their ₹999/mo premium pet psychic subscription. Progress.</span>
-            <span class="flex items-center text-on-surface-variant/35">//</span>
-            <span class="flex items-center gap-2"><span class="text-error material-symbols-outlined text-[12px]">trending_down</span> User 9942 dropped ₹4,200 on microtransactions for a free mobile game.</span>
-        </div>
-    </div>
+
 
     <!-- Mobile BottomNavBar (Active Only on Mobile) -->
     <nav class="fixed bottom-0 w-full z-50 flex justify-around items-center h-16 px-4 bg-surface-dim/95 backdrop-blur-xl md:hidden border-t border-outline-variant/30">
