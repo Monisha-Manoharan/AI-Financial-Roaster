@@ -28,9 +28,10 @@ app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
 
 // In-memory configuration store for dynamic API Key / Persona settings
+// Reads persona from .env so it persists across server restarts
 let systemConfig = {
   geminiApiKey: process.env.GEMINI_API_KEY || '',
-  persona: 'aggressive', // 'aggressive', 'sarcastic', 'supportive'
+  persona: process.env.PERSONA || 'aggressive', // 'aggressive', 'sarcastic', 'supportive'
   dailyBriefing: true,
   realtimeShame: true
 };
@@ -278,10 +279,63 @@ app.delete('/api/expenses/:id', async (req, res) => {
   }
 });
 
+// Endpoint: Fetch all income
+app.get('/api/income', async (req, res) => {
+  try {
+    const result = await pool.query('SELECT * FROM income ORDER BY timestamp DESC');
+    res.json(result.rows);
+  } catch (error) {
+    console.error('Error fetching income:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Endpoint: Log manual income
+app.post('/api/income', async (req, res) => {
+  const { amount, category, description, timestamp } = req.body;
+  
+  if (!amount || !category) {
+    return res.status(400).json({ error: 'Amount and Category are required.' });
+  }
+
+  try {
+    const timeValue = timestamp ? new Date(timestamp) : new Date();
+    const queryText = 'INSERT INTO income (amount, category, description, timestamp) VALUES ($1, $2, $3, $4) RETURNING *';
+    const values = [amount, category, description || '', timeValue];
+    const result = await pool.query(queryText, values);
+    const newIncome = result.rows[0];
+
+    // Generate immediate roast/comment if configured
+    let roast = '';
+    if (systemConfig.realtimeShame) {
+      const context = `Manual Entry Logged: Received ₹${amount} as ${category} (${description}).`;
+      const geminiRoast = await generateGeminiRoast(context, `Comment on this newly logged income source. Be highly sarcastic or cynical, e.g., make a joke about how they will spend it all in 5 minutes.`, systemConfig.persona, { amount, category, description });
+      roast = geminiRoast || `Congrats on the ₹${amount} (${description}). Try not to spend it all in one place... or who am I kidding, you already have.`;
+    }
+
+    res.status(201).json({ income: newIncome, roast });
+  } catch (error) {
+    console.error('Error logging income:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Endpoint: Delete income
+app.delete('/api/income/:id', async (req, res) => {
+  const { id } = req.params;
+  try {
+    await pool.query('DELETE FROM income WHERE id = $1', [id]);
+    res.json({ message: 'Income deleted successfully.' });
+  } catch (error) {
+    console.error('Error deleting income:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
 // Endpoint: Get Dashboard Stats
 app.get('/api/stats', async (req, res) => {
   try {
-    // 30-Day total burn
+    // 30-Day total burn (expenses)
     const burnResult = await pool.query(`
       SELECT COALESCE(SUM(amount), 0) as total_burn 
       FROM expenses 
@@ -289,9 +343,17 @@ app.get('/api/stats', async (req, res) => {
     `);
     const totalBurn = parseFloat(burnResult.rows[0].total_burn);
 
-    // Calculate runway based on a fixed 30-day budget of ₹50,000
-    const monthlyIncome = 50000;
-    const remainingBudget = Math.max(0, monthlyIncome - totalBurn);
+    // Total income logged
+    const incomeResult = await pool.query(`
+      SELECT COALESCE(SUM(amount), 0) as total_income 
+      FROM income
+    `);
+    const totalIncome = parseFloat(incomeResult.rows[0].total_income);
+    const netBalance = totalIncome - totalBurn;
+
+    // Calculate runway based on logged income (default to 50000 if none logged)
+    const budget = totalIncome > 0 ? totalIncome : 50000;
+    const remainingBudget = Math.max(0, budget - totalBurn);
     
     // Average daily burn in last 30 days
     const dailyBurnResult = await pool.query(`
@@ -308,22 +370,27 @@ app.get('/api/stats', async (req, res) => {
 
     // Recent offenses (latest 5)
     const recentResult = await pool.query('SELECT * FROM expenses ORDER BY timestamp DESC LIMIT 5');
+    // Recent incomes (latest 5)
+    const recentIncomeResult = await pool.query('SELECT * FROM income ORDER BY timestamp DESC LIMIT 5');
 
     // Generate dynamic latest AI Critique if expenses exist
     let critique = 'Connect your Supabase database and log your first manual entry to begin the degradation process.';
-    if (recentResult.rows.length > 0) {
+    if (recentResult.rows.length > 0 || totalIncome > 0) {
       const allExpensesResult = await pool.query('SELECT amount, category, description FROM expenses LIMIT 20');
       const expensesText = allExpensesResult.rows.map(r => `- ₹${r.amount} on ${r.category} (${r.description})`).join('\n');
       
-      const context = `Total 30-day burn: ₹${totalBurn}. Remaining budget from ₹50,000: ₹${remainingBudget}. Estimated runway: ${runwayDays} days.\nRecent expenses:\n${expensesText}`;
-      const geminiCritique = await generateGeminiRoast(context, `Give a comprehensive roast of my overall financial state.`, systemConfig.persona);
+      const context = `Total 30-day burn: ₹${totalBurn}. Total logged income: ₹${totalIncome}. Net balance: ₹${netBalance}. Remaining budget: ₹${remainingBudget}. Estimated runway: ${runwayDays} days.\nRecent expenses:\n${expensesText}`;
+      const geminiCritique = await generateGeminiRoast(context, `Give a comprehensive roast of my overall financial state. Pay special attention to my net balance of ₹${netBalance} (Income ₹${totalIncome} - Expenses ₹${totalBurn}). If my expenses exceed or are dangerously close to my income, be dynamically brutal and insult my poor life choices relentlessly.`, systemConfig.persona);
       critique = geminiCritique || getMockRoast(totalBurn, 'lifestyle', 'overall budget overrun', systemConfig.persona);
     }
 
     res.json({
       totalBurn,
+      totalIncome,
+      netBalance,
       runwayDays,
       recentExpenses: recentResult.rows,
+      recentIncomes: recentIncomeResult.rows,
       critique
     });
   } catch (error) {
@@ -341,7 +408,62 @@ app.post('/api/chat', async (req, res) => {
 
   const normalizedMsg = message.toLowerCase().trim();
 
-  // Structured NLP String Parsing Engine (Regex-based classification)
+  // Intent C: Logging an income via text (e.g. "earned 50000 salary", "got 2000 from freelance", "income 1000 pocket money")
+  const incomePattern1 = /(?:earned|got|received|income|salary)\s+([0-9]+(?:\.[0-9]+)?)\s+(?:from|for|on)?\s*([a-zA-Z0-9\s]+)/i;
+  const incomePattern2 = /(?:earned|got|received|income|salary)\s+([a-zA-Z0-9\s]+)\s+([0-9]+(?:\.[0-9]+)?)/i;
+
+  let parsedIncomeAmount = null;
+  let parsedIncomeDescription = null;
+  let parsedIncomeCategory = 'Other';
+
+  const matchInc1 = normalizedMsg.match(incomePattern1);
+  const matchInc2 = normalizedMsg.match(incomePattern2);
+
+  if (matchInc1) {
+    parsedIncomeAmount = parseFloat(matchInc1[1]);
+    parsedIncomeDescription = matchInc1[2].trim();
+  } else if (matchInc2) {
+    parsedIncomeAmount = parseFloat(matchInc2[2]);
+    parsedIncomeDescription = matchInc2[1].trim();
+  }
+
+  if (parsedIncomeAmount && parsedIncomeDescription) {
+    const incomeCategoryKeywords = {
+      'Salary': ['salary', 'paycheck', 'job', 'work', 'wage'],
+      'Pocket Money': ['allowance', 'pocket', 'parent', 'mom', 'dad'],
+      'Freelance': ['freelance', 'client', 'gig', 'project', 'contract', 'side hustles', 'side hustle', 'consulting'],
+      'Investment': ['investment', 'stocks', 'dividends', 'crypto', 'profit']
+    };
+
+    for (const [cat, keywords] of Object.entries(incomeCategoryKeywords)) {
+      if (keywords.some(k => parsedIncomeDescription.includes(k))) {
+        parsedIncomeCategory = cat;
+        break;
+      }
+    }
+
+    try {
+      const queryText = 'INSERT INTO income (amount, category, description, timestamp) VALUES ($1, $2, $3, NOW()) RETURNING *';
+      const values = [parsedIncomeAmount, parsedIncomeCategory, parsedIncomeDescription];
+      const result = await pool.query(queryText, values);
+      const newIncome = result.rows[0];
+
+      // Roast/Comment on the income source
+      const context = `Manual Entry Logged via Chat NLP: Received ₹${parsedIncomeAmount} as ${parsedIncomeCategory} (${parsedIncomeDescription}).`;
+      const geminiRoast = await generateGeminiRoast(context, `Comment on this newly logged income source. Be highly sarcastic or cynical, e.g., make a joke about how they will spend it all in 5 minutes.`, systemConfig.persona, { amount: parsedIncomeAmount, category: parsedIncomeCategory, description: parsedIncomeDescription });
+      const roast = geminiRoast || `Congrats on the ₹${parsedIncomeAmount} (${parsedIncomeDescription}). Try not to spend it all in one place... or who am I kidding, you already have.`;
+
+      return res.json({
+        type: 'LOG_CONFIRMATION',
+        message: `[PARSED_SUCCESSFULLY]: Logged ₹${parsedIncomeAmount} in Category '${parsedIncomeCategory}' (${parsedIncomeDescription}).`,
+        roast: roast,
+        expense: newIncome
+      });
+    } catch (dbErr) {
+      return res.status(500).json({ error: dbErr.message });
+    }
+  }
+
   // Intent A: Logging an expense via text (e.g. "spent 500 on dinner yesterday", "log coffee 150")
   const logPattern1 = /(?:spent|log|bought|wasted)\s+([0-9]+(?:\.[0-9]+)?)\s+(?:on|for)\s+([a-zA-Z0-9\s]+)/i;
   const logPattern2 = /(?:spent|log|bought|wasted)\s+([a-zA-Z0-9\s]+)\s+([0-9]+(?:\.[0-9]+)?)/i;
@@ -478,6 +600,7 @@ app.post('/api/chat', async (req, res) => {
 app.post('/api/reboot', async (req, res) => {
   try {
     await pool.query('TRUNCATE TABLE expenses RESTART IDENTITY');
+    await pool.query('TRUNCATE TABLE income RESTART IDENTITY');
     res.json({ message: 'System database successfully wiped and rebooted.' });
   } catch (error) {
     console.error('Error wiping database:', error);
@@ -510,7 +633,10 @@ app.post('/api/config', (req, res) => {
     }
   }
   
-  if (persona !== undefined) systemConfig.persona = persona;
+  if (persona !== undefined) {
+    systemConfig.persona = persona;
+    updateEnvFile('PERSONA', persona); // Persist so it survives server restarts
+  }
   if (dailyBriefing !== undefined) systemConfig.dailyBriefing = dailyBriefing;
   if (realtimeShame !== undefined) systemConfig.realtimeShame = realtimeShame;
 
