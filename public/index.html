@@ -834,15 +834,14 @@
             const tabIncome = document.getElementById('tab-log-income');
             const btnSubmit = document.getElementById('btn-manual-submit');
             const catSelect = document.getElementById('exp-category');
-            const descWrapper = document.getElementById('desc-field-wrapper');
             const descInput = document.getElementById('exp-desc');
             
             if (mode === 'expense') {
                 tabExpense.className = 'flex-1 px-4 py-1.5 font-data-label text-[11px] bg-primary-fixed text-black font-bold uppercase transition-all';
                 tabIncome.className = 'flex-1 px-4 py-1.5 font-data-label text-[11px] text-on-surface-variant font-bold uppercase hover:bg-surface-container-high transition-all';
                 btnSubmit.innerText = '[ LOG FINANCIAL MISTAKE ]';
-                // Show description field for expense
-                descWrapper.style.display = '';
+                // Expense placeholder examples
+                descInput.placeholder = 'e.g., Biryani dinner at restaurant';
                 descInput.required = true;
                 
                 catSelect.innerHTML = `
@@ -857,10 +856,9 @@
                 tabIncome.className = 'flex-1 px-4 py-1.5 font-data-label text-[11px] bg-primary-fixed text-black font-bold uppercase transition-all';
                 tabExpense.className = 'flex-1 px-4 py-1.5 font-data-label text-[11px] text-on-surface-variant font-bold uppercase hover:bg-surface-container-high transition-all';
                 btnSubmit.innerText = '[ LOG INCOME SOURCE ]';
-                // Hide description field for income — not needed
-                descWrapper.style.display = 'none';
-                descInput.required = false;
-                descInput.value = '';
+                // Income placeholder examples
+                descInput.placeholder = 'e.g., Monthly Internship Stipend';
+                descInput.required = true;
                 
                 catSelect.innerHTML = `
                     <option value="Salary">SALARY</option>
@@ -871,6 +869,7 @@
                 `;
             }
         }
+
 
         // Switch Logs Table Mode
         function switchLogTableMode(mode) {
