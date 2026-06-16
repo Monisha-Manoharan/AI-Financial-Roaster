@@ -1071,13 +1071,13 @@
                 if (config.hasApiKey) {
                     statusText.innerText = `Gemini active. Configured key: ${config.geminiApiKey}`;
                     statusText.className = 'text-xs text-primary-fixed mt-2';
-                    navStatus.innerText = 'STATUS: AGGRESSIVE';
+                    navStatus.innerText = `STATUS: ${config.persona.toUpperCase()}`;
                     navStatus.className = 'text-data-label text-primary-fixed uppercase tracking-widest font-body-md';
                     dbIndicator.className = 'w-2 h-2 rounded-full bg-primary-fixed animate-pulse';
                 } else {
                     statusText.innerText = 'No GEMINI_API_KEY configured. Mock roasts will be used.';
                     statusText.className = 'text-xs text-error mt-2';
-                    navStatus.innerText = 'STATUS: MOCKED';
+                    navStatus.innerText = `STATUS: ${config.persona.toUpperCase()} (MOCKED)`;
                     navStatus.className = 'text-data-label text-error uppercase tracking-widest font-body-md';
                     dbIndicator.className = 'w-2 h-2 rounded-full bg-error animate-pulse';
                 }
