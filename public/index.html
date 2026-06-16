@@ -347,9 +347,9 @@
                                     <button type="button" id="tab-log-income" onclick="switchManualLogMode('income')" class="flex-1 px-4 py-1.5 font-data-label text-[11px] text-on-surface-variant font-bold uppercase hover:bg-surface-container-high transition-all">Log Income</button>
                                 </div>
                                 
-                                <div class="relative">
+                                <div class="relative" id="desc-field-wrapper">
                                     <label class="font-data-label text-data-label text-on-surface-variant block mb-2 uppercase">Item / Description</label>
-                                    <input required id="exp-desc" class="w-full bg-transparent border-0 border-b border-outline-variant p-2 font-body-md text-on-surface placeholder:text-on-surface-variant/30 focus:ring-0 outline-none transition-all" placeholder="e.g., Fancy Coffee at Cafe" type="text" />
+                                    <input id="exp-desc" class="w-full bg-transparent border-0 border-b border-outline-variant p-2 font-body-md text-on-surface placeholder:text-on-surface-variant/30 focus:ring-0 outline-none transition-all" placeholder="e.g., Fancy Coffee at Cafe" type="text" />
                                     <div class="scan-line"></div>
                                 </div>
 
@@ -813,11 +813,16 @@
             const tabIncome = document.getElementById('tab-log-income');
             const btnSubmit = document.getElementById('btn-manual-submit');
             const catSelect = document.getElementById('exp-category');
+            const descWrapper = document.getElementById('desc-field-wrapper');
+            const descInput = document.getElementById('exp-desc');
             
             if (mode === 'expense') {
                 tabExpense.className = 'flex-1 px-4 py-1.5 font-data-label text-[11px] bg-primary-fixed text-black font-bold uppercase transition-all';
                 tabIncome.className = 'flex-1 px-4 py-1.5 font-data-label text-[11px] text-on-surface-variant font-bold uppercase hover:bg-surface-container-high transition-all';
                 btnSubmit.innerText = '[ LOG FINANCIAL MISTAKE ]';
+                // Show description field for expense
+                descWrapper.style.display = '';
+                descInput.required = true;
                 
                 catSelect.innerHTML = `
                     <option value="Food & Dining">FOOD & DINING</option>
@@ -831,6 +836,10 @@
                 tabIncome.className = 'flex-1 px-4 py-1.5 font-data-label text-[11px] bg-primary-fixed text-black font-bold uppercase transition-all';
                 tabExpense.className = 'flex-1 px-4 py-1.5 font-data-label text-[11px] text-on-surface-variant font-bold uppercase hover:bg-surface-container-high transition-all';
                 btnSubmit.innerText = '[ LOG INCOME SOURCE ]';
+                // Hide description field for income — not needed
+                descWrapper.style.display = 'none';
+                descInput.required = false;
+                descInput.value = '';
                 
                 catSelect.innerHTML = `
                     <option value="Salary">SALARY</option>
