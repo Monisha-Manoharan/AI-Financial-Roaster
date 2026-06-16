@@ -674,26 +674,6 @@
                                     </label>
                                 </div>
                             </section>
-
-                            <!-- API Key Config -->
-                            <section class="glass-panel border border-outline-variant/30 p-6 flex flex-col gap-6">
-                                <header class="flex items-center gap-3">
-                                    <span class="material-symbols-outlined text-outline">key</span>
-                                    <h3 class="font-headline-md text-[15px] text-outline uppercase font-semibold tracking-wider">[API_KEY_CONFIGURATION]</h3>
-                                </header>
-                                <div class="space-y-4">
-                                    <div>
-                                        <label class="block font-data-label text-data-label text-outline mb-2">GEMINI API KEY</label>
-                                        <div class="relative flex gap-4">
-                                            <input type="password" id="input-api-key" placeholder="Enter your gemini API Key..." class="flex-grow bg-transparent border-0 border-b border-outline-variant/50 text-on-surface text-roast-content p-2 focus:ring-0 outline-none" />
-                                            <button onclick="saveApiKey()" class="bg-primary-fixed text-black px-6 py-2 font-data-label text-data-label font-bold glitch-hover">
-                                                SAVE_KEY
-                                            </button>
-                                        </div>
-                                        <p id="api-key-status-text" class="text-xs text-on-surface-variant mt-2">Checking API key status...</p>
-                                    </div>
-                                </div>
-                            </section>
                         </div>
 
                         <!-- Right: Toggles & Danger Zone -->
@@ -1289,14 +1269,18 @@
                 const dbIndicator = document.getElementById('nav-db-indicator');
                 
                 if (config.hasApiKey) {
-                    statusText.innerText = `Gemini active. Configured key: ${config.geminiApiKey}`;
-                    statusText.className = 'text-xs text-primary-fixed mt-2';
+                    if (statusText) {
+                        statusText.innerText = `Gemini active. Configured key: ${config.geminiApiKey}`;
+                        statusText.className = 'text-xs text-primary-fixed mt-2';
+                    }
                     navStatus.innerText = `STATUS: ${config.persona.toUpperCase()}`;
                     navStatus.className = 'text-data-label text-primary-fixed uppercase tracking-widest font-body-md';
                     dbIndicator.className = 'w-2 h-2 rounded-full bg-primary-fixed animate-pulse';
                 } else {
-                    statusText.innerText = 'No GEMINI_API_KEY configured. Mock roasts will be used.';
-                    statusText.className = 'text-xs text-error mt-2';
+                    if (statusText) {
+                        statusText.innerText = 'No GEMINI_API_KEY configured. Mock roasts will be used.';
+                        statusText.className = 'text-xs text-error mt-2';
+                    }
                     navStatus.innerText = `STATUS: ${config.persona.toUpperCase()} (MOCKED)`;
                     navStatus.className = 'text-data-label text-error uppercase tracking-widest font-body-md';
                     dbIndicator.className = 'w-2 h-2 rounded-full bg-error animate-pulse';
