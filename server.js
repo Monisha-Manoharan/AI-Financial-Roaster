@@ -679,3 +679,12 @@ app.post('/api/config', (req, res) => {
 app.listen(PORT, () => {
   console.log(`AI Financial Roaster server running on http://localhost:${PORT}`);
 });
+
+// Endpoint: Return Supabase client config to frontend (anon key is public by design)
+app.get('/api/supabase-config', (req, res) => {
+  res.json({
+    supabaseUrl: process.env.SUPABASE_URL || '',
+    supabaseAnonKey: process.env.SUPABASE_ANON_KEY || ''
+  });
+});
+
