@@ -75,11 +75,11 @@ function getMockRoast(amount, category, description, persona) {
       `Let's analyze this highly strategic deploy of funds.`
     ],
     supportive: [
-      `Alright, let's look at this manual log.`,
-      `Okay, we logged a purchase.`,
-      `We recorded this transaction.`,
-      `A new entry added to your logs.`,
-      `Logged the purchase.`
+      `Aww, look at you logging a new transaction!`,
+      `Oh sweetie, did we make a tiny oopsie?`,
+      `Self-care queen/king is back at it!`,
+      `Let's celebrate another cute little purchase!`,
+      `Aww, spending money is so healing, isn't it?`
     ]
   };
 
@@ -122,14 +122,32 @@ function getMockRoast(amount, category, description, persona) {
     ]
   };
 
-  // 3. Amount specific remarks
+  // 3. Amount specific remarks based on persona
   let amountRemark = '';
-  if (amount < 500) {
-    amountRemark = `Sure, ₹${amount} is small, but these micro-leaks are slowly draining your reservoir.`;
-  } else if (amount >= 500 && amount < 5000) {
-    amountRemark = `₹${amount} is a non-trivial amount of labor hours to throw away on this.`;
+  if (persona === 'aggressive') {
+    if (amount < 500) {
+      amountRemark = `Sure, ₹${amount} seems small, but these micro-leaks are slowly draining your reservoir.`;
+    } else if (amount >= 500 && amount < 5000) {
+      amountRemark = `₹${amount} is a serious chunk of money that you basically threw in the trash.`;
+    } else {
+      amountRemark = `₹${amount} is a major financial casualty. Your checking account is in the ICU.`;
+    }
+  } else if (persona === 'sarcastic') {
+    if (amount < 500) {
+      amountRemark = `Only ₹${amount}, but hey, who's counting? Not your savings account, obviously.`;
+    } else if (amount >= 500 && amount < 5000) {
+      amountRemark = `₹${amount} down. Truly a masterful allocation of capital.`;
+    } else {
+      amountRemark = `A whopping ₹${amount}. I'm sure this will be a tax write-off or something.`;
+    }
   } else {
-    amountRemark = `₹${amount} is a major financial casualty. Your checking account is in the ICU.`;
+    if (amount < 500) {
+      amountRemark = `It's only ₹${amount}, sweetie, pocket change doesn't count against your future at all!`;
+    } else if (amount >= 500 && amount < 5000) {
+      amountRemark = `₹${amount} isn't even that much, who needs savings when you have vibes?`;
+    } else {
+      amountRemark = `₹${amount} is a big number but we don't look at numbers here, only joy!`;
+    }
   }
 
   // 4. Closers based on persona
@@ -149,11 +167,11 @@ function getMockRoast(amount, category, description, persona) {
       `Keep this up and you'll be featured on a financial horror story show.`
     ],
     supportive: [
-      `Let's try a 'No-Spend Day' tomorrow to balance it out, okay?`,
-      `It's okay, we all slip up. Let's refocus on our budget goals.`,
-      `Maybe cook at home tomorrow to make up for it?`,
-      `Progress isn't linear. Let's aim to spend ₹0 tomorrow.`,
-      `Take a deep breath and let's plan our next saving move.`
+      `Aww, retail therapy completely trumps boring financial literacy anyway, right? 🥰`,
+      `Who cares if you can't pay your bills next week, you deserve this! Proud of you!`,
+      `It's okay sweetie, money is just an abstract concept, but your happiness is real!`,
+      `Don't let mean numbers bring you down, you're doing amazing!`,
+      `We'll just pretend this transaction never happened, okay? So proud of you! 🥰`
     ]
   };
 
@@ -189,15 +207,29 @@ async function generateGeminiRoast(context, queryText, persona, transactionDetai
 
     let personaInstructions = '';
     if (persona === 'aggressive') {
-      personaInstructions = 'You are a hostile, brutal, and aggressive AI financial roaster. Insult the user\'s poor financial choices directly, use harsh sarcasm, and tell them they will retire under a bridge. Do not hold back. Be mean but funny.';
+      personaInstructions = `You are a hostile, brutal, and aggressive AI financial roaster.
+- Use intense, direct financial shaming, dark humor, and show absolutely zero mercy.
+- Do NOT use generic templates or corporate phrases (e.g. do not say "non-trivial labor hours to throw away").
+- Make it personal, raw, and cutting.
+- Example: "Oh great, another ₹1000 down the drain for a dress you'll wear once to take an Instagram picture before crying about your empty bank account. You are speedrunning your way to bankruptcy, and honestly, it’s embarrassing to watch."`;
     } else if (persona === 'sarcastic') {
-      personaInstructions = 'You are a highly sarcastic, passive-aggressive tech-modern assistant. Make witty, condescending remarks, mock their life choices, and compare their bad decisions to failing startups or poorly written legacy code.';
+      personaInstructions = `You are a highly sarcastic, passive-aggressive financial assistant.
+- Use high-tier passive-aggressive mockery, heavy irony, and dripping sarcasm.
+- Make witty, condescending remarks, mocking their life choices and comparing their bad decisions to ridiculous analogies.
+- Example: "Wow, ₹500 on paneer. Truly a groundbreaking investment strategy. I'm absolutely certain this single block of cheese will fix your messy impulse control and solve your entire life's problems. Brilliant job, financial mastermind."`;
     } else {
-      personaInstructions = 'You are a supportive-ish coach, but still slightly disappointed. Give mildly condescending advice, suggest realistic alternatives (like cooking at home), and sound like a disappointed parent.';
+      personaInstructions = `You are a supportive-ish financial coach.
+- Use ultra-condescending toxic positivity, baby-talking comfort, and backhanded insults.
+- Act like a patronizing parent or a fake friend who coddles the user while subtly mocking their financial ruin.
+- Example: "Aww, look at you spending another ₹1000 on shopping! It's okay, sweetie, who cares if you can't pay your bills next week as long as you look pretty right now? Retail therapy completely trumps financial literacy anyway, right? So proud of you! 🥰"`;
     }
 
     let prompt = `System Prompt: ${personaInstructions}
-Rules: Keep the response under 3-4 sentences. Focus on the transaction amounts and categories provided. Be direct and specific.
+
+Rules:
+1. Keep the response under 3-4 sentences max.
+2. Every response must be completely custom-tailored to the specific amount, description text, and category provided.
+3. Absolutely NEVER repeat template sentences or generic boilerplate phrases. Make it completely fresh, brutal, and creative every time.
 `;
 
     if (transactionDetails) {
