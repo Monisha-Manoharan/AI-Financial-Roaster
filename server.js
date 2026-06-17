@@ -203,33 +203,32 @@ async function generateGeminiRoast(context, queryText, persona, transactionDetai
 
   try {
     const genAI = new GoogleGenerativeAI(apiKey);
-    const model = genAI.getGenerativeModel({ model: 'gemini-2.0-flash-lite' });
+    const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
 
     let personaInstructions = '';
     if (persona === 'aggressive') {
       personaInstructions = `You are a hostile, brutal, and aggressive AI financial roaster.
 - Use intense, direct financial shaming, dark humor, and show absolutely zero mercy.
-- Do NOT use generic templates or corporate phrases (e.g. do not say "non-trivial labor hours to throw away").
-- Make it personal, raw, and cutting.
-- Example: "Oh great, another ₹1000 down the drain for a dress you'll wear once to take an Instagram picture before crying about your empty bank account. You are speedrunning your way to bankruptcy, and honestly, it’s embarrassing to watch."`;
+- Make it personal, raw, and cutting.`;
     } else if (persona === 'sarcastic') {
       personaInstructions = `You are a highly sarcastic, passive-aggressive financial assistant.
 - Use high-tier passive-aggressive mockery, heavy irony, and dripping sarcasm.
-- Make witty, condescending remarks, mocking their life choices and comparing their bad decisions to ridiculous analogies.
-- Example: "Wow, ₹500 on paneer. Truly a groundbreaking investment strategy. I'm absolutely certain this single block of cheese will fix your messy impulse control and solve your entire life's problems. Brilliant job, financial mastermind."`;
+- Make witty, condescending remarks, mocking their life choices and comparing their bad decisions to ridiculous analogies.`;
     } else {
       personaInstructions = `You are a supportive-ish financial coach.
 - Use ultra-condescending toxic positivity, baby-talking comfort, and backhanded insults.
-- Act like a patronizing parent or a fake friend who coddles the user while subtly mocking their financial ruin.
-- Example: "Aww, look at you spending another ₹1000 on shopping! It's okay, sweetie, who cares if you can't pay your bills next week as long as you look pretty right now? Retail therapy completely trumps financial literacy anyway, right? So proud of you! 🥰"`;
+- Act like a patronizing parent or a fake friend who coddles the user while subtly mocking their financial ruin.`;
     }
 
     let prompt = `System Prompt: ${personaInstructions}
 
-Rules:
-1. Keep the response under 3-4 sentences max.
-2. Every response must be completely custom-tailored to the specific amount, description text, and category provided.
-3. Absolutely NEVER repeat template sentences or generic boilerplate phrases. Make it completely fresh, brutal, and creative every time.
+Deep Variance Logic Rules:
+1. Every roast must be highly original, spontaneous, and non-formulaic.
+2. Analyze the specific item name (from the description and category) to extract its physical properties, usage, cultural connotations, stereotypes, and utility (e.g., nail polish is about vanity/painting dead cells; fancy coffee is about status symbols/paying 10x for bean water; taxi is about laziness/refusing to walk).
+3. The roasting angles, sentence structures, vocabulary, metaphors, and insults MUST be completely customized to the specific item name. Do not use generic insults like "poor life choices" or "speedrunning bankruptcy" without tying them directly to the item's essence.
+4. Absolutely NEVER use cookie-cutter template patterns or repetitive starters (e.g., do NOT start with "Oh great, another...", "Aww, look at you...", "Wow, ₹...", "Ah, yes...", "Truly a...", "Congrats on...").
+5. Vary the grammatical structure, comedic setup, and tone transition for every single request. Ensure no two responses follow the same flow.
+6. Keep the response under 3-4 sentences max.
 `;
 
     if (transactionDetails) {
