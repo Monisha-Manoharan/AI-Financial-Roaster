@@ -203,6 +203,8 @@
             }
         }
     </script>
+    <!-- Supabase JS CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body class="bg-background text-on-background font-body-md overflow-x-hidden selection:bg-primary-fixed selection:text-background crt-effect min-h-screen flex flex-col md:flex-row">
 
@@ -281,9 +283,9 @@
                                 A personality-driven expense analyzer that replaces quiet charts with active, sarcastic AI degradation. Endure a ruthless, real-time audit of your financial failures.
                             </p>
                             <div class="mt-4 flex flex-col sm:flex-row gap-4 w-full sm:w-auto">
-                                <button onclick="switchTab('entry')" class="bg-primary-fixed text-on-primary-fixed font-data-label text-data-label uppercase px-8 py-4 font-bold glitch-hover transition-all duration-200 flex items-center justify-center gap-2 border border-primary-fixed">
+                                <button id="landing-action-btn" onclick="handleLandingAction()" class="bg-primary-fixed text-on-primary-fixed font-data-label text-data-label uppercase px-8 py-4 font-bold glitch-hover transition-all duration-200 flex items-center justify-center gap-2 border border-primary-fixed">
                                     <span class="material-symbols-outlined text-[18px]">bolt</span>
-                                    LOG &amp; SHAME ME
+                                    <span id="landing-action-btn-text">[ ACCOUNT REGISTRATION ]</span>
                                 </button>
                                 <button onclick="switchTab('dashboard')" class="glass-panel text-on-surface font-data-label text-data-label uppercase px-8 py-4 font-bold hover:bg-surface-container-highest transition-colors duration-200 border border-outline-variant/50">
                                     VIEW DASHBOARD
@@ -763,14 +765,163 @@
         </button>
     </nav>
 
+    <!-- Fullscreen Registration Page (CASE A) -->
+    <div id="registration-screen" class="fixed inset-0 z-[100] bg-background/95 backdrop-blur-md flex items-center justify-center p-6 hidden">
+        <!-- Dot Grid Background inside the screen to keep aesthetics -->
+        <div class="absolute inset-0 pointer-events-none z-0" style="background-image: radial-gradient(circle at 1px 1px, rgba(255,255,255,0.03) 1px, transparent 0); background-size: 24px 24px;"></div>
+        
+        <!-- Registration Panel -->
+        <div class="relative w-full max-w-md glass-panel border border-primary-fixed/40 p-8 flex flex-col gap-6 z-10">
+            <!-- Header -->
+            <div class="flex items-center gap-2 border-b border-primary-fixed/20 pb-4">
+                <span class="w-3 h-3 bg-primary-fixed animate-ping shrink-0 rounded-full"></span>
+                <h2 class="font-data-label text-data-label tracking-[0.2em] text-primary-fixed uppercase">NODE_00: USER_REGISTRATION_PROTOCOL</h2>
+            </div>
+            
+            <p class="font-body-md text-[13px] text-on-surface-variant leading-relaxed">// Enter credentials to initialize your identity matrix. Once registered, your financial reality will be tracked and shamed accordingly.</p>
+            
+            <form id="registration-form" onsubmit="handleRegisterSubmit(event)" class="space-y-6">
+                <!-- Username Input -->
+                <div class="relative">
+                    <label class="font-data-label text-data-label text-on-surface-variant block mb-2 uppercase">Username</label>
+                    <input required id="reg-username" class="w-full bg-transparent border-0 border-b border-outline-variant p-2 font-body-md text-on-surface placeholder:text-on-surface-variant/30 focus:ring-0 outline-none transition-all focus:border-primary-fixed" placeholder="e.g., FinancialDisaster99" type="text" />
+                    <div class="scan-line"></div>
+                </div>
+
+                <!-- Email Input -->
+                <div class="relative">
+                    <label class="font-data-label text-data-label text-on-surface-variant block mb-2 uppercase">Email Address</label>
+                    <input required id="reg-email" class="w-full bg-transparent border-0 border-b border-outline-variant p-2 font-body-md text-on-surface placeholder:text-on-surface-variant/30 focus:ring-0 outline-none transition-all focus:border-primary-fixed" placeholder="e.g., victim@bankrupt.com" type="email" />
+                    <div class="scan-line"></div>
+                </div>
+
+                <!-- Password Input -->
+                <div class="relative">
+                    <label class="font-data-label text-data-label text-on-surface-variant block mb-2 uppercase">Password</label>
+                    <input required id="reg-password" minlength="6" class="w-full bg-transparent border-0 border-b border-outline-variant p-2 font-body-md text-on-surface placeholder:text-on-surface-variant/30 focus:ring-0 outline-none transition-all focus:border-primary-fixed" placeholder="••••••••" type="password" />
+                    <div class="scan-line"></div>
+                </div>
+
+                <!-- Buttons -->
+                <div class="flex flex-col gap-3 pt-2">
+                    <button type="submit" class="bg-primary-fixed text-black font-data-label text-data-label uppercase py-4 font-bold transition-all duration-200 border border-primary-fixed hover:bg-transparent hover:text-primary-fixed flex items-center justify-center gap-2">
+                        <span class="material-symbols-outlined text-[18px]">how_to_reg</span>
+                        [ INITIATE PROFILE ]
+                    </button>
+                    <button type="button" onclick="hideRegistration()" class="border border-outline-variant text-on-surface font-data-label text-data-label uppercase py-3 font-bold hover:bg-surface-container-highest transition-colors duration-200 flex items-center justify-center gap-2">
+                        [ CANCEL ]
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
     <!-- Core SPA Javascript Logic -->
     <script>
         // Global variables
+        let supabase = null;
+        let currentSession = null;
         let expensesData = [];
         let incomeData = [];
         let activeTab = 'landing';
         let currentManualLogMode = 'expense';
         let currentLogTableMode = 'expense';
+
+        // Initialize Supabase Client & Check Session
+        async function initSupabase() {
+            try {
+                const res = await fetch('/api/supabase-config');
+                const config = await res.json();
+                if (config.supabaseUrl && config.supabaseAnonKey && !config.supabaseAnonKey.includes('REPLACE_WITH_YOUR')) {
+                    // Initialize client-side Supabase SDK using loaded global object
+                    supabase = supabase.createClient(config.supabaseUrl, config.supabaseAnonKey);
+                    
+                    // Listen for auth state changes
+                    supabase.auth.onAuthStateChange((event, session) => {
+                        currentSession = session;
+                        updateLandingButton(!!session);
+                    });
+
+                    // Initial session check
+                    const { data: { session }, error } = await supabase.auth.getSession();
+                    if (error) throw error;
+                    currentSession = session;
+                    updateLandingButton(!!session);
+                } else {
+                    console.warn("Supabase public credentials not fully configured in .env yet.");
+                    updateLandingButton(false);
+                }
+            } catch (err) {
+                console.error("Failed to initialize Supabase:", err);
+                updateLandingButton(false);
+            }
+        }
+
+        function updateLandingButton(hasSession) {
+            const btnText = document.getElementById('landing-action-btn-text');
+            if (btnText) {
+                btnText.innerText = hasSession ? '[ LOG & SHAME ME ]' : '[ ACCOUNT REGISTRATION ]';
+            }
+        }
+
+        function handleLandingAction() {
+            if (currentSession) {
+                switchTab('entry');
+            } else {
+                document.getElementById('registration-screen').classList.remove('hidden');
+            }
+        }
+
+        function hideRegistration() {
+            document.getElementById('registration-screen').classList.add('hidden');
+        }
+
+        async function handleRegisterSubmit(event) {
+            event.preventDefault();
+            const username = document.getElementById('reg-username').value.trim();
+            const email = document.getElementById('reg-email').value.trim();
+            const password = document.getElementById('reg-password').value;
+
+            if (!supabase) {
+                showToast('SUPABASE CLIENT NOT INITIALIZED (CHECK CREDENTIALS).', 'error');
+                return;
+            }
+
+            try {
+                showToast('INITIATING PROFILE REGISTRATION...', 'success');
+                const { data, error } = await supabase.auth.signUp({
+                    email,
+                    password,
+                    options: {
+                        data: { username }
+                    }
+                });
+                if (error) throw error;
+
+                let session = data.session;
+                if (!session) {
+                    // Try immediate sign-in in case auto-login wasn't triggered
+                    const { data: signInData, error: signInError } = await supabase.auth.signInWithPassword({
+                        email,
+                        password
+                    });
+                    if (!signInError) {
+                        session = signInData.session;
+                    }
+                }
+
+                currentSession = session;
+                updateLandingButton(!!session);
+                hideRegistration();
+                showToast('IDENTITY MATRIX REGISTERED. WELCOME.', 'success');
+                
+                // Redirect user to the Entry Protocol view
+                switchTab('entry');
+            } catch (err) {
+                console.error(err);
+                showToast(`REGISTRATION FAILED: ${err.message}`, 'error');
+            }
+        }
         
         // Non-blocking Cyberpunk Toast Notifications
         function showToast(message, type = 'success') {
@@ -1454,6 +1605,8 @@
             loadConfig();
             // Load data
             refreshData();
+            // Initialize Supabase client and check session
+            initSupabase();
             // Default select Landing tab
             switchTab('landing');
         };
