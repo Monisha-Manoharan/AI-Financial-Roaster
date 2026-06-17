@@ -244,6 +244,10 @@
                 <span class="material-symbols-outlined text-[20px]">tune</span>
                 PERSONA SETTINGS
             </button>
+            <button onclick="handleLogout()" id="side-tab-logout" class="w-full flex items-center gap-4 text-on-surface-variant px-6 py-4 font-data-label text-data-label uppercase tracking-widest border-l-4 border-transparent hover:bg-surface-variant/20 hover:text-primary transition-all text-left font-body-md hidden">
+                <span class="material-symbols-outlined text-[20px]">logout</span>
+                LOG OUT
+            </button>
         </nav>
 
         <!-- Footer -->
@@ -763,7 +767,50 @@
             <span class="material-symbols-outlined text-[20px]">tune</span>
             <span class="font-data-label text-[9px]">Config</span>
         </button>
+        <button onclick="handleLogout()" id="mob-tab-logout" class="flex flex-col items-center justify-center text-on-surface-variant flex-1 h-full gap-1 hidden">
+            <span class="material-symbols-outlined text-[20px]">logout</span>
+            <span class="font-data-label text-[9px]">Logout</span>
+        </button>
     </nav>
+
+    <!-- Fullscreen Access Denied (Unregistered Users trying protected tabs) -->
+    <div id="access-denied-screen" class="fixed inset-0 z-[99] bg-background/98 backdrop-blur-md flex items-center justify-center p-6 hidden">
+        <div class="absolute inset-0 pointer-events-none z-0" style="background-image: radial-gradient(circle at 1px 1px, rgba(255,0,0,0.04) 1px, transparent 0); background-size: 24px 24px;"></div>
+        <div class="relative w-full max-w-lg flex flex-col items-center gap-8 z-10 text-center">
+            <!-- Big Error Icon -->
+            <div class="relative">
+                <div class="absolute -inset-6 bg-error/10 blur-2xl rounded-full"></div>
+                <span class="material-symbols-outlined text-[96px] text-error relative z-10" style="font-variation-settings: 'FILL' 0">gpp_bad</span>
+            </div>
+            <!-- Error Text -->
+            <div class="space-y-3">
+                <p class="font-data-label text-data-label text-error tracking-[0.3em] uppercase">// ACCESS_DENIED :: IDENTITY_UNVERIFIED</p>
+                <h2 class="font-headline-lg-mobile md:font-headline-lg text-headline-lg-mobile md:text-headline-lg text-primary leading-tight">
+                    You don't exist <span class="text-error">in our system.</span>
+                </h2>
+                <p class="font-body-md text-on-surface-variant max-w-sm mx-auto">
+                    This section is restricted to registered operators only. Create your identity profile first before attempting to access the financial shame engine.
+                </p>
+            </div>
+            <!-- Segmented Error Bar -->
+            <div class="flex gap-1 w-48">
+                <div class="flex-1 h-1 bg-error"></div>
+                <div class="flex-1 h-1 bg-error/60"></div>
+                <div class="flex-1 h-1 bg-error/30"></div>
+                <div class="flex-1 h-1 bg-error/10"></div>
+            </div>
+            <!-- Buttons -->
+            <div class="flex flex-col sm:flex-row gap-4 w-full max-w-sm">
+                <button onclick="dismissAccessDenied()" class="flex-1 bg-primary-fixed text-on-primary-fixed font-data-label text-data-label uppercase py-4 font-bold glitch-hover transition-all duration-200 flex items-center justify-center gap-2 border border-primary-fixed">
+                    <span class="material-symbols-outlined text-[18px]">how_to_reg</span>
+                    [ REGISTER NOW ]
+                </button>
+                <button onclick="closeAccessDenied()" class="flex-1 glass-panel text-on-surface font-data-label text-data-label uppercase py-4 font-bold hover:bg-surface-container-highest transition-colors duration-200 border border-outline-variant/50">
+                    [ GO BACK ]
+                </button>
+            </div>
+        </div>
+    </div>
 
     <!-- Fullscreen Registration Page (CASE A) -->
     <div id="registration-screen" class="fixed inset-0 z-[100] bg-background/95 backdrop-blur-md flex items-center justify-center p-6 hidden">
@@ -775,23 +822,33 @@
             <!-- Header -->
             <div class="flex items-center gap-2 border-b border-primary-fixed/20 pb-4">
                 <span class="w-3 h-3 bg-primary-fixed animate-ping shrink-0 rounded-full"></span>
-                <h2 class="font-data-label text-data-label tracking-[0.2em] text-primary-fixed uppercase">NODE_00: USER_REGISTRATION_PROTOCOL</h2>
+                <h2 class="font-data-label text-data-label tracking-[0.2em] text-primary-fixed uppercase" id="auth-panel-title">NODE_00: USER_REGISTRATION_PROTOCOL</h2>
             </div>
             
-            <p class="font-body-md text-[13px] text-on-surface-variant leading-relaxed">// Enter credentials to initialize your identity matrix. Once registered, your financial reality will be tracked and shamed accordingly.</p>
+            <!-- Auth Mode Switcher -->
+            <div class="flex gap-2 bg-surface-container-low p-1 w-full border border-outline-variant">
+                <button type="button" id="auth-mode-signup" onclick="switchAuthMode('signup')" class="flex-1 px-4 py-1.5 font-data-label text-[11px] bg-primary-fixed text-black font-bold uppercase transition-all">
+                    [ REGISTER ]
+                </button>
+                <button type="button" id="auth-mode-signin" onclick="switchAuthMode('signin')" class="flex-1 px-4 py-1.5 font-data-label text-[11px] text-on-surface-variant font-bold uppercase hover:bg-surface-container-high transition-all">
+                    [ AUTHENTICATE ]
+                </button>
+            </div>
+            
+            <p class="font-body-md text-[13px] text-on-surface-variant leading-relaxed" id="auth-form-desc">// Enter credentials to initialize your identity matrix. Once registered, your financial reality will be tracked and shamed accordingly.</p>
             
             <form id="registration-form" onsubmit="handleRegisterSubmit(event)" class="space-y-6">
                 <!-- Username Input -->
-                <div class="relative">
+                <div class="relative" id="reg-username-container">
                     <label class="font-data-label text-data-label text-on-surface-variant block mb-2 uppercase">Username</label>
                     <input required id="reg-username" class="w-full bg-transparent border-0 border-b border-outline-variant p-2 font-body-md text-on-surface placeholder:text-on-surface-variant/30 focus:ring-0 outline-none transition-all focus:border-primary-fixed" placeholder="e.g., FinancialDisaster99" type="text" />
                     <div class="scan-line"></div>
                 </div>
 
-                <!-- Email Input -->
-                <div class="relative">
-                    <label class="font-data-label text-data-label text-on-surface-variant block mb-2 uppercase">Email Address</label>
-                    <input required id="reg-email" class="w-full bg-transparent border-0 border-b border-outline-variant p-2 font-body-md text-on-surface placeholder:text-on-surface-variant/30 focus:ring-0 outline-none transition-all focus:border-primary-fixed" placeholder="e.g., victim@bankrupt.com" type="email" />
+                <!-- Email/Username Input (shown only in sign-in mode) -->
+                <div class="relative hidden" id="reg-email-container">
+                    <label class="font-data-label text-data-label text-on-surface-variant block mb-2 uppercase" id="reg-email-label">Username or Email</label>
+                    <input id="reg-email" class="w-full bg-transparent border-0 border-b border-outline-variant p-2 font-body-md text-on-surface placeholder:text-on-surface-variant/30 focus:ring-0 outline-none transition-all focus:border-primary-fixed" placeholder="e.g., YourUsername or email@domain.com" type="text" />
                     <div class="scan-line"></div>
                 </div>
 
@@ -805,8 +862,8 @@
                 <!-- Buttons -->
                 <div class="flex flex-col gap-3 pt-2">
                     <button type="submit" class="bg-primary-fixed text-black font-data-label text-data-label uppercase py-4 font-bold transition-all duration-200 border border-primary-fixed hover:bg-transparent hover:text-primary-fixed flex items-center justify-center gap-2">
-                        <span class="material-symbols-outlined text-[18px]">how_to_reg</span>
-                        [ INITIATE PROFILE ]
+                        <span class="material-symbols-outlined text-[18px]" id="reg-submit-btn-icon">how_to_reg</span>
+                        <span id="reg-submit-btn-text">[ INITIATE PROFILE ]</span>
                     </button>
                     <button type="button" onclick="hideRegistration()" class="border border-outline-variant text-on-surface font-data-label text-data-label uppercase py-3 font-bold hover:bg-surface-container-highest transition-colors duration-200 flex items-center justify-center gap-2">
                         [ CANCEL ]
@@ -819,7 +876,7 @@
     <!-- Core SPA Javascript Logic -->
     <script>
         // Global variables
-        let supabase = null;
+        let supabaseClient = null;  // renamed to avoid shadowing the CDN global `supabase`
         let currentSession = null;
         let expensesData = [];
         let incomeData = [];
@@ -833,17 +890,17 @@
                 const res = await fetch('/api/supabase-config');
                 const config = await res.json();
                 if (config.supabaseUrl && config.supabaseAnonKey && !config.supabaseAnonKey.includes('REPLACE_WITH_YOUR')) {
-                    // Initialize client-side Supabase SDK using loaded global object
-                    supabase = supabase.createClient(config.supabaseUrl, config.supabaseAnonKey);
+                    // Initialize client-side Supabase SDK using the CDN global `supabase` object
+                    supabaseClient = supabase.createClient(config.supabaseUrl, config.supabaseAnonKey);
                     
                     // Listen for auth state changes
-                    supabase.auth.onAuthStateChange((event, session) => {
+                    supabaseClient.auth.onAuthStateChange((event, session) => {
                         currentSession = session;
                         updateLandingButton(!!session);
                     });
 
                     // Initial session check
-                    const { data: { session }, error } = await supabase.auth.getSession();
+                    const { data: { session }, error } = await supabaseClient.auth.getSession();
                     if (error) throw error;
                     currentSession = session;
                     updateLandingButton(!!session);
@@ -857,10 +914,91 @@
             }
         }
 
+        let currentAuthMode = 'signup';
+
+        function switchAuthMode(mode) {
+            currentAuthMode = mode;
+            const btnSignUp = document.getElementById('auth-mode-signup');
+            const btnSignIn = document.getElementById('auth-mode-signin');
+            const usernameField = document.getElementById('reg-username-container');
+            const emailField = document.getElementById('reg-email-container');
+            const submitBtnText = document.getElementById('reg-submit-btn-text');
+            const submitBtnIcon = document.getElementById('reg-submit-btn-icon');
+            const formDesc = document.getElementById('auth-form-desc');
+            const regUsernameInput = document.getElementById('reg-username');
+            const emailLabel = document.getElementById('reg-email-label');
+            const emailInput = document.getElementById('reg-email');
+
+            if (mode === 'signup') {
+                btnSignUp.className = 'flex-1 px-4 py-1.5 font-data-label text-[11px] bg-primary-fixed text-black font-bold uppercase transition-all';
+                btnSignIn.className = 'flex-1 px-4 py-1.5 font-data-label text-[11px] text-on-surface-variant font-bold uppercase hover:bg-surface-container-high transition-all';
+                
+                // Show username field, HIDE email field — email is auto-generated from username
+                if (usernameField) usernameField.classList.remove('hidden');
+                if (emailField) emailField.classList.add('hidden');
+                if (regUsernameInput) regUsernameInput.required = true;
+                if (emailInput) emailInput.required = false;
+                if (submitBtnText) submitBtnText.innerText = '[ INITIATE PROFILE ]';
+                if (submitBtnIcon) submitBtnIcon.innerText = 'how_to_reg';
+                if (formDesc) formDesc.innerText = '// Enter a unique username and password to initialize your identity matrix. Your financial reality will be tracked and shamed accordingly.';
+            } else {
+                btnSignIn.className = 'flex-1 px-4 py-1.5 font-data-label text-[11px] bg-primary-fixed text-black font-bold uppercase transition-all';
+                btnSignUp.className = 'flex-1 px-4 py-1.5 font-data-label text-[11px] text-on-surface-variant font-bold uppercase hover:bg-surface-container-high transition-all';
+                
+                // Hide username, show email/username field for signin
+                if (usernameField) usernameField.classList.add('hidden');
+                if (emailField) emailField.classList.remove('hidden');
+                if (regUsernameInput) regUsernameInput.required = false;
+                if (emailInput) {
+                    emailInput.required = true;
+                    emailInput.type = 'text';
+                    emailInput.placeholder = 'e.g., YourUsername or email@domain.com';
+                }
+                if (emailLabel) emailLabel.innerText = 'USERNAME OR EMAIL';
+                if (submitBtnText) submitBtnText.innerText = '[ AUTHENTICATE MATRIX ]';
+                if (submitBtnIcon) submitBtnIcon.innerText = 'login';
+                if (formDesc) formDesc.innerText = '// Authenticate your identity matrix using your username or email and password.';
+            }
+        }
+
         function updateLandingButton(hasSession) {
             const btnText = document.getElementById('landing-action-btn-text');
             if (btnText) {
                 btnText.innerText = hasSession ? '[ LOG & SHAME ME ]' : '[ ACCOUNT REGISTRATION ]';
+            }
+
+            // Show/Hide logout buttons in side nav and mobile nav
+            const sideLogout = document.getElementById('side-tab-logout');
+            const mobLogout = document.getElementById('mob-tab-logout');
+            if (sideLogout) {
+                if (hasSession) {
+                    sideLogout.classList.remove('hidden');
+                } else {
+                    sideLogout.classList.add('hidden');
+                }
+            }
+            if (mobLogout) {
+                if (hasSession) {
+                    mobLogout.classList.remove('hidden');
+                } else {
+                    mobLogout.classList.add('hidden');
+                }
+            }
+        }
+
+        async function handleLogout() {
+            if (!supabaseClient) return;
+            try {
+                showToast('DE-AUTHENTICATING OPERATOR...', 'success');
+                const { error } = await supabaseClient.auth.signOut();
+                if (error) throw error;
+                currentSession = null;
+                updateLandingButton(false);
+                showToast('DE-AUTHENTICATION COMPLETE. ACCESS RESTRICTED.', 'success');
+                _doSwitchTab('landing');
+            } catch (err) {
+                console.error(err);
+                showToast(`LOGOUT FAILED: ${err.message}`, 'error');
             }
         }
 
@@ -868,6 +1006,7 @@
             if (currentSession) {
                 switchTab('entry');
             } else {
+                switchAuthMode('signup'); // Default to register
                 document.getElementById('registration-screen').classList.remove('hidden');
             }
         }
@@ -878,48 +1017,93 @@
 
         async function handleRegisterSubmit(event) {
             event.preventDefault();
-            const username = document.getElementById('reg-username').value.trim();
-            const email = document.getElementById('reg-email').value.trim();
+            const username = document.getElementById('reg-username') ? document.getElementById('reg-username').value.trim() : '';
             const password = document.getElementById('reg-password').value;
 
-            if (!supabase) {
-                showToast('SUPABASE CLIENT NOT INITIALIZED (CHECK CREDENTIALS).', 'error');
+            if (!supabaseClient) {
+                showToast('SUPABASE CLIENT NOT INITIALIZED.', 'error');
                 return;
             }
 
-            try {
-                showToast('INITIATING PROFILE REGISTRATION...', 'success');
-                const { data, error } = await supabase.auth.signUp({
-                    email,
-                    password,
-                    options: {
-                        data: { username }
-                    }
-                });
-                if (error) throw error;
+            // Disable submit button to prevent double-click
+            const submitBtn = document.querySelector('#registration-form button[type="submit"]');
+            if (submitBtn) { submitBtn.disabled = true; submitBtn.style.opacity = '0.6'; }
+            const restoreBtn = () => { if (submitBtn) { submitBtn.disabled = false; submitBtn.style.opacity = '1'; } };
 
-                let session = data.session;
-                if (!session) {
-                    // Try immediate sign-in in case auto-login wasn't triggered
-                    const { data: signInData, error: signInError } = await supabase.auth.signInWithPassword({
-                        email,
-                        password
+            try {
+                if (currentAuthMode === 'signup') {
+                    // --- SIGN UP FLOW ---
+                    if (!username) throw new Error('Username is required.');
+                    if (username.length < 3) throw new Error('Username must be at least 3 characters.');
+                    if (password.length < 6) throw new Error('Password must be at least 6 characters.');
+
+                    showToast('INITIATING PROFILE REGISTRATION...', 'success');
+
+                    // Use backend admin-signup (email auto-generated from username)
+                    const signupRes = await fetch('/api/admin-signup', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ username, password })
                     });
-                    if (!signInError) {
-                        session = signInData.session;
+                    const signupData = await signupRes.json();
+                    if (!signupRes.ok) {
+                        throw new Error(signupData.error || 'Signup failed.');
                     }
+
+                    showToast('PROFILE CREATED. AUTHENTICATING...', 'success');
+
+                    // Sign in using the auto-generated internal email returned by backend
+                    const internalEmail = signupData.email;
+                    const { data: signInData, error: signInError } = await supabaseClient.auth.signInWithPassword({ email: internalEmail, password });
+                    if (signInError) throw signInError;
+                    if (!signInData.session) throw new Error('Could not retrieve active session after signup.');
+
+                    currentSession = signInData.session;
+                    updateLandingButton(true);
+                    hideRegistration();
+                    showToast('IDENTITY MATRIX LOCKED IN. WELCOME, OPERATOR.', 'success');
+                    _doSwitchTab('entry');
+
+                } else {
+                    // --- SIGN IN FLOW ---
+                    const emailInput = document.getElementById('reg-email').value.trim();
+                    if (!emailInput) throw new Error('Username or email is required.');
+                    showToast('AUTHENTICATING IDENTITY...', 'success');
+
+                    let resolvedEmail = emailInput;
+
+                    // Always try to resolve as username first (works for all formats)
+                    // If username lookup fails, fall back to using the raw input as email
+                    try {
+                        const res = await fetch('/api/resolve-username', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ username: emailInput })
+                        });
+                        if (res.ok) {
+                            const resData = await res.json();
+                            resolvedEmail = resData.email; // Use resolved internal email
+                        }
+                        // If res is 404, fall through and use raw emailInput as the email
+                    } catch (_) {
+                        // Network error during resolution — attempt with raw input
+                    }
+
+                    const { data: signInData, error: signInError } = await supabaseClient.auth.signInWithPassword({ email: resolvedEmail, password });
+                    if (signInError) throw signInError;
+                    if (!signInData.session) throw new Error('Could not retrieve active session.');
+
+                    currentSession = signInData.session;
+                    updateLandingButton(true);
+                    hideRegistration();
+                    showToast('IDENTITY MATRIX LOCKED IN. WELCOME, OPERATOR.', 'success');
+                    _doSwitchTab('entry');
                 }
 
-                currentSession = session;
-                updateLandingButton(!!session);
-                hideRegistration();
-                showToast('IDENTITY MATRIX REGISTERED. WELCOME.', 'success');
-                
-                // Redirect user to the Entry Protocol view
-                switchTab('entry');
             } catch (err) {
                 console.error(err);
-                showToast(`REGISTRATION FAILED: ${err.message}`, 'error');
+                showToast(`ERROR: ${err.message}`, 'error');
+                restoreBtn();
             }
         }
         
@@ -963,16 +1147,38 @@
             }, 2000);
         }
         
-        // Dynamic Tab Switching
-        function switchTab(tabId) {
+        // Protected tabs that require authentication
+        const PROTECTED_TABS = ['entry', 'dashboard', 'logs', 'settings'];
+
+        // Show the access denied overlay and remember which tab was attempted
+        function showAccessDenied() {
+            document.getElementById('access-denied-screen').classList.remove('hidden');
+        }
+
+        // "REGISTER NOW" button on the access denied screen → close denied screen, open registration
+        function dismissAccessDenied() {
+            document.getElementById('access-denied-screen').classList.add('hidden');
+            document.getElementById('registration-screen').classList.remove('hidden');
+        }
+
+        // "GO BACK" button on the access denied screen → just close it, stay on landing
+        function closeAccessDenied() {
+            document.getElementById('access-denied-screen').classList.add('hidden');
+            // Force back to landing tab without triggering guard
+            _doSwitchTab('landing');
+        }
+
+        // Internal raw tab switch (no auth guard)
+        function _doSwitchTab(tabId) {
             activeTab = tabId;
-            
+
             // Hide all tabs
             document.querySelectorAll('.tab-content').forEach(element => {
                 element.classList.add('hidden');
             });
             // Show selected tab
-            document.getElementById(`tab-${tabId}`).classList.remove('hidden');
+            const tabEl = document.getElementById(`tab-${tabId}`);
+            if (tabEl) tabEl.classList.remove('hidden');
 
             // Update Desktop Side Nav highlight
             document.querySelectorAll('nav[class*="space-y-1"] button').forEach(btn => {
@@ -996,6 +1202,16 @@
             if (tabId === 'dashboard' || tabId === 'logs') {
                 refreshData();
             }
+        }
+
+        // Dynamic Tab Switching (with auth guard for protected tabs)
+        function switchTab(tabId) {
+            // Block access to protected tabs if user has no session
+            if (PROTECTED_TABS.includes(tabId) && !currentSession) {
+                showAccessDenied();
+                return;
+            }
+            _doSwitchTab(tabId);
         }
 
         // Switch Manual Logger Mode between Expense and Income
@@ -1081,9 +1297,13 @@
 
         // Fetch Stats, Expenses and Income from Server
         async function refreshData() {
+            if (!currentSession) return;
+            const headers = {
+                'Authorization': 'Bearer ' + currentSession.access_token
+            };
             try {
                 // Fetch stats
-                const statsResponse = await fetch('/api/stats');
+                const statsResponse = await fetch('/api/stats', { headers });
                 const stats = await statsResponse.json();
                 
                 // Update stats UI elements
@@ -1206,11 +1426,11 @@
                 }
 
                 // Fetch all expenses to update logs list
-                const expensesResponse = await fetch('/api/expenses');
+                const expensesResponse = await fetch('/api/expenses', { headers });
                 expensesData = await expensesResponse.json();
 
                 // Fetch all incomes
-                const incomeResponse = await fetch('/api/income');
+                const incomeResponse = await fetch('/api/income', { headers });
                 incomeData = await incomeResponse.json();
 
                 // Render active table
@@ -1300,6 +1520,7 @@
         // Submit Manual Expense/Income Logger
         async function handleManualSubmit(e) {
             e.preventDefault();
+            if (!currentSession) return;
             
             const descInput = document.getElementById('exp-desc');
             const amtInput = document.getElementById('exp-amount');
@@ -1317,7 +1538,10 @@
             try {
                 const response = await fetch(endpoint, {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
+                    headers: { 
+                        'Content-Type': 'application/json',
+                        'Authorization': 'Bearer ' + currentSession.access_token
+                    },
                     body: JSON.stringify(payload)
                 });
                 const result = await response.json();
@@ -1344,9 +1568,15 @@
 
         // Delete expense entry
         async function deleteExpense(id) {
+            if (!currentSession) return;
             if (confirm('Delete this entry? The AI will still remember your fiscal failure, but it will disappear from this table.')) {
                 try {
-                    const response = await fetch(`/api/expenses/${id}`, { method: 'DELETE' });
+                    const response = await fetch(`/api/expenses/${id}`, { 
+                        method: 'DELETE',
+                        headers: {
+                            'Authorization': 'Bearer ' + currentSession.access_token
+                        }
+                    });
                     if (response.ok) {
                         refreshData();
                     }
@@ -1358,9 +1588,15 @@
 
         // Delete income entry
         async function deleteIncome(id) {
+            if (!currentSession) return;
             if (confirm('Are you sure you want to delete this income entry?')) {
                 try {
-                    const response = await fetch(`/api/income/${id}`, { method: 'DELETE' });
+                    const response = await fetch(`/api/income/${id}`, { 
+                        method: 'DELETE',
+                        headers: {
+                            'Authorization': 'Bearer ' + currentSession.access_token
+                        }
+                    });
                     if (response.ok) {
                         refreshData();
                     }
@@ -1378,6 +1614,7 @@
         }
 
         async function sendChatMessage() {
+            if (!currentSession) return;
             const input = document.getElementById('chat-input');
             const message = input.value.trim();
             if (!message) return;
@@ -1392,7 +1629,10 @@
 
                 const response = await fetch('/api/chat', {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
+                    headers: { 
+                        'Content-Type': 'application/json',
+                        'Authorization': 'Bearer ' + currentSession.access_token
+                    },
                     body: JSON.stringify({ message })
                 });
                 const result = await response.json();
@@ -1585,9 +1825,15 @@
 
         // Reboot Wiping DB
         async function triggerSystemReboot() {
+            if (!currentSession) return;
             if (confirm('CRITICAL WARNING: This will permanently delete ALL logged manual expenses in your Supabase relational database. Do you wish to proceed?')) {
                 try {
-                    const response = await fetch('/api/reboot', { method: 'POST' });
+                    const response = await fetch('/api/reboot', { 
+                        method: 'POST',
+                        headers: {
+                            'Authorization': 'Bearer ' + currentSession.access_token
+                        }
+                    });
                     const result = await response.json();
                     if (response.ok) {
                         showToast(result.message, 'success');
@@ -1607,8 +1853,8 @@
             refreshData();
             // Initialize Supabase client and check session
             initSupabase();
-            // Default select Landing tab
-            switchTab('landing');
+            // Default select Landing tab (bypass guard — landing is public)
+            _doSwitchTab('landing');
         };
     </script>
 </body>

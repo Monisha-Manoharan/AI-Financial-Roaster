@@ -3,6 +3,7 @@ const { Pool } = require('pg');
 const { GoogleGenerativeAI } = require('@google/generative-ai');
 const path = require('path');
 const fs = require('fs');
+const bcrypt = require('bcryptjs');
 require('dotenv').config();
 
 // Helper: Programmatically write/update key in .env file
@@ -44,13 +45,34 @@ const pool = new Pool({
   }
 });
 
-// Test Database Connection
-pool.connect((err, client, release) => {
+// Test Database Connection & Run Migrations
+pool.connect(async (err, client, release) => {
   if (err) {
     console.error('Error acquiring client', err.stack);
   } else {
     console.log('Successfully connected to Supabase PostgreSQL Database.');
-    release();
+    try {
+      console.log('Running database schema migrations...');
+      // Add user_id columns if missing
+      await client.query(`
+        ALTER TABLE expenses ADD COLUMN IF NOT EXISTS user_id UUID REFERENCES auth.users(id) ON DELETE CASCADE;
+        ALTER TABLE income ADD COLUMN IF NOT EXISTS user_id UUID REFERENCES auth.users(id) ON DELETE CASCADE;
+      `);
+      // Fix any broken identity records where provider_id is UUID instead of email
+      await client.query(`
+        UPDATE auth.identities i
+        SET provider_id = u.email
+        FROM auth.users u
+        WHERE i.user_id = u.id
+          AND i.provider = 'email'
+          AND i.provider_id != u.email;
+      `);
+      console.log('Database schema migrations completed successfully.');
+    } catch (migErr) {
+      console.error('Migration failed:', migErr);
+    } finally {
+      release();
+    }
   }
 });
 
@@ -357,10 +379,36 @@ ${queryText}
   }
 }
 
-// Endpoint: Fetch all expenses
-app.get('/api/expenses', async (req, res) => {
+// Middleware: Verify Supabase Session Token (JWT)
+async function requireAuth(req, res, next) {
+  const authHeader = req.headers['authorization'];
+  if (!authHeader || !authHeader.startsWith('Bearer ')) {
+    return res.status(401).json({ error: 'Unauthorized: Missing or invalid authorization header.' });
+  }
+  const token = authHeader.split(' ')[1];
   try {
-    const result = await pool.query('SELECT * FROM expenses ORDER BY timestamp DESC');
+    const response = await fetch(`${process.env.SUPABASE_URL || 'https://zppsylijcayivvchtwqz.supabase.co'}/auth/v1/user`, {
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'apikey': process.env.SUPABASE_ANON_KEY || ''
+      }
+    });
+    if (!response.ok) {
+      return res.status(401).json({ error: 'Unauthorized: Invalid session token.' });
+    }
+    const userData = await response.json();
+    req.userId = userData.id; // Store verified Supabase user ID
+    next();
+  } catch (err) {
+    console.error('Auth verification failed:', err);
+    res.status(401).json({ error: 'Unauthorized: Auth server verification failed.' });
+  }
+}
+
+// Endpoint: Fetch all expenses
+app.get('/api/expenses', requireAuth, async (req, res) => {
+  try {
+    const result = await pool.query('SELECT * FROM expenses WHERE user_id = $1 ORDER BY timestamp DESC', [req.userId]);
     res.json(result.rows);
   } catch (error) {
     console.error('Error fetching expenses:', error);
@@ -369,7 +417,7 @@ app.get('/api/expenses', async (req, res) => {
 });
 
 // Endpoint: Log manual expense
-app.post('/api/expenses', async (req, res) => {
+app.post('/api/expenses', requireAuth, async (req, res) => {
   const { amount, category, description, timestamp } = req.body;
   
   if (!amount || !category) {
@@ -378,8 +426,8 @@ app.post('/api/expenses', async (req, res) => {
 
   try {
     const timeValue = timestamp ? new Date(timestamp) : new Date();
-    const queryText = 'INSERT INTO expenses (amount, category, description, timestamp) VALUES ($1, $2, $3, $4) RETURNING *';
-    const values = [amount, category, description || '', timeValue];
+    const queryText = 'INSERT INTO expenses (amount, category, description, timestamp, user_id) VALUES ($1, $2, $3, $4, $5) RETURNING *';
+    const values = [amount, category, description || '', timeValue, req.userId];
     const result = await pool.query(queryText, values);
     const newExpense = result.rows[0];
 
@@ -399,10 +447,13 @@ app.post('/api/expenses', async (req, res) => {
 });
 
 // Endpoint: Delete expense
-app.delete('/api/expenses/:id', async (req, res) => {
+app.delete('/api/expenses/:id', requireAuth, async (req, res) => {
   const { id } = req.params;
   try {
-    await pool.query('DELETE FROM expenses WHERE id = $1', [id]);
+    const result = await pool.query('DELETE FROM expenses WHERE id = $1 AND user_id = $2 RETURNING *', [id, req.userId]);
+    if (result.rowCount === 0) {
+      return res.status(404).json({ error: 'Expense not found or unauthorized.' });
+    }
     res.json({ message: 'Expense deleted successfully.' });
   } catch (error) {
     console.error('Error deleting expense:', error);
@@ -411,9 +462,9 @@ app.delete('/api/expenses/:id', async (req, res) => {
 });
 
 // Endpoint: Fetch all income
-app.get('/api/income', async (req, res) => {
+app.get('/api/income', requireAuth, async (req, res) => {
   try {
-    const result = await pool.query('SELECT * FROM income ORDER BY timestamp DESC');
+    const result = await pool.query('SELECT * FROM income WHERE user_id = $1 ORDER BY timestamp DESC', [req.userId]);
     res.json(result.rows);
   } catch (error) {
     console.error('Error fetching income:', error);
@@ -422,7 +473,7 @@ app.get('/api/income', async (req, res) => {
 });
 
 // Endpoint: Log manual income
-app.post('/api/income', async (req, res) => {
+app.post('/api/income', requireAuth, async (req, res) => {
   const { amount, category, description, timestamp } = req.body;
   
   if (!amount || !category) {
@@ -431,8 +482,8 @@ app.post('/api/income', async (req, res) => {
 
   try {
     const timeValue = timestamp ? new Date(timestamp) : new Date();
-    const queryText = 'INSERT INTO income (amount, category, description, timestamp) VALUES ($1, $2, $3, $4) RETURNING *';
-    const values = [amount, category, description || '', timeValue];
+    const queryText = 'INSERT INTO income (amount, category, description, timestamp, user_id) VALUES ($1, $2, $3, $4, $5) RETURNING *';
+    const values = [amount, category, description || '', timeValue, req.userId];
     const result = await pool.query(queryText, values);
     const newIncome = result.rows[0];
 
@@ -452,10 +503,13 @@ app.post('/api/income', async (req, res) => {
 });
 
 // Endpoint: Delete income
-app.delete('/api/income/:id', async (req, res) => {
+app.delete('/api/income/:id', requireAuth, async (req, res) => {
   const { id } = req.params;
   try {
-    await pool.query('DELETE FROM income WHERE id = $1', [id]);
+    const result = await pool.query('DELETE FROM income WHERE id = $1 AND user_id = $2 RETURNING *', [id, req.userId]);
+    if (result.rowCount === 0) {
+      return res.status(404).json({ error: 'Income not found or unauthorized.' });
+    }
     res.json({ message: 'Income deleted successfully.' });
   } catch (error) {
     console.error('Error deleting income:', error);
@@ -464,21 +518,22 @@ app.delete('/api/income/:id', async (req, res) => {
 });
 
 // Endpoint: Get Dashboard Stats
-app.get('/api/stats', async (req, res) => {
+app.get('/api/stats', requireAuth, async (req, res) => {
   try {
     // 30-Day total burn (expenses)
     const burnResult = await pool.query(`
       SELECT COALESCE(SUM(amount), 0) as total_burn 
       FROM expenses 
-      WHERE timestamp >= NOW() - INTERVAL '30 days'
-    `);
+      WHERE user_id = $1 AND timestamp >= NOW() - INTERVAL '30 days'
+    `, [req.userId]);
     const totalBurn = parseFloat(burnResult.rows[0].total_burn);
 
     // Total income logged
     const incomeResult = await pool.query(`
       SELECT COALESCE(SUM(amount), 0) as total_income 
       FROM income
-    `);
+      WHERE user_id = $1
+    `, [req.userId]);
     const totalIncome = parseFloat(incomeResult.rows[0].total_income);
     const netBalance = totalIncome - totalBurn;
 
@@ -490,8 +545,8 @@ app.get('/api/stats', async (req, res) => {
     const dailyBurnResult = await pool.query(`
       SELECT COALESCE(SUM(amount) / 30.0, 0) as daily_burn 
       FROM expenses 
-      WHERE timestamp >= NOW() - INTERVAL '30 days'
-    `);
+      WHERE user_id = $1 AND timestamp >= NOW() - INTERVAL '30 days'
+    `, [req.userId]);
     const dailyBurn = parseFloat(dailyBurnResult.rows[0].daily_burn);
     
     let runwayDays = 999;
@@ -500,14 +555,14 @@ app.get('/api/stats', async (req, res) => {
     }
 
     // Recent offenses (latest 5)
-    const recentResult = await pool.query('SELECT * FROM expenses ORDER BY timestamp DESC LIMIT 5');
+    const recentResult = await pool.query('SELECT * FROM expenses WHERE user_id = $1 ORDER BY timestamp DESC LIMIT 5', [req.userId]);
     // Recent incomes (latest 5)
-    const recentIncomeResult = await pool.query('SELECT * FROM income ORDER BY timestamp DESC LIMIT 5');
+    const recentIncomeResult = await pool.query('SELECT * FROM income WHERE user_id = $1 ORDER BY timestamp DESC LIMIT 5', [req.userId]);
 
     // Generate dynamic latest AI Critique if expenses exist
     let critique = 'Connect your Supabase database and log your first manual entry to begin the degradation process.';
     if (recentResult.rows.length > 0 || totalIncome > 0) {
-      const allExpensesResult = await pool.query('SELECT amount, category, description FROM expenses LIMIT 20');
+      const allExpensesResult = await pool.query('SELECT amount, category, description FROM expenses WHERE user_id = $1 LIMIT 20', [req.userId]);
       const expensesText = allExpensesResult.rows.map(r => `- ₹${r.amount} on ${r.category} (${r.description})`).join('\n');
       
       const context = `Total 30-day burn: ₹${totalBurn}. Total logged income: ₹${totalIncome}. Net balance: ₹${netBalance}. Remaining budget: ₹${remainingBudget}. Estimated runway: ${runwayDays} days.\nRecent expenses:\n${expensesText}`;
@@ -531,7 +586,7 @@ app.get('/api/stats', async (req, res) => {
 });
 
 // Endpoint: NLP Chatbot Terminal
-app.post('/api/chat', async (req, res) => {
+app.post('/api/chat', requireAuth, async (req, res) => {
   const { message } = req.body;
   if (!message) {
     return res.status(400).json({ error: 'Message is required.' });
@@ -574,8 +629,8 @@ app.post('/api/chat', async (req, res) => {
     }
 
     try {
-      const queryText = 'INSERT INTO income (amount, category, description, timestamp) VALUES ($1, $2, $3, NOW()) RETURNING *';
-      const values = [parsedIncomeAmount, parsedIncomeCategory, parsedIncomeDescription];
+      const queryText = 'INSERT INTO income (amount, category, description, timestamp, user_id) VALUES ($1, $2, $3, NOW(), $4) RETURNING *';
+      const values = [parsedIncomeAmount, parsedIncomeCategory, parsedIncomeDescription, req.userId];
       const result = await pool.query(queryText, values);
       const newIncome = result.rows[0];
 
@@ -634,8 +689,8 @@ app.post('/api/chat', async (req, res) => {
 
     try {
       // Log it to the database
-      const queryText = 'INSERT INTO expenses (amount, category, description, timestamp) VALUES ($1, $2, $3, NOW()) RETURNING *';
-      const values = [parsedAmount, parsedCategory, parsedDescription];
+      const queryText = 'INSERT INTO expenses (amount, category, description, timestamp, user_id) VALUES ($1, $2, $3, NOW(), $4) RETURNING *';
+      const values = [parsedAmount, parsedCategory, parsedDescription, req.userId];
       const result = await pool.query(queryText, values);
       const newExpense = result.rows[0];
 
@@ -682,8 +737,8 @@ app.post('/api/chat', async (req, res) => {
     if (matchedCategory) {
       try {
         const result = await pool.query(
-          "SELECT COALESCE(SUM(amount), 0) as total, COUNT(*) as count FROM expenses WHERE category = $1 AND timestamp >= NOW() - INTERVAL '30 days'",
-          [matchedCategory]
+          "SELECT COALESCE(SUM(amount), 0) as total, COUNT(*) as count FROM expenses WHERE user_id = $2 AND category = $1 AND timestamp >= NOW() - INTERVAL '30 days'",
+          [matchedCategory, req.userId]
         );
         const total = parseFloat(result.rows[0].total);
         const count = parseInt(result.rows[0].count);
@@ -708,9 +763,9 @@ app.post('/api/chat', async (req, res) => {
     const result = await pool.query(`
       SELECT category, SUM(amount) as total 
       FROM expenses 
-      WHERE timestamp >= NOW() - INTERVAL '30 days' 
+      WHERE user_id = $1 AND timestamp >= NOW() - INTERVAL '30 days' 
       GROUP BY category
-    `);
+    `, [req.userId]);
     const breakdown = result.rows.map(r => `${r.category}: ₹${r.total}`).join(', ');
 
     const context = `Current 30-day spending breakdown: ${breakdown || 'No expenses logged yet'}.`;
@@ -728,10 +783,10 @@ app.post('/api/chat', async (req, res) => {
 });
 
 // Endpoint: Reboot database (Danger Zone)
-app.post('/api/reboot', async (req, res) => {
+app.post('/api/reboot', requireAuth, async (req, res) => {
   try {
-    await pool.query('TRUNCATE TABLE expenses RESTART IDENTITY');
-    await pool.query('TRUNCATE TABLE income RESTART IDENTITY');
+    await pool.query('DELETE FROM expenses WHERE user_id = $1', [req.userId]);
+    await pool.query('DELETE FROM income WHERE user_id = $1', [req.userId]);
     res.json({ message: 'System database successfully wiped and rebooted.' });
   } catch (error) {
     console.error('Error wiping database:', error);
@@ -780,6 +835,117 @@ app.get('/api/supabase-config', (req, res) => {
     supabaseUrl: process.env.SUPABASE_URL || 'https://zppsylijcayivvchtwqz.supabase.co',
     supabaseAnonKey: process.env.SUPABASE_ANON_KEY || ''
   });
+});
+
+// Endpoint: Admin-level signup — creates a pre-confirmed user directly in auth.users
+// Email is auto-generated from username if not supplied: username@airoaster.internal
+// This bypasses Supabase email rate limits entirely (no confirmation email sent)
+app.post('/api/admin-signup', async (req, res) => {
+  const { password, username } = req.body;
+  if (!password || !username) {
+    return res.status(400).json({ error: 'username and password are required.' });
+  }
+  if (password.length < 6) {
+    return res.status(400).json({ error: 'Password must be at least 6 characters.' });
+  }
+  // Auto-generate a clean internal email from username
+  const safeUsername = username.trim().toLowerCase().replace(/[^a-z0-9_.-]/g, '_');
+  const internalEmail = `${safeUsername}@airoaster.internal`;
+
+  try {
+    // Check if username already taken
+    const usernameCheck = await pool.query(
+      "SELECT id FROM auth.users WHERE LOWER(raw_user_meta_data->>'username') = LOWER($1) LIMIT 1",
+      [username.trim()]
+    );
+    if (usernameCheck.rows.length > 0) {
+      return res.status(409).json({ error: 'Username already taken. Choose a different one.' });
+    }
+
+    // Check if generated email already exists (shouldn't, but safety check)
+    const existCheck = await pool.query(
+      'SELECT id FROM auth.users WHERE LOWER(email) = LOWER($1) LIMIT 1',
+      [internalEmail]
+    );
+    if (existCheck.rows.length > 0) {
+      return res.status(409).json({ error: 'Username already taken. Choose a different one.' });
+    }
+
+    // Hash the password with bcrypt (cost 10, matching Supabase default)
+    const encryptedPassword = await bcrypt.hash(password, 10);
+    const userId = require('crypto').randomUUID();
+    const now = new Date().toISOString();
+    const metaData = JSON.stringify({ username: username.trim() });
+
+    // Insert directly into auth.users with email pre-confirmed
+    await pool.query(
+      `INSERT INTO auth.users (
+        id, instance_id, aud, role, email, encrypted_password,
+        email_confirmed_at, raw_user_meta_data, raw_app_meta_data,
+        created_at, updated_at, confirmation_token, recovery_token,
+        email_change_token_new, email_change, is_super_admin
+      ) VALUES (
+        $1, '00000000-0000-0000-0000-000000000000', 'authenticated', 'authenticated',
+        $2, $3, NOW(), $4::jsonb, '{"provider":"email","providers":["email"]}'::jsonb,
+        $5, $5, '', '', '', '', false
+      )`,
+      [userId, internalEmail, encryptedPassword, metaData, now]
+    );
+
+    // Insert into auth.identities (required for Supabase signInWithPassword to work)
+    // provider_id MUST equal the email for the email provider
+    await pool.query(
+      `INSERT INTO auth.identities (
+        id, user_id, provider_id, identity_data, provider, last_sign_in_at, created_at, updated_at
+      ) VALUES (
+        $1, $1, $2, $3::jsonb, 'email', NOW(), $4, $4
+      )`,
+      [userId, internalEmail, JSON.stringify({ sub: userId, email: internalEmail }), now]
+    );
+
+    res.json({ message: 'User created successfully.', userId, email: internalEmail });
+  } catch (error) {
+    console.error('Error in admin-signup:', error);
+    res.status(500).json({ error: 'Failed to create account: ' + error.message });
+  }
+});
+
+// Endpoint: Confirm an existing unconfirmed user's email
+app.post('/api/confirm-user', async (req, res) => {
+  const { email } = req.body;
+  if (!email) {
+    return res.status(400).json({ error: 'Email is required.' });
+  }
+  try {
+    const result = await pool.query(
+      'UPDATE auth.users SET email_confirmed_at = NOW() WHERE LOWER(email) = LOWER($1) AND email_confirmed_at IS NULL RETURNING id, email',
+      [email.trim()]
+    );
+    res.json({ message: 'User confirmed successfully', rows: result.rows });
+  } catch (error) {
+    console.error('Error confirming user:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Endpoint: Resolve a username from auth.users metadata to an email address
+app.post('/api/resolve-username', async (req, res) => {
+  const { username } = req.body;
+  if (!username) {
+    return res.status(400).json({ error: 'Username is required.' });
+  }
+  try {
+    const queryText = "SELECT email FROM auth.users WHERE LOWER(raw_user_meta_data->>'username') = LOWER($1) AND email_confirmed_at IS NOT NULL LIMIT 1";
+    const result = await pool.query(queryText, [username.trim()]);
+    if (result.rows.length > 0) {
+      res.json({ email: result.rows[0].email });
+    } else {
+      res.status(404).json({ error: 'Username not found in the identity matrix.' });
+    }
+  } catch (error) {
+    console.error('Error resolving username:', error);
+    res.status(500).json({ error: error.message });
+  }
 });
 
 // Start Server
