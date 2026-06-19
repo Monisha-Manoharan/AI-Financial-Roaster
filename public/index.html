@@ -2003,12 +2003,6 @@
         function clearUserDataState() {
             expensesData = [];
             incomeData = [];
-            
-            try {
-                localStorage.clear();
-            } catch (e) {
-                console.error("Failed to clear localStorage:", e);
-            }
 
             const burnAmt = document.getElementById('burn-amount');
             if (burnAmt) burnAmt.innerText = '₹0.00';
