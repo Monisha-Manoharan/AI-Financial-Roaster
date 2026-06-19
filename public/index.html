@@ -1860,7 +1860,10 @@
                     supabaseClient.auth.onAuthStateChange((event, session) => {
                         currentSession = session;
                         updateLandingButton(!!session);
-                        if (!session) {
+                        if (session) {
+                            loadConfig();
+                            refreshData();
+                        } else {
                             resetRegistrationFormFields();
                             resetRegisterSubmitBtn();
                             clearUserDataState();
@@ -1872,6 +1875,10 @@
                     if (error) throw error;
                     currentSession = session;
                     updateLandingButton(!!session);
+                    if (session) {
+                        loadConfig();
+                        refreshData();
+                    }
                 } else {
                     console.warn("Supabase public credentials not fully configured in .env yet.");
                     updateLandingButton(false);
