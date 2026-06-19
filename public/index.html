@@ -1863,10 +1863,14 @@
                         if (session) {
                             loadConfig();
                             refreshData();
+                            if (activeTab === 'landing') {
+                                _doSwitchTab('entry');
+                            }
                         } else {
                             resetRegistrationFormFields();
                             resetRegisterSubmitBtn();
                             clearUserDataState();
+                            _doSwitchTab('landing');
                         }
                     });
 
@@ -1878,6 +1882,7 @@
                     if (session) {
                         loadConfig();
                         refreshData();
+                        _doSwitchTab('entry');
                     }
                 } else {
                     console.warn("Supabase public credentials not fully configured in .env yet.");
