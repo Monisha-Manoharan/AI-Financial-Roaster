@@ -1,4 +1,5 @@
 const express = require('express');
+const rateLimit = require('express-rate-limit');
 const { Pool } = require('pg');
 const { GoogleGenerativeAI } = require('@google/generative-ai');
 const path = require('path');
@@ -6,23 +7,16 @@ const fs = require('fs');
 const bcrypt = require('bcryptjs');
 require('dotenv').config();
 
-// Helper: Programmatically write/update key in .env file
-function updateEnvFile(key, value) {
-  const envPath = path.join(__dirname, '.env');
-  let envContent = '';
-  if (fs.existsSync(envPath)) {
-    envContent = fs.readFileSync(envPath, 'utf8');
-  }
-  const reg = new RegExp(`^${key}=.*$`, 'm');
-  if (reg.test(envContent)) {
-    envContent = envContent.replace(reg, `${key}=${value}`);
-  } else {
-    envContent += `\n${key}=${value}`;
-  }
-  fs.writeFileSync(envPath, envContent, 'utf8');
-}
+
 
 const app = express();
+
+const authLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 10, // Limit each IP to 10 requests per windowMs
+  message: { error: 'Too many requests, please try again later.' }
+});
+
 const PORT = process.env.PORT || 3000;
 
 app.use(express.json());
@@ -32,7 +26,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 // Reads persona from .env so it persists across server restarts
 let systemConfig = {
   geminiApiKey: process.env.GEMINI_API_KEY || '',
-  persona: process.env.PERSONA || 'aggressive', // 'aggressive', 'sarcastic', 'supportive'
+  
   dailyBriefing: true,
   realtimeShame: true
 };
@@ -53,10 +47,12 @@ pool.connect(async (err, client, release) => {
     console.log('Successfully connected to Supabase PostgreSQL Database.');
     try {
       console.log('Running database schema migrations...');
-      // Add user_id columns if missing
+      // Add user_id and roast columns if missing
       await client.query(`
         ALTER TABLE expenses ADD COLUMN IF NOT EXISTS user_id UUID REFERENCES auth.users(id) ON DELETE CASCADE;
         ALTER TABLE income ADD COLUMN IF NOT EXISTS user_id UUID REFERENCES auth.users(id) ON DELETE CASCADE;
+        ALTER TABLE expenses ADD COLUMN IF NOT EXISTS roast TEXT;
+        ALTER TABLE income ADD COLUMN IF NOT EXISTS roast TEXT;
       `);
       // Fix any broken identity records where provider_id is UUID instead of email
       await client.query(`
@@ -379,6 +375,17 @@ ${queryText}
   }
 }
 
+
+async function getUserPersona(userId) {
+  try {
+    const res = await pool.query('SELECT persona FROM user_preferences WHERE user_id = $1', [userId]);
+    return res.rows.length > 0 ? res.rows[0].persona : 'aggressive';
+  } catch (err) {
+    console.error('Error fetching user persona:', err);
+    return 'aggressive';
+  }
+}
+
 // Middleware: Verify Supabase Session Token (JWT)
 async function requireAuth(req, res, next) {
   const authHeader = req.headers['authorization'];
@@ -426,18 +433,19 @@ app.post('/api/expenses', requireAuth, async (req, res) => {
 
   try {
     const timeValue = timestamp ? new Date(timestamp) : new Date();
-    const queryText = 'INSERT INTO expenses (amount, category, description, timestamp, user_id) VALUES ($1, $2, $3, $4, $5) RETURNING *';
-    const values = [amount, category, description || '', timeValue, req.userId];
-    const result = await pool.query(queryText, values);
-    const newExpense = result.rows[0];
 
     // Generate immediate roast if configured
     let roast = '';
     if (systemConfig.realtimeShame) {
       const context = `Manual Entry Logged: Spent ₹${amount} on ${category} (${description}).`;
-      const geminiRoast = await generateGeminiRoast(context, `Roast this purchase immediately.`, systemConfig.persona, { amount, category, description });
-      roast = geminiRoast || getMockRoast(amount, category, description, systemConfig.persona);
+      const geminiRoast = await generateGeminiRoast(context, `Roast this purchase immediately.`, await getUserPersona(req.userId), { amount, category, description });
+      roast = geminiRoast || getMockRoast(amount, category, description, await getUserPersona(req.userId));
     }
+
+    const queryText = 'INSERT INTO expenses (amount, category, description, timestamp, user_id, roast) VALUES ($1, $2, $3, $4, $5, $6) RETURNING *';
+    const values = [amount, category, description || '', timeValue, req.userId, roast];
+    const result = await pool.query(queryText, values);
+    const newExpense = result.rows[0];
 
     res.status(201).json({ expense: newExpense, roast });
   } catch (error) {
@@ -482,18 +490,19 @@ app.post('/api/income', requireAuth, async (req, res) => {
 
   try {
     const timeValue = timestamp ? new Date(timestamp) : new Date();
-    const queryText = 'INSERT INTO income (amount, category, description, timestamp, user_id) VALUES ($1, $2, $3, $4, $5) RETURNING *';
-    const values = [amount, category, description || '', timeValue, req.userId];
-    const result = await pool.query(queryText, values);
-    const newIncome = result.rows[0];
 
     // Generate immediate roast/comment if configured
     let roast = '';
     if (systemConfig.realtimeShame) {
       const context = `Manual Entry Logged: Received ₹${amount} as ${category} (${description}).`;
-      const geminiRoast = await generateGeminiRoast(context, `Comment on this newly logged income source. Be highly sarcastic or cynical, e.g., make a joke about how they will spend it all in 5 minutes.`, systemConfig.persona, { amount, category, description });
+      const geminiRoast = await generateGeminiRoast(context, `Comment on this newly logged income source. Be highly sarcastic or cynical, e.g., make a joke about how they will spend it all in 5 minutes.`, await getUserPersona(req.userId), { amount, category, description });
       roast = geminiRoast || `Congrats on the ₹${amount} (${description}). Try not to spend it all in one place... or who am I kidding, you already have.`;
     }
+
+    const queryText = 'INSERT INTO income (amount, category, description, timestamp, user_id, roast) VALUES ($1, $2, $3, $4, $5, $6) RETURNING *';
+    const values = [amount, category, description || '', timeValue, req.userId, roast];
+    const result = await pool.query(queryText, values);
+    const newIncome = result.rows[0];
 
     res.status(201).json({ income: newIncome, roast });
   } catch (error) {
@@ -566,8 +575,8 @@ app.get('/api/stats', requireAuth, async (req, res) => {
       const expensesText = allExpensesResult.rows.map(r => `- ₹${r.amount} on ${r.category} (${r.description})`).join('\n');
       
       const context = `Total 30-day burn: ₹${totalBurn}. Total logged income: ₹${totalIncome}. Net balance: ₹${netBalance}. Remaining budget: ₹${remainingBudget}. Estimated runway: ${runwayDays} days.\nRecent expenses:\n${expensesText}`;
-      const geminiCritique = await generateGeminiRoast(context, `Give a comprehensive roast of my overall financial state. Pay special attention to my net balance of ₹${netBalance} (Income ₹${totalIncome} - Expenses ₹${totalBurn}). If my expenses exceed or are dangerously close to my income, be dynamically brutal and insult my poor life choices relentlessly.`, systemConfig.persona);
-      critique = geminiCritique || getMockRoast(totalBurn, 'lifestyle', 'overall budget overrun', systemConfig.persona);
+      const geminiCritique = await generateGeminiRoast(context, `Give a comprehensive roast of my overall financial state. Pay special attention to my net balance of ₹${netBalance} (Income ₹${totalIncome} - Expenses ₹${totalBurn}). If my expenses exceed or are dangerously close to my income, be dynamically brutal and insult my poor life choices relentlessly.`, await getUserPersona(req.userId));
+      critique = geminiCritique || getMockRoast(totalBurn, 'lifestyle', 'overall budget overrun', await getUserPersona(req.userId));
     }
 
     res.json({
@@ -629,15 +638,15 @@ app.post('/api/chat', requireAuth, async (req, res) => {
     }
 
     try {
-      const queryText = 'INSERT INTO income (amount, category, description, timestamp, user_id) VALUES ($1, $2, $3, NOW(), $4) RETURNING *';
-      const values = [parsedIncomeAmount, parsedIncomeCategory, parsedIncomeDescription, req.userId];
-      const result = await pool.query(queryText, values);
-      const newIncome = result.rows[0];
-
       // Roast/Comment on the income source
       const context = `Manual Entry Logged via Chat NLP: Received ₹${parsedIncomeAmount} as ${parsedIncomeCategory} (${parsedIncomeDescription}).`;
-      const geminiRoast = await generateGeminiRoast(context, `Comment on this newly logged income source. Be highly sarcastic or cynical, e.g., make a joke about how they will spend it all in 5 minutes.`, systemConfig.persona, { amount: parsedIncomeAmount, category: parsedIncomeCategory, description: parsedIncomeDescription });
+      const geminiRoast = await generateGeminiRoast(context, `Comment on this newly logged income source. Be highly sarcastic or cynical, e.g., make a joke about how they will spend it all in 5 minutes.`, await getUserPersona(req.userId), { amount: parsedIncomeAmount, category: parsedIncomeCategory, description: parsedIncomeDescription });
       const roast = geminiRoast || `Congrats on the ₹${parsedIncomeAmount} (${parsedIncomeDescription}). Try not to spend it all in one place... or who am I kidding, you already have.`;
+
+      const queryText = 'INSERT INTO income (amount, category, description, timestamp, user_id, roast) VALUES ($1, $2, $3, NOW(), $4, $5) RETURNING *';
+      const values = [parsedIncomeAmount, parsedIncomeCategory, parsedIncomeDescription, req.userId, roast];
+      const result = await pool.query(queryText, values);
+      const newIncome = result.rows[0];
 
       return res.json({
         type: 'LOG_CONFIRMATION',
@@ -688,16 +697,16 @@ app.post('/api/chat', requireAuth, async (req, res) => {
     }
 
     try {
-      // Log it to the database
-      const queryText = 'INSERT INTO expenses (amount, category, description, timestamp, user_id) VALUES ($1, $2, $3, NOW(), $4) RETURNING *';
-      const values = [parsedAmount, parsedCategory, parsedDescription, req.userId];
-      const result = await pool.query(queryText, values);
-      const newExpense = result.rows[0];
-
       // Roast it
       const context = `Manual Entry Logged via Chat NLP: Spent ₹${parsedAmount} on ${parsedCategory} (${parsedDescription}).`;
-      const geminiRoast = await generateGeminiRoast(context, `Roast this purchase immediately.`, systemConfig.persona, { amount: parsedAmount, category: parsedCategory, description: parsedDescription });
-      const roast = geminiRoast || getMockRoast(parsedAmount, parsedCategory, parsedDescription, systemConfig.persona);
+      const geminiRoast = await generateGeminiRoast(context, `Roast this purchase immediately.`, await getUserPersona(req.userId), { amount: parsedAmount, category: parsedCategory, description: parsedDescription });
+      const roast = geminiRoast || getMockRoast(parsedAmount, parsedCategory, parsedDescription, await getUserPersona(req.userId));
+
+      // Log it to the database
+      const queryText = 'INSERT INTO expenses (amount, category, description, timestamp, user_id, roast) VALUES ($1, $2, $3, NOW(), $4, $5) RETURNING *';
+      const values = [parsedAmount, parsedCategory, parsedDescription, req.userId, roast];
+      const result = await pool.query(queryText, values);
+      const newExpense = result.rows[0];
 
       return res.json({
         type: 'LOG_CONFIRMATION',
@@ -744,8 +753,8 @@ app.post('/api/chat', requireAuth, async (req, res) => {
         const count = parseInt(result.rows[0].count);
 
         const context = `User category query: ${matchedCategory}. Total spent in last 30 days: ₹${total} over ${count} entries.`;
-        const geminiRoast = await generateGeminiRoast(context, `Generate a brutal roast focused on the sum ₹${total} spent on ${matchedCategory}.`, systemConfig.persona, { amount: total, category: matchedCategory, description: matchedCategory });
-        const roast = geminiRoast || `You spent ₹${total} on ${matchedCategory} over ${count} transactions. ${getMockRoast(total, matchedCategory, matchedCategory, systemConfig.persona)}`;
+        const geminiRoast = await generateGeminiRoast(context, `Generate a brutal roast focused on the sum ₹${total} spent on ${matchedCategory}.`, await getUserPersona(req.userId), { amount: total, category: matchedCategory, description: matchedCategory });
+        const roast = geminiRoast || `You spent ₹${total} on ${matchedCategory} over ${count} transactions. ${getMockRoast(total, matchedCategory, matchedCategory, await getUserPersona(req.userId))}`;
 
         return res.json({
           type: 'QUERY_RESPONSE',
@@ -769,8 +778,8 @@ app.post('/api/chat', requireAuth, async (req, res) => {
     const breakdown = result.rows.map(r => `${r.category}: ₹${r.total}`).join(', ');
 
     const context = `Current 30-day spending breakdown: ${breakdown || 'No expenses logged yet'}.`;
-    const geminiRoast = await generateGeminiRoast(context, `Respond to user message: "${message}" and roast their financial attitude.`, systemConfig.persona);
-    const roast = geminiRoast || `I parsed your message: "${message}". ${getMockRoast(0, 'lifestyle', 'overall spending', systemConfig.persona)}`;
+    const geminiRoast = await generateGeminiRoast(context, `Respond to user message: "${message}" and roast their financial attitude.`, await getUserPersona(req.userId));
+    const roast = geminiRoast || `I parsed your message: "${message}". ${getMockRoast(0, 'lifestyle', 'overall spending', await getUserPersona(req.userId))}`;
 
     res.json({
       type: 'CONVERSATION',
@@ -779,6 +788,33 @@ app.post('/api/chat', requireAuth, async (req, res) => {
     });
   } catch (dbErr) {
     res.status(500).json({ error: dbErr.message });
+  }
+});
+
+
+// Endpoint: Get User Preferences
+app.get('/api/user-preferences', requireAuth, async (req, res) => {
+  try {
+    const persona = await getUserPersona(req.userId);
+    res.json({ persona });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Endpoint: Update User Preferences
+app.post('/api/user-preferences', requireAuth, async (req, res) => {
+  const { persona } = req.body;
+  if (!persona) return res.status(400).json({ error: 'Persona is required' });
+  try {
+    await pool.query(
+      'INSERT INTO user_preferences (user_id, persona) VALUES ($1, $2) ON CONFLICT (user_id) DO UPDATE SET persona = EXCLUDED.persona',
+      [req.userId, persona]
+    );
+    res.json({ message: 'Preferences updated successfully.', persona });
+  } catch (error) {
+    console.error('Error updating preferences:', error);
+    res.status(500).json({ error: error.message });
   }
 });
 
@@ -794,40 +830,6 @@ app.post('/api/reboot', requireAuth, async (req, res) => {
   }
 });
 
-// Endpoint: Get System Configuration
-app.get('/api/config', (req, res) => {
-  // Hide actual API key characters for security
-  const maskedKey = systemConfig.geminiApiKey 
-    ? `${systemConfig.geminiApiKey.substring(0, 8)}...${systemConfig.geminiApiKey.substring(systemConfig.geminiApiKey.length - 4)}` 
-    : '';
-  res.json({
-    ...systemConfig,
-    geminiApiKey: maskedKey,
-    hasApiKey: !!systemConfig.geminiApiKey
-  });
-});
-
-// Endpoint: Update System Configuration
-app.post('/api/config', (req, res) => {
-  const { geminiApiKey, persona, dailyBriefing, realtimeShame } = req.body;
-  
-  if (geminiApiKey !== undefined && geminiApiKey !== '') {
-    // If user provided a new key (non-masked), update it and persist it to .env
-    if (!geminiApiKey.includes('...')) {
-      systemConfig.geminiApiKey = geminiApiKey;
-      updateEnvFile('GEMINI_API_KEY', geminiApiKey);
-    }
-  }
-  
-  if (persona !== undefined) {
-    systemConfig.persona = persona;
-    updateEnvFile('PERSONA', persona); // Persist so it survives server restarts
-  }
-  if (dailyBriefing !== undefined) systemConfig.dailyBriefing = dailyBriefing;
-  if (realtimeShame !== undefined) systemConfig.realtimeShame = realtimeShame;
-
-  res.json({ message: 'System configuration updated successfully.', config: systemConfig });
-});
 
 // Endpoint: Expose Supabase public credentials
 app.get('/api/supabase-config', (req, res) => {
@@ -838,19 +840,30 @@ app.get('/api/supabase-config', (req, res) => {
 });
 
 // Endpoint: Admin-level signup — creates a pre-confirmed user directly in auth.users
-// Email is auto-generated from username if not supplied: username@airoaster.internal
+// Email is auto-generated from username if not supplied: username@bankrupt.com
 // This bypasses Supabase email rate limits entirely (no confirmation email sent)
 app.post('/api/admin-signup', async (req, res) => {
-  const { password, username } = req.body;
+  const { password, username, email } = req.body;
   if (!password || !username) {
     return res.status(400).json({ error: 'username and password are required.' });
   }
   if (password.length < 6) {
     return res.status(400).json({ error: 'Password must be at least 6 characters.' });
   }
-  // Auto-generate a clean internal email from username
-  const safeUsername = username.trim().toLowerCase().replace(/[^a-z0-9_.-]/g, '_');
-  const internalEmail = `${safeUsername}@airoaster.internal`;
+
+  let internalEmail;
+  if (email) {
+    const trimmedEmail = email.trim();
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(trimmedEmail)) {
+      return res.status(400).json({ error: 'Invalid email format.' });
+    }
+    internalEmail = trimmedEmail;
+  } else {
+    // Auto-generate a clean internal email from username
+    const safeUsername = username.trim().toLowerCase().replace(/[^a-z0-9_.-]/g, '_');
+    internalEmail = `${safeUsername}@bankrupt.com`;
+  }
 
   try {
     // Check if username already taken
@@ -929,7 +942,7 @@ app.post('/api/confirm-user', async (req, res) => {
 });
 
 // Endpoint: Resolve a username from auth.users metadata to an email address
-app.post('/api/resolve-username', async (req, res) => {
+app.post('/api/resolve-username', authLimiter, async (req, res) => {
   const { username } = req.body;
   if (!username) {
     return res.status(400).json({ error: 'Username is required.' });

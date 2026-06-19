@@ -212,11 +212,11 @@
     <div class="fixed inset-0 pointer-events-none z-0" style="background-image: radial-gradient(circle at 1px 1px, rgba(255,255,255,0.03) 1px, transparent 0); background-size: 24px 24px;"></div>
 
     <!-- Desktop SideNavBar -->
-    <aside class="bg-surface-container-lowest h-screen w-64 hidden md:flex flex-col border-r border-outline-variant/30 py-8 z-40 flex-shrink-0 fixed left-0 top-0">
+    <aside id="desktop-sidebar" style="display:none;" class="bg-surface-container-lowest h-screen w-64 flex-col border-r border-outline-variant/30 py-8 z-40 flex-shrink-0 fixed left-0 top-0">
         <!-- Brand Info -->
         <div class="px-6 mb-12">
-            <h1 class="font-headline-md text-headline-md text-primary-fixed mb-2 tracking-tighter uppercase font-black">THE_AI_ROASTER</h1>
-            <div class="flex items-center gap-2">
+            <h1 class="font-headline-md text-headline-md text-primary-fixed mb-2 tracking-tighter uppercase font-black">THE AI FINANCIAL ROASTER</h1>
+            <div id="nav-status-container" class="flex items-center gap-2 hidden">
                 <span id="nav-db-indicator" class="w-2 h-2 rounded-full bg-primary-fixed animate-pulse"></span>
                 <span id="nav-status-label" class="text-data-label text-primary-fixed uppercase tracking-widest font-body-md">STATUS: ACTIVE</span>
             </div>
@@ -224,25 +224,29 @@
         
         <!-- Navigation Links -->
         <nav class="flex-col flex-1 space-y-1">
-            <button onclick="switchTab('landing')" id="side-tab-landing" class="w-full flex items-center gap-4 text-on-surface-variant px-6 py-4 font-data-label text-data-label uppercase tracking-widest border-l-4 border-transparent hover:bg-surface-variant/20 hover:text-primary transition-all text-left font-body-md">
+            <button onclick="switchTab('landing')" id="side-tab-landing" class="w-full flex items-center gap-4 text-on-surface-variant px-6 py-4 font-data-label text-data-label uppercase tracking-widest border-l-4 border-transparent hover:bg-surface-variant/20 hover:text-primary transition-all text-left font-body-md hidden">
                 <span class="material-symbols-outlined text-[20px]">home</span>
-                LANDING
+                HOME
             </button>
-            <button onclick="switchTab('entry')" id="side-tab-entry" class="w-full flex items-center gap-4 text-on-surface-variant px-6 py-4 font-data-label text-data-label uppercase tracking-widest border-l-4 border-transparent hover:bg-surface-variant/20 hover:text-primary transition-all text-left font-body-md">
+            <button onclick="switchTab('entry')" id="side-tab-entry" class="w-full flex items-center gap-4 text-on-surface-variant px-6 py-4 font-data-label text-data-label uppercase tracking-widest border-l-4 border-transparent hover:bg-surface-variant/20 hover:text-primary transition-all text-left font-body-md hidden">
                 <span class="material-symbols-outlined text-[20px]">terminal</span>
-                ENTRY PROTOCOL
+                <span>ENTRY PROTOCOL</span>
+                <span class="lock-icon material-symbols-outlined text-[16px] text-error ml-auto hidden">lock</span>
             </button>
-            <button onclick="switchTab('dashboard')" id="side-tab-dashboard" class="w-full flex items-center gap-4 text-on-surface-variant px-6 py-4 font-data-label text-data-label uppercase tracking-widest border-l-4 border-transparent hover:bg-surface-variant/20 hover:text-primary transition-all text-left font-body-md">
+            <button onclick="switchTab('dashboard')" id="side-tab-dashboard" class="w-full flex items-center gap-4 text-on-surface-variant px-6 py-4 font-data-label text-data-label uppercase tracking-widest border-l-4 border-transparent hover:bg-surface-variant/20 hover:text-primary transition-all text-left font-body-md hidden">
                 <span class="material-symbols-outlined text-[20px]">grid_view</span>
-                DASHBOARD
+                <span>DASHBOARD</span>
+                <span class="lock-icon material-symbols-outlined text-[16px] text-error ml-auto hidden">lock</span>
             </button>
-            <button onclick="switchTab('logs')" id="side-tab-logs" class="w-full flex items-center gap-4 text-on-surface-variant px-6 py-4 font-data-label text-data-label uppercase tracking-widest border-l-4 border-transparent hover:bg-surface-variant/20 hover:text-primary transition-all text-left font-body-md">
+            <button onclick="switchTab('logs')" id="side-tab-logs" class="w-full flex items-center gap-4 text-on-surface-variant px-6 py-4 font-data-label text-data-label uppercase tracking-widest border-l-4 border-transparent hover:bg-surface-variant/20 hover:text-primary transition-all text-left font-body-md hidden">
                 <span class="material-symbols-outlined text-[20px]">receipt_long</span>
-                EXPENSES & LOGS
+                <span>EXPENSES & LOGS</span>
+                <span class="lock-icon material-symbols-outlined text-[16px] text-error ml-auto hidden">lock</span>
             </button>
-            <button onclick="switchTab('settings')" id="side-tab-settings" class="w-full flex items-center gap-4 text-on-surface-variant px-6 py-4 font-data-label text-data-label uppercase tracking-widest border-l-4 border-transparent hover:bg-surface-variant/20 hover:text-primary transition-all text-left font-body-md">
+            <button onclick="switchTab('settings')" id="side-tab-settings" class="w-full flex items-center gap-4 text-on-surface-variant px-6 py-4 font-data-label text-data-label uppercase tracking-widest border-l-4 border-transparent hover:bg-surface-variant/20 hover:text-primary transition-all text-left font-body-md hidden">
                 <span class="material-symbols-outlined text-[20px]">tune</span>
-                PERSONA SETTINGS
+                <span>PERSONA SETTINGS</span>
+                <span class="lock-icon material-symbols-outlined text-[16px] text-error ml-auto hidden">lock</span>
             </button>
             <button onclick="handleLogout()" id="side-tab-logout" class="w-full flex items-center gap-4 text-on-surface-variant px-6 py-4 font-data-label text-data-label uppercase tracking-widest border-l-4 border-transparent hover:bg-surface-variant/20 hover:text-primary transition-all text-left font-body-md hidden">
                 <span class="material-symbols-outlined text-[20px]">logout</span>
@@ -252,17 +256,13 @@
 
         <!-- Footer -->
         <div class="px-6 mt-auto space-y-4">
-            <div class="font-data-label text-[10px] text-outline-variant/60 leading-normal uppercase">
-                Database: Supabase Cloud<br/>
-                AI Model: Gemini 2.0 Flash-Lite
-            </div>
         </div>
     </aside>
 
     <!-- Mobile Header -->
     <header class="bg-background fixed top-0 w-full z-50 flex justify-between items-center px-margin-mobile h-16 border-b border-outline-variant/30 md:hidden">
         <div class="font-roast-content text-headline-md font-bold text-primary-fixed uppercase tracking-tighter">
-            THE_AI_ROASTER
+            THE AI FINANCIAL ROASTER
         </div>
         <div class="flex items-center gap-2">
             <span class="w-2 h-2 rounded-full bg-primary-fixed animate-pulse"></span>
@@ -271,15 +271,36 @@
     </header>
 
     <!-- Main Canvas Wrapper -->
-    <div class="flex-grow flex flex-col md:pl-64 pt-16 md:pt-0 min-h-screen">
+    <div id="main-canvas" style="padding-left:0;" class="flex-grow flex flex-col pt-16 md:pt-0 min-h-screen">
         <main class="flex-grow p-margin-mobile md:p-margin-desktop relative z-10 pb-24 md:pb-12">
             <div class="max-w-container-max mx-auto w-full">
 
                 <!-- 1. LANDING PAGE TAB -->
-                <div id="tab-landing" class="tab-content space-y-12 py-6">
-                    <section class="flex flex-col md:flex-row items-center gap-12 mt-4 md:mt-12">
-                        <!-- Left: Core Value Proposition -->
+                <div id="tab-landing" class="tab-content py-0">
+
+                    <!-- ═══ TOP NAV BAR ═══ -->
+                    <nav id="landing-topnav" class="sticky top-0 z-30 w-full flex items-center justify-between px-6 py-3 bg-background/90 backdrop-blur-xl border-b border-outline-variant/30 mb-0" style="margin-left: -1.5rem; width: calc(100% + 3rem);">
+                        <div class="flex items-center gap-3">
+                            <span class="w-2 h-2 rounded-full bg-primary-fixed animate-pulse"></span>
+                            <span class="font-data-label text-[11px] text-primary-fixed uppercase tracking-widest hidden sm:block">THE AI FINANCIAL ROASTER</span>
+                        </div>
+                        <div class="flex items-center gap-1 flex-wrap justify-end">
+                            <a href="#landing-features" onclick="document.getElementById('landing-features').scrollIntoView({behavior:'smooth'});return false;" class="px-3 py-1.5 font-data-label text-[11px] text-on-surface-variant hover:text-primary-fixed uppercase tracking-wider transition-colors hidden sm:block">Features</a>
+                            <a id="nav-live-demo-link" href="#landing-demo" onclick="document.getElementById('landing-demo').scrollIntoView({behavior:'smooth'});return false;" class="px-3 py-1.5 font-data-label text-[11px] text-on-surface-variant hover:text-primary-fixed uppercase tracking-wider transition-colors">Live Demo</a>
+                            <a href="#landing-how" onclick="document.getElementById('landing-how').scrollIntoView({behavior:'smooth'});return false;" class="px-3 py-1.5 font-data-label text-[11px] text-on-surface-variant hover:text-primary-fixed uppercase tracking-wider transition-colors hidden md:block">How It Works</a>
+                            <a href="#landing-why" onclick="document.getElementById('landing-why').scrollIntoView({behavior:'smooth'});return false;" class="px-3 py-1.5 font-data-label text-[11px] text-on-surface-variant hover:text-primary-fixed uppercase tracking-wider transition-colors hidden lg:block">Why Us</a>
+
+                        </div>
+                    </nav>
+
+                    <!-- ═══ HERO SECTION ═══ -->
+                    <section class="flex flex-col md:flex-row items-center gap-12 mt-8 md:mt-12 mb-16">
+                        <!-- Left: Core Value Proposition — DO NOT TOUCH -->
                         <div class="w-full md:w-1/2 flex flex-col items-start gap-6">
+                            <div class="inline-flex items-center gap-2 border border-primary-fixed/30 bg-primary-fixed/5 px-3 py-1.5">
+                                <span class="w-1.5 h-1.5 rounded-full bg-primary-fixed animate-ping"></span>
+                                <span class="font-data-label text-[10px] text-primary-fixed uppercase tracking-widest">AI-Powered Financial Reality Check</span>
+                            </div>
                             <h1 class="font-headline-lg-mobile md:font-headline-lg text-headline-lg-mobile md:text-headline-lg text-primary">
                                 Stop spending like a billionaire on an <span class="text-primary-fixed opacity-90 drop-shadow-[0_0_10px_rgba(186,246,0,0.3)] font-black">intern budget.</span>
                             </h1>
@@ -291,9 +312,27 @@
                                     <span class="material-symbols-outlined text-[18px]">bolt</span>
                                     <span id="landing-action-btn-text">[ ACCOUNT REGISTRATION ]</span>
                                 </button>
-                                <button onclick="switchTab('dashboard')" class="glass-panel text-on-surface font-data-label text-data-label uppercase px-8 py-4 font-bold hover:bg-surface-container-highest transition-colors duration-200 border border-outline-variant/50">
-                                    VIEW DASHBOARD
+                                <button id="hero-try-demo-btn" onclick="document.getElementById('landing-demo').scrollIntoView({behavior:'smooth'})" class="glass-panel text-on-surface font-data-label text-data-label uppercase px-8 py-4 font-bold hover:bg-surface-container-highest transition-colors duration-200 border border-outline-variant/50 flex items-center justify-center gap-2">
+                                    <span class="material-symbols-outlined text-[18px]">play_circle</span>
+                                    TRY LIVE DEMO
                                 </button>
+                            </div>
+                            <!-- Mini stats row -->
+                            <div class="flex gap-6 mt-2 pt-4 border-t border-outline-variant/20 w-full">
+                                <div class="flex flex-col">
+                                    <span class="font-data-label text-[18px] text-primary-fixed font-black">Gemini</span>
+                                    <span class="font-data-label text-[10px] text-on-surface-variant uppercase tracking-widest">AI Engine</span>
+                                </div>
+                                <div class="w-px bg-outline-variant/30"></div>
+                                <div class="flex flex-col">
+                                    <span class="font-data-label text-[18px] text-primary-fixed font-black">Real-Time</span>
+                                    <span class="font-data-label text-[10px] text-on-surface-variant uppercase tracking-widest">Roasting</span>
+                                </div>
+                                <div class="w-px bg-outline-variant/30"></div>
+                                <div class="flex flex-col">
+                                    <span class="font-data-label text-[18px] text-primary-fixed font-black">Zero</span>
+                                    <span class="font-data-label text-[10px] text-on-surface-variant uppercase tracking-widest">Coddling</span>
+                                </div>
                             </div>
                         </div>
 
@@ -301,73 +340,769 @@
                         <div class="w-full md:w-1/2 relative">
                             <div class="absolute -inset-4 bg-primary-fixed/5 blur-2xl z-0 pointer-events-none"></div>
                             <div class="glass-panel-active overflow-hidden flex flex-col z-10 relative">
-                                <!-- Header -->
                                 <div class="bg-surface-container border-b border-primary-fixed/30 px-4 py-2.5 flex items-center justify-between">
                                     <div class="flex items-center gap-1.5">
                                         <span class="w-2.5 h-2.5 rounded-full bg-primary-fixed animate-pulse"></span>
                                         <span class="w-2.5 h-2.5 rounded-full bg-outline-variant/50"></span>
                                         <span class="w-2.5 h-2.5 rounded-full bg-outline-variant/50"></span>
                                     </div>
-                                    <span class="font-data-label text-[10px] text-primary-fixed opacity-70 tracking-widest">[SYSTEM_CAPABILITIES]</span>
+                                    <span class="font-data-label text-[10px] text-primary-fixed opacity-70 tracking-widest">[ABOUT &amp; CAPABILITIES]</span>
                                 </div>
-
-                                <!-- Body -->
                                 <div class="p-6 bg-surface-container-lowest font-roast-content text-[13px] text-on-surface leading-relaxed space-y-6">
-
-                                    <!-- Heading -->
                                     <div class="flex items-center gap-2">
                                         <span class="text-primary-fixed font-bold">&gt;</span>
-                                        <span class="text-primary-fixed font-bold tracking-widest uppercase text-[12px]">SYSTEM_CAPABILITIES</span>
+                                        <span class="text-primary-fixed font-bold tracking-widest uppercase text-[12px]">ABOUT &amp; CAPABILITIES</span>
                                         <span class="terminal-cursor"></span>
                                     </div>
+                                    <div class="p-4 bg-surface-container/30 border border-outline-variant/30 relative overflow-hidden">
 
-                                    <!-- Operational Attitudes -->
-                                    <div class="space-y-2">
-                                        <p class="text-on-surface-variant text-[11px] uppercase tracking-widest mb-3">// OPERATIONAL_ATTITUDES</p>
-                                        <div class="flex items-start gap-3">
-                                            <span class="text-error font-bold shrink-0">[AGGRESSIVE]</span>
-                                            <span class="text-on-surface/80">Ruthless financial critique.</span>
-                                        </div>
-                                        <div class="flex items-start gap-3">
-                                            <span class="text-primary-fixed font-bold shrink-0">[SARCASTIC]</span>
-                                            <span class="text-on-surface/80">Passive-aggressive transaction mockery.</span>
-                                        </div>
-                                        <div class="flex items-start gap-3">
-                                            <span class="text-outline font-bold shrink-0">[SUPPORTIVE-ISH]</span>
-                                            <span class="text-on-surface/80">Condescending encouragement.</span>
-                                        </div>
+                                        <p class="text-on-surface/90 italic leading-relaxed text-[12.5px]">"Welcome to the ultimate reality check. While typical budget tools comfort you with soft charts and polite notifications, this terminal strips away the delusions and forces you to confront your financial wreckage head-on."</p>
                                     </div>
-
-                                    <!-- Divider -->
-                                    <div class="border-t border-outline-variant/30"></div>
-
-                                    <!-- Core Features -->
-                                    <div class="space-y-2">
-                                        <p class="text-on-surface-variant text-[11px] uppercase tracking-widest mb-3">// CORE_FEATURES</p>
-                                        <div class="flex items-center gap-3">
-                                            <span class="text-primary-fixed material-symbols-outlined text-[14px]">check_circle</span>
-                                            <span class="text-on-surface/80">Real-time Supabase Income &amp; Expense Logging.</span>
+                                    <div class="space-y-4">
+                                        <div class="border border-primary-fixed/20 bg-primary-fixed/5 p-4 relative">
+                                            <div class="absolute top-0 left-4 -translate-y-1/2 bg-background px-2 font-data-label text-primary-fixed text-[10px] tracking-widest uppercase">[ SYSTEM_OBJECTIVE ]</div>
+                                            <p class="text-on-surface/95 mt-1 font-body-md text-[13px]">A brutal AI auditor designed to roast your terrible impulse purchases and financial failures into submission.</p>
                                         </div>
-                                        <div class="flex items-center gap-3">
-                                            <span class="text-primary-fixed material-symbols-outlined text-[14px]">check_circle</span>
-                                            <span class="text-on-surface/80">Dynamic Gemini 2.0 Flash-Lite Roasting Pipeline.</span>
+                                        <div class="border border-outline-variant/35 bg-surface-container/20 p-4 relative">
+                                            <div class="absolute top-0 left-4 -translate-y-1/2 bg-background px-2 font-data-label text-on-surface-variant text-[10px] tracking-widest uppercase">[ CORE_MODULES ]</div>
+                                            <ul class="space-y-2 mt-1 font-body-md text-[13px]">
+                                                <li class="flex items-start gap-2.5"><span class="text-primary-fixed font-bold mt-0.5">▪</span><span><strong>Real-Time Expense Parsing:</strong> Turns "spent 250 on coffee" into immediate, unadulterated regret.</span></li>
+                                                <li class="flex items-start gap-2.5"><span class="text-primary-fixed font-bold mt-0.5">▪</span><span><strong>Dynamic Sarcastic Roasting:</strong> Deep semantic budget shaming powered by Gemini 2.0.</span></li>
+                                                <li class="flex items-start gap-2.5"><span class="text-primary-fixed font-bold mt-0.5">▪</span><span><strong>Cold Hard Spending-to-Income Audits:</strong> Instant runway evaluation to show when you'll run out of money.</span></li>
+                                            </ul>
                                         </div>
-                                        <div class="flex items-center gap-3">
-                                            <span class="text-primary-fixed material-symbols-outlined text-[14px]">check_circle</span>
-                                            <span class="text-on-surface/80">Spending-to-Income Ratio Audit.</span>
+                                        <div class="border border-error/30 bg-error-container/5 p-4 relative">
+                                            <div class="absolute top-0 left-4 -translate-y-1/2 bg-background px-2 font-data-label text-error text-[10px] tracking-widest uppercase">[ OPERATIONAL_WARNING ]</div>
+                                            <p class="text-error/90 mt-1 font-body-md text-[13px] leading-relaxed">This interface offers zero coddling. Proceed only if your budget is an intern level but your ego is a billionaire level.</p>
                                         </div>
                                     </div>
                                 </div>
 
-                                <!-- Footer -->
-                                <div class="bg-surface-container border-t border-outline-variant/30 px-4 py-2 flex items-center justify-between font-data-label text-[10px] text-on-surface-variant">
-                                    <span>SYS_STATUS: ONLINE</span>
-                                    <span class="text-primary-fixed animate-pulse">ENGINE: READY</span>
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- ═══ AI SIGNAL FEED CARDS ═══ -->
+                    <section class="py-8 border-t border-b border-outline-variant/20 mb-12" style="margin-left:-1.5rem;width:calc(100% + 3rem);padding-left:1.5rem;padding-right:1.5rem;">
+                        <div class="grid grid-cols-2 md:grid-cols-4 gap-4 max-w-container-max mx-auto">
+
+                            <!-- Card 1: AI Brain Active -->
+                            <div class="signal-card group relative overflow-hidden border border-primary-fixed/20 bg-surface-container/30 p-5 cursor-default hover:border-primary-fixed/60 transition-all duration-500 hover:bg-primary-fixed/5" style="backdrop-filter:blur(8px);">
+                                <div class="absolute inset-0 bg-gradient-to-br from-primary-fixed/8 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none"></div>
+                                <div class="absolute top-2 right-2 w-1.5 h-1.5 rounded-full bg-primary-fixed animate-pulse"></div>
+                                <div class="absolute bottom-0 left-0 h-0.5 bg-gradient-to-r from-primary-fixed/0 via-primary-fixed/80 to-primary-fixed/0 w-full scale-x-0 group-hover:scale-x-100 transition-transform duration-700"></div>
+                                <span class="material-symbols-outlined text-primary-fixed/50 group-hover:text-primary-fixed text-[28px] mb-3 block transition-all duration-300 group-hover:scale-110">psychology</span>
+                                <div class="font-black text-primary-fixed text-2xl leading-none mb-1" style="font-family:'JetBrains Mono',monospace;">NEURAL</div>
+                                <div class="font-black text-primary-fixed/80 text-lg leading-none mb-2" style="font-family:'JetBrains Mono',monospace;">ACTIVE</div>
+                                <div class="font-data-label text-[9px] text-on-surface-variant uppercase tracking-widest">AI Core Online 24/7</div>
+                            </div>
+
+                            <!-- Card 2: Verdict Precision -->
+                            <div class="signal-card group relative overflow-hidden border border-primary-fixed/20 bg-surface-container/30 p-5 cursor-default hover:border-primary-fixed/60 transition-all duration-500 hover:bg-primary-fixed/5" style="backdrop-filter:blur(8px);">
+                                <div class="absolute inset-0 bg-gradient-to-br from-primary-fixed/8 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none"></div>
+                                <div class="absolute top-2 right-2 w-1.5 h-1.5 rounded-full bg-green-400 animate-pulse" style="animation-delay:0.5s;"></div>
+                                <div class="absolute bottom-0 left-0 h-0.5 bg-gradient-to-r from-green-400/0 via-green-400/80 to-green-400/0 w-full scale-x-0 group-hover:scale-x-100 transition-transform duration-700"></div>
+                                <span class="material-symbols-outlined text-primary-fixed/50 group-hover:text-primary-fixed text-[28px] mb-3 block transition-all duration-300 group-hover:scale-110">verified</span>
+                                <div class="font-black text-primary-fixed text-2xl leading-none mb-1" style="font-family:'JetBrains Mono',monospace;">100%</div>
+                                <div class="font-black text-primary-fixed/80 text-lg leading-none mb-2" style="font-family:'JetBrains Mono',monospace;">VERDICT</div>
+                                <div class="font-data-label text-[9px] text-on-surface-variant uppercase tracking-widest">Brutally Accurate</div>
+                            </div>
+
+                            <!-- Card 3: Zero Empathy Mode -->
+                            <div class="signal-card group relative overflow-hidden border border-error/20 bg-surface-container/30 p-5 cursor-default hover:border-error/60 transition-all duration-500 hover:bg-error/5" style="backdrop-filter:blur(8px);">
+                                <div class="absolute inset-0 bg-gradient-to-br from-error/8 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none"></div>
+                                <div class="absolute top-2 right-2 w-1.5 h-1.5 rounded-full bg-error animate-pulse" style="animation-delay:1s;"></div>
+                                <div class="absolute bottom-0 left-0 h-0.5 bg-gradient-to-r from-error/0 via-error/80 to-error/0 w-full scale-x-0 group-hover:scale-x-100 transition-transform duration-700"></div>
+                                <span class="material-symbols-outlined text-error/50 group-hover:text-error text-[28px] mb-3 block transition-all duration-300 group-hover:scale-110">local_fire_department</span>
+                                <div class="font-black text-error text-2xl leading-none mb-1" style="font-family:'JetBrains Mono',monospace;">ZERO</div>
+                                <div class="font-black text-error/80 text-lg leading-none mb-2" style="font-family:'JetBrains Mono',monospace;">EMPATHY</div>
+                                <div class="font-data-label text-[9px] text-on-surface-variant uppercase tracking-widest">No Feelings. Just Facts.</div>
+                            </div>
+
+                            <!-- Card 4: Instant Analysis -->
+                            <div class="signal-card group relative overflow-hidden border border-primary-fixed/20 bg-surface-container/30 p-5 cursor-default hover:border-primary-fixed/60 transition-all duration-500 hover:bg-primary-fixed/5" style="backdrop-filter:blur(8px);">
+                                <div class="absolute inset-0 bg-gradient-to-br from-primary-fixed/8 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none"></div>
+                                <div class="absolute top-2 right-2 w-1.5 h-1.5 rounded-full bg-yellow-400 animate-pulse" style="animation-delay:1.5s;"></div>
+                                <div class="absolute bottom-0 left-0 h-0.5 bg-gradient-to-r from-yellow-400/0 via-yellow-400/80 to-yellow-400/0 w-full scale-x-0 group-hover:scale-x-100 transition-transform duration-700"></div>
+                                <span class="material-symbols-outlined text-primary-fixed/50 group-hover:text-primary-fixed text-[28px] mb-3 block transition-all duration-300 group-hover:scale-110">bolt</span>
+                                <div class="font-black text-primary-fixed text-2xl leading-none mb-1" style="font-family:'JetBrains Mono',monospace;">&lt;2 SEC</div>
+                                <div class="font-black text-primary-fixed/80 text-lg leading-none mb-2" style="font-family:'JetBrains Mono',monospace;">ROAST</div>
+                                <div class="font-data-label text-[9px] text-on-surface-variant uppercase tracking-widest">Instant Judgment Drop</div>
+                            </div>
+
+                        </div>
+                    </section>
+
+                    <!-- ═══ INTERACTIVE SYSTEM MODULES ═══ -->
+                    <section id="landing-features" class="py-12 border-t border-outline-variant/20">
+                        <div class="flex items-center justify-between gap-3 mb-3">
+                            <div class="flex items-center gap-3">
+                                <div class="w-8 h-px bg-primary-fixed"></div>
+                                <span class="font-data-label text-[11px] text-primary-fixed uppercase tracking-[0.3em]">// SYSTEM_MODULES</span>
+                            </div>
+                            <span class="font-data-label text-[9px] text-on-surface-variant uppercase tracking-wider hidden sm:block">↓ Click any module to see it in action</span>
+                        </div>
+                        <p class="font-body-md text-[12px] text-on-surface-variant mb-6">Select a module below to see exactly how it works — live, interactive, no registration needed.</p>
+
+                        <!-- Module Selector Cards -->
+                        <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-0" id="module-cards-grid">
+
+                            <!-- MODULE 01 -->
+                            <button onclick="activateModule(0)" id="module-card-0"
+                                class="module-card group text-left border border-outline-variant/30 bg-surface-container/20 p-5 hover:border-primary-fixed/60 hover:bg-primary-fixed/5 transition-all duration-300 relative overflow-hidden cursor-pointer focus:outline-none">
+                                <div class="absolute inset-0 bg-gradient-to-br from-primary-fixed/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none"></div>
+                                <div class="absolute top-0 left-0 w-full h-0.5 bg-primary-fixed scale-x-0 group-hover:scale-x-100 transition-transform duration-300 origin-left" id="module-bar-0"></div>
+                                <span class="material-symbols-outlined text-primary-fixed/60 group-hover:text-primary-fixed text-[30px] mb-3 block transition-colors duration-200">receipt_long</span>
+                                <div class="font-data-label text-[11px] text-on-surface uppercase tracking-wider mb-1">Expense Parsing</div>
+                                <div class="font-body-md text-[11px] text-on-surface-variant leading-relaxed">Natural language expense logging</div>
+                                <div class="mt-3 flex items-center justify-between">
+                                    <div class="font-data-label text-[9px] text-outline-variant uppercase tracking-widest">MODULE_01</div>
+                                    <span class="material-symbols-outlined text-[14px] text-primary-fixed/40 group-hover:text-primary-fixed transition-colors" id="module-icon-0">expand_more</span>
+                                </div>
+                            </button>
+
+                            <!-- MODULE 02 -->
+                            <button onclick="activateModule(1)" id="module-card-1"
+                                class="module-card group text-left border border-outline-variant/30 bg-surface-container/20 p-5 hover:border-primary-fixed/60 hover:bg-primary-fixed/5 transition-all duration-300 relative overflow-hidden cursor-pointer focus:outline-none">
+                                <div class="absolute inset-0 bg-gradient-to-br from-primary-fixed/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none"></div>
+                                <div class="absolute top-0 left-0 w-full h-0.5 bg-primary-fixed scale-x-0 group-hover:scale-x-100 transition-transform duration-300 origin-left" id="module-bar-1"></div>
+                                <span class="material-symbols-outlined text-primary-fixed/60 group-hover:text-primary-fixed text-[30px] mb-3 block transition-colors duration-200">smart_toy</span>
+                                <div class="font-data-label text-[11px] text-on-surface uppercase tracking-wider mb-1">AI Roast Engine</div>
+                                <div class="font-body-md text-[11px] text-on-surface-variant leading-relaxed">Gemini-powered personalised shame</div>
+                                <div class="mt-3 flex items-center justify-between">
+                                    <div class="font-data-label text-[9px] text-outline-variant uppercase tracking-widest">MODULE_02</div>
+                                    <span class="material-symbols-outlined text-[14px] text-primary-fixed/40 group-hover:text-primary-fixed transition-colors" id="module-icon-1">expand_more</span>
+                                </div>
+                            </button>
+
+                            <!-- MODULE 03 -->
+                            <button onclick="activateModule(2)" id="module-card-2"
+                                class="module-card group text-left border border-outline-variant/30 bg-surface-container/20 p-5 hover:border-primary-fixed/60 hover:bg-primary-fixed/5 transition-all duration-300 relative overflow-hidden cursor-pointer focus:outline-none">
+                                <div class="absolute inset-0 bg-gradient-to-br from-primary-fixed/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none"></div>
+                                <div class="absolute top-0 left-0 w-full h-0.5 bg-primary-fixed scale-x-0 group-hover:scale-x-100 transition-transform duration-300 origin-left" id="module-bar-2"></div>
+                                <span class="material-symbols-outlined text-primary-fixed/60 group-hover:text-primary-fixed text-[30px] mb-3 block transition-colors duration-200">hourglass_bottom</span>
+                                <div class="font-data-label text-[11px] text-on-surface uppercase tracking-wider mb-1">Runway Calculator</div>
+                                <div class="font-body-md text-[11px] text-on-surface-variant leading-relaxed">Days-until-broke countdown engine</div>
+                                <div class="mt-3 flex items-center justify-between">
+                                    <div class="font-data-label text-[9px] text-outline-variant uppercase tracking-widest">MODULE_03</div>
+                                    <span class="material-symbols-outlined text-[14px] text-primary-fixed/40 group-hover:text-primary-fixed transition-colors" id="module-icon-2">expand_more</span>
+                                </div>
+                            </button>
+
+                            <!-- MODULE 04 -->
+                            <button onclick="activateModule(3)" id="module-card-3"
+                                class="module-card group text-left border border-outline-variant/30 bg-surface-container/20 p-5 hover:border-primary-fixed/60 hover:bg-primary-fixed/5 transition-all duration-300 relative overflow-hidden cursor-pointer focus:outline-none">
+                                <div class="absolute inset-0 bg-gradient-to-br from-primary-fixed/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none"></div>
+                                <div class="absolute top-0 left-0 w-full h-0.5 bg-primary-fixed scale-x-0 group-hover:scale-x-100 transition-transform duration-300 origin-left" id="module-bar-3"></div>
+                                <span class="material-symbols-outlined text-primary-fixed/60 group-hover:text-primary-fixed text-[30px] mb-3 block transition-colors duration-200">psychology_alt</span>
+                                <div class="font-data-label text-[11px] text-on-surface uppercase tracking-wider mb-1">Persona Engine</div>
+                                <div class="font-body-md text-[11px] text-on-surface-variant leading-relaxed">3 operational critique attitudes</div>
+                                <div class="mt-3 flex items-center justify-between">
+                                    <div class="font-data-label text-[9px] text-outline-variant uppercase tracking-widest">MODULE_04</div>
+                                    <span class="material-symbols-outlined text-[14px] text-primary-fixed/40 group-hover:text-primary-fixed transition-colors" id="module-icon-3">expand_more</span>
+                                </div>
+                            </button>
+                        </div>
+
+                        <!-- ── EXPANDED MODULE PANELS ── -->
+                        <div id="module-panel-container" class="overflow-hidden transition-all duration-500" style="max-height:0;opacity:0;">
+
+                            <!-- MODULE 01 PANEL: Expense Parsing -->
+                            <div id="module-panel-0" class="module-panel hidden">
+                                <div class="border border-primary-fixed/40 bg-surface-container-lowest mt-0 relative overflow-hidden">
+                                    <div class="absolute top-0 left-0 w-full h-0.5 bg-gradient-to-r from-primary-fixed via-primary-fixed/50 to-transparent"></div>
+                                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-0">
+                                        <!-- Left: Explanation -->
+                                        <div class="p-6 border-b lg:border-b-0 lg:border-r border-outline-variant/20">
+                                            <div class="flex items-center gap-2 mb-4">
+                                                <span class="material-symbols-outlined text-primary-fixed text-[20px]">receipt_long</span>
+                                                <span class="font-data-label text-[11px] text-primary-fixed uppercase tracking-widest">MODULE_01 // EXPENSE_PARSER</span>
+                                            </div>
+                                            <h4 class="font-data-label text-[14px] text-on-surface uppercase tracking-wider mb-3">How It Works</h4>
+                                            <div class="space-y-3 font-body-md text-[13px] text-on-surface-variant">
+                                                <div class="flex items-start gap-3 p-3 border border-outline-variant/20 bg-surface-container/20">
+                                                    <div class="w-5 h-5 bg-primary-fixed/10 border border-primary-fixed/30 flex items-center justify-center shrink-0 mt-0.5 font-data-label text-[10px] text-primary-fixed">1</div>
+                                                    <p>You type a natural sentence like <span class="text-primary-fixed font-mono">"spent 800 on coffee today"</span> into the terminal.</p>
+                                                </div>
+                                                <div class="flex items-start gap-3 p-3 border border-outline-variant/20 bg-surface-container/20">
+                                                    <div class="w-5 h-5 bg-primary-fixed/10 border border-primary-fixed/30 flex items-center justify-center shrink-0 mt-0.5 font-data-label text-[10px] text-primary-fixed">2</div>
+                                                    <p>Gemini AI extracts: <span class="text-primary-fixed">amount</span>, <span class="text-primary-fixed">category</span>, <span class="text-primary-fixed">description</span> and auto-classifies it.</p>
+                                                </div>
+                                                <div class="flex items-start gap-3 p-3 border border-outline-variant/20 bg-surface-container/20">
+                                                    <div class="w-5 h-5 bg-primary-fixed/10 border border-primary-fixed/30 flex items-center justify-center shrink-0 mt-0.5 font-data-label text-[10px] text-primary-fixed">3</div>
+                                                    <p>Expense is logged to your database and <span class="text-error">immediately roasted</span> by the AI engine.</p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <!-- Right: Live Simulation -->
+                                        <div class="p-6 bg-surface-container-lowest/50">
+                                            <div class="font-data-label text-[10px] text-on-surface-variant uppercase tracking-widest mb-3">// LIVE_PARSE_SIMULATION</div>
+                                            <div class="border border-outline-variant/40 bg-background p-4 font-roast-content text-[12px] space-y-3 min-h-[160px]" id="parse-sim-output">
+                                                <div class="text-on-surface-variant italic">Click "Simulate" to see parsing in action...</div>
+                                            </div>
+                                            <button onclick="simulateExpenseParse()" class="mt-3 w-full py-2.5 bg-primary-fixed/10 border border-primary-fixed/40 text-primary-fixed font-data-label text-[11px] uppercase tracking-wider hover:bg-primary-fixed hover:text-black transition-all duration-200 flex items-center justify-center gap-2">
+                                                <span class="material-symbols-outlined text-[16px]">play_arrow</span>
+                                                Simulate Parse
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- MODULE 02 PANEL: AI Roast Engine -->
+                            <div id="module-panel-1" class="module-panel hidden">
+                                <div class="border border-primary-fixed/40 bg-surface-container-lowest mt-0 relative overflow-hidden">
+                                    <div class="absolute top-0 left-0 w-full h-0.5 bg-gradient-to-r from-primary-fixed via-primary-fixed/50 to-transparent"></div>
+                                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-0">
+                                        <div class="p-6 border-b lg:border-b-0 lg:border-r border-outline-variant/20">
+                                            <div class="flex items-center gap-2 mb-4">
+                                                <span class="material-symbols-outlined text-primary-fixed text-[20px]">smart_toy</span>
+                                                <span class="font-data-label text-[11px] text-primary-fixed uppercase tracking-widest">MODULE_02 // ROAST_ENGINE</span>
+                                            </div>
+                                            <h4 class="font-data-label text-[14px] text-on-surface uppercase tracking-wider mb-3">How It Works</h4>
+                                            <div class="space-y-3 font-body-md text-[13px] text-on-surface-variant">
+                                                <div class="flex items-start gap-3 p-3 border border-outline-variant/20 bg-surface-container/20">
+                                                    <div class="w-5 h-5 bg-primary-fixed/10 border border-primary-fixed/30 flex items-center justify-center shrink-0 mt-0.5 font-data-label text-[10px] text-primary-fixed">1</div>
+                                                    <p>After logging, your full expense history + income is sent to <span class="text-primary-fixed">Gemini 2.0 Flash</span> with context.</p>
+                                                </div>
+                                                <div class="flex items-start gap-3 p-3 border border-outline-variant/20 bg-surface-container/20">
+                                                    <div class="w-5 h-5 bg-primary-fixed/10 border border-primary-fixed/30 flex items-center justify-center shrink-0 mt-0.5 font-data-label text-[10px] text-primary-fixed">2</div>
+                                                    <p>Gemini generates a <span class="text-primary-fixed">personalised</span>, contextually aware roast based on YOUR specific spending pattern.</p>
+                                                </div>
+                                                <div class="flex items-start gap-3 p-3 border border-outline-variant/20 bg-surface-container/20">
+                                                    <div class="w-5 h-5 bg-primary-fixed/10 border border-primary-fixed/30 flex items-center justify-center shrink-0 mt-0.5 font-data-label text-[10px] text-primary-fixed">3</div>
+                                                    <p>The roast streams live into your terminal — <span class="text-error">no generic advice</span>, pure targeted financial shame.</p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="p-6 bg-surface-container-lowest/50">
+                                            <div class="font-data-label text-[10px] text-on-surface-variant uppercase tracking-widest mb-3">// ROAST_SAMPLE_OUTPUT</div>
+                                            <div class="border border-primary-fixed/20 bg-background p-4 font-roast-content text-[12px] text-on-surface leading-relaxed min-h-[160px] relative" id="roast-engine-output">
+                                                <span class="text-primary-fixed">&gt; </span><span class="text-on-surface-variant italic">Click "Fire Engine" to see a sample roast...</span>
+                                            </div>
+                                            <button onclick="simulateRoastEngine()" class="mt-3 w-full py-2.5 bg-primary-fixed/10 border border-primary-fixed/40 text-primary-fixed font-data-label text-[11px] uppercase tracking-wider hover:bg-primary-fixed hover:text-black transition-all duration-200 flex items-center justify-center gap-2">
+                                                <span class="material-symbols-outlined text-[16px]">local_fire_department</span>
+                                                Fire Engine
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- MODULE 03 PANEL: Runway Calculator -->
+                            <div id="module-panel-2" class="module-panel hidden">
+                                <div class="border border-primary-fixed/40 bg-surface-container-lowest mt-0 relative overflow-hidden">
+                                    <div class="absolute top-0 left-0 w-full h-0.5 bg-gradient-to-r from-primary-fixed via-primary-fixed/50 to-transparent"></div>
+                                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-0">
+                                        <div class="p-6 border-b lg:border-b-0 lg:border-r border-outline-variant/20">
+                                            <div class="flex items-center gap-2 mb-4">
+                                                <span class="material-symbols-outlined text-primary-fixed text-[20px]">hourglass_bottom</span>
+                                                <span class="font-data-label text-[11px] text-primary-fixed uppercase tracking-widest">MODULE_03 // RUNWAY_CALC</span>
+                                            </div>
+                                            <h4 class="font-data-label text-[14px] text-on-surface uppercase tracking-wider mb-3">How It Works</h4>
+                                            <div class="space-y-3 font-body-md text-[13px] text-on-surface-variant">
+                                                <div class="flex items-start gap-3 p-3 border border-outline-variant/20 bg-surface-container/20">
+                                                    <div class="w-5 h-5 bg-primary-fixed/10 border border-primary-fixed/30 flex items-center justify-center shrink-0 mt-0.5 font-data-label text-[10px] text-primary-fixed">1</div>
+                                                    <p>System calculates your <span class="text-primary-fixed">daily burn rate</span> from all logged expenses divided by days tracked.</p>
+                                                </div>
+                                                <div class="flex items-start gap-3 p-3 border border-outline-variant/20 bg-surface-container/20">
+                                                    <div class="w-5 h-5 bg-primary-fixed/10 border border-primary-fixed/30 flex items-center justify-center shrink-0 mt-0.5 font-data-label text-[10px] text-primary-fixed">2</div>
+                                                    <p>Compares against your <span class="text-primary-fixed">total income</span> logged to compute net balance and remaining runway.</p>
+                                                </div>
+                                                <div class="flex items-start gap-3 p-3 border border-error/20 bg-error-container/5">
+                                                    <div class="w-5 h-5 bg-error/10 border border-error/30 flex items-center justify-center shrink-0 mt-0.5 font-data-label text-[10px] text-error">3</div>
+                                                    <p>Outputs: <span class="text-error font-bold">EXACT DAYS until you go broke</span> at your current burn rate. No sugarcoating.</p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="p-6 bg-surface-container-lowest/50">
+                                            <div class="font-data-label text-[10px] text-on-surface-variant uppercase tracking-widest mb-3">// RUNWAY_DEMO_CALC</div>
+                                            <div class="space-y-3">
+                                                <div class="flex justify-between items-center p-3 border border-outline-variant/30 bg-background">
+                                                    <span class="font-data-label text-[10px] text-on-surface-variant uppercase">Monthly Income</span>
+                                                    <span class="font-data-label text-[13px] text-primary-fixed font-black" id="runway-income-val">₹35,000</span>
+                                                </div>
+                                                <div class="flex justify-between items-center p-3 border border-outline-variant/30 bg-background">
+                                                    <span class="font-data-label text-[10px] text-on-surface-variant uppercase">Total Expenses</span>
+                                                    <span class="font-data-label text-[13px] text-error font-black" id="runway-expense-val">₹0</span>
+                                                </div>
+                                                <div class="flex justify-between items-center p-3 border border-primary-fixed/30 bg-primary-fixed/5">
+                                                    <span class="font-data-label text-[10px] text-primary-fixed uppercase">Runway Remaining</span>
+                                                    <span class="font-data-label text-[18px] text-primary-fixed font-black" id="runway-days-val">∞ DAYS</span>
+                                                </div>
+                                                <!-- Burn bar -->
+                                                <div class="space-y-1">
+                                                    <div class="flex justify-between font-data-label text-[9px] text-on-surface-variant uppercase">
+                                                        <span>Budget Burn</span>
+                                                        <span id="runway-pct-val">0%</span>
+                                                    </div>
+                                                    <div class="flex gap-1 h-2" id="runway-demo-bar">
+                                                        <div class="flex-1 bg-surface-bright"></div>
+                                                        <div class="flex-1 bg-surface-bright"></div>
+                                                        <div class="flex-1 bg-surface-bright"></div>
+                                                        <div class="flex-1 bg-surface-bright"></div>
+                                                        <div class="flex-1 bg-surface-bright"></div>
+                                                    </div>
+                                                </div>
+                                                <input type="range" min="0" max="50000" step="1000" value="0" id="runway-slider"
+                                                    oninput="updateRunwayDemo(this.value)"
+                                                    class="w-full h-1 appearance-none bg-outline-variant/30 cursor-pointer accent-primary"
+                                                    style="accent-color:#baf600;">
+                                                <div class="font-data-label text-[9px] text-on-surface-variant uppercase text-center">← drag slider to simulate expenses →</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- MODULE 04 PANEL: Persona Engine + 3 Attitudes -->
+                            <div id="module-panel-3" class="module-panel hidden">
+                                <div class="border border-primary-fixed/40 bg-surface-container-lowest mt-0 relative overflow-hidden">
+                                    <div class="absolute top-0 left-0 w-full h-0.5 bg-gradient-to-r from-primary-fixed via-primary-fixed/50 to-transparent"></div>
+                                    <div class="p-6">
+                                        <div class="flex items-center gap-2 mb-2">
+                                            <span class="material-symbols-outlined text-primary-fixed text-[20px]">psychology_alt</span>
+                                            <span class="font-data-label text-[11px] text-primary-fixed uppercase tracking-widest">MODULE_04 // PERSONA_ENGINE</span>
+                                        </div>
+                                        <p class="font-body-md text-[12px] text-on-surface-variant mb-6">Choose your operational critique mode. All three are devastating — just in different ways. Click an attitude to see how it responds to the same financial mistake.</p>
+
+                                        <!-- Attitude Selector -->
+                                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+                                            <!-- AGGRESSIVE -->
+                                            <button onclick="selectAttitude('aggressive')" id="attitude-aggressive"
+                                                class="attitude-btn group text-left p-5 border border-error/40 bg-error-container/5 hover:border-error/70 hover:bg-error-container/10 transition-all duration-200 relative overflow-hidden focus:outline-none">
+                                                <div class="absolute top-0 left-0 w-full h-0.5 bg-error/60"></div>
+                                                <div class="flex items-center gap-2 mb-3">
+                                                    <span class="material-symbols-outlined text-error text-[22px]">bolt</span>
+                                                    <span class="font-data-label text-[12px] text-error uppercase tracking-wider font-black">Aggressive</span>
+                                                </div>
+                                                <p class="font-body-md text-[12px] text-on-surface-variant leading-relaxed">No filter. Maximum brutality. Will not hesitate to call your choices catastrophic.</p>
+                                                <div class="mt-3 font-data-label text-[9px] text-error/60 uppercase tracking-widest">PERSONA_MODE_A</div>
+                                            </button>
+
+                                            <!-- SARCASTIC -->
+                                            <button onclick="selectAttitude('sarcastic')" id="attitude-sarcastic"
+                                                class="attitude-btn group text-left p-5 border border-primary-fixed/40 bg-primary-fixed/5 hover:border-primary-fixed/70 hover:bg-primary-fixed/10 transition-all duration-200 relative overflow-hidden focus:outline-none">
+                                                <div class="absolute top-0 left-0 w-full h-0.5 bg-primary-fixed/60"></div>
+                                                <div class="flex items-center gap-2 mb-3">
+                                                    <span class="material-symbols-outlined text-primary-fixed text-[22px]">sentiment_very_dissatisfied</span>
+                                                    <span class="font-data-label text-[12px] text-primary-fixed uppercase tracking-wider font-black">Sarcastic</span>
+                                                </div>
+                                                <p class="font-body-md text-[12px] text-on-surface-variant leading-relaxed">Painfully condescending wit. Makes you feel judged while technically staying polite.</p>
+                                                <div class="mt-3 font-data-label text-[9px] text-primary-fixed/60 uppercase tracking-widest">PERSONA_MODE_S</div>
+                                            </button>
+
+                                            <!-- SUPPORTIVE -->
+                                            <button onclick="selectAttitude('supportive')" id="attitude-supportive"
+                                                class="attitude-btn group text-left p-5 border border-outline-variant/40 bg-surface-container/20 hover:border-on-surface-variant/60 hover:bg-surface-container-high transition-all duration-200 relative overflow-hidden focus:outline-none">
+                                                <div class="absolute top-0 left-0 w-full h-0.5 bg-on-surface-variant/40"></div>
+                                                <div class="flex items-center gap-2 mb-3">
+                                                    <span class="material-symbols-outlined text-on-surface-variant text-[22px]">support_agent</span>
+                                                    <span class="font-data-label text-[12px] text-on-surface uppercase tracking-wider font-black">Supportive-ish</span>
+                                                </div>
+                                                <p class="font-body-md text-[12px] text-on-surface-variant leading-relaxed">Technically encouraging — but the disappointment is unmistakably palpable.</p>
+                                                <div class="mt-3 font-data-label text-[9px] text-outline-variant uppercase tracking-widest">PERSONA_MODE_P</div>
+                                            </button>
+                                        </div>
+
+                                        <!-- Attitude Output Terminal -->
+                                        <div class="border border-outline-variant/40 bg-background relative overflow-hidden" id="attitude-terminal-wrap">
+                                            <div class="bg-surface-container border-b border-outline-variant/30 px-4 py-2 flex items-center justify-between">
+                                                <div class="flex items-center gap-2">
+                                                    <span class="w-2 h-2 rounded-full bg-on-surface-variant/40 animate-pulse" id="attitude-dot"></span>
+                                                    <span class="font-data-label text-[10px] text-on-surface-variant uppercase tracking-widest" id="attitude-mode-label">NO MODE SELECTED</span>
+                                                </div>
+                                                <span class="font-data-label text-[9px] text-on-surface-variant/50 uppercase">SCENARIO: spent ₹5,000 on gaming skins</span>
+                                            </div>
+                                            <div class="p-5 font-roast-content text-[13px] leading-relaxed min-h-[100px]" id="attitude-output">
+                                                <span class="text-on-surface-variant italic">Select an operational attitude above to see how it responds...</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                        </div><!-- /module-panel-container -->
+                    </section>
+
+
+                    <!-- ═══ LIVE ROAST DEMO ═══ -->
+                    <section id="landing-demo" class="py-12 border-t border-outline-variant/20">
+                        <div class="flex items-center gap-3 mb-2">
+                            <div class="w-8 h-px bg-primary-fixed"></div>
+                            <span class="font-data-label text-[11px] text-primary-fixed uppercase tracking-[0.3em]">// INTERACTIVE_DEMO</span>
+                            <span class="font-data-label text-[9px] text-primary-fixed border border-primary-fixed/40 px-1.5 py-0.5 animate-pulse">LIVE</span>
+                        </div>
+                        <p class="text-on-surface-variant text-[13px] mb-8 font-body-md">Click a scenario below to see how the AI roasts a typical bad financial decision. No login needed.</p>
+                        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                            <div class="flex flex-col gap-3">
+                                <p class="font-data-label text-[10px] text-on-surface-variant uppercase tracking-widest mb-1">// SELECT_FINANCIAL_CRIME</p>
+                                <button onclick="runDemoRoast(0)" id="demo-btn-0" class="demo-scenario-btn group flex items-center gap-4 border border-outline-variant/40 bg-surface-container/20 p-4 text-left hover:border-primary-fixed/60 hover:bg-primary-fixed/5 transition-all duration-200 w-full">
+                                    <span class="material-symbols-outlined text-[22px] text-primary-fixed/60 group-hover:text-primary-fixed transition-colors">coffee</span>
+                                    <div><div class="font-data-label text-[11px] text-on-surface uppercase tracking-wider">₹800 on Starbucks — Daily</div><div class="font-body-md text-[11px] text-on-surface-variant mt-0.5">Coffee addiction meets intern salary</div></div>
+                                    <span class="material-symbols-outlined text-[16px] text-primary-fixed ml-auto opacity-0 group-hover:opacity-100 transition-opacity">chevron_right</span>
+                                </button>
+                                <button onclick="runDemoRoast(1)" id="demo-btn-1" class="demo-scenario-btn group flex items-center gap-4 border border-outline-variant/40 bg-surface-container/20 p-4 text-left hover:border-primary-fixed/60 hover:bg-primary-fixed/5 transition-all duration-200 w-full">
+                                    <span class="material-symbols-outlined text-[22px] text-primary-fixed/60 group-hover:text-primary-fixed transition-colors">shopping_bag</span>
+                                    <div><div class="font-data-label text-[11px] text-on-surface uppercase tracking-wider">₹12,000 Amazon Haul — "Needed"</div><div class="font-body-md text-[11px] text-on-surface-variant mt-0.5">Impulse shopping disguised as necessities</div></div>
+                                    <span class="material-symbols-outlined text-[16px] text-primary-fixed ml-auto opacity-0 group-hover:opacity-100 transition-opacity">chevron_right</span>
+                                </button>
+                                <button onclick="runDemoRoast(2)" id="demo-btn-2" class="demo-scenario-btn group flex items-center gap-4 border border-outline-variant/40 bg-surface-container/20 p-4 text-left hover:border-primary-fixed/60 hover:bg-primary-fixed/5 transition-all duration-200 w-full">
+                                    <span class="material-symbols-outlined text-[22px] text-primary-fixed/60 group-hover:text-primary-fixed transition-colors">delivery_dining</span>
+                                    <div><div class="font-data-label text-[11px] text-on-surface uppercase tracking-wider">₹3,500 Zomato — This Week</div><div class="font-body-md text-[11px] text-on-surface-variant mt-0.5">Cooking is "too hard" apparently</div></div>
+                                    <span class="material-symbols-outlined text-[16px] text-primary-fixed ml-auto opacity-0 group-hover:opacity-100 transition-opacity">chevron_right</span>
+                                </button>
+                                <button onclick="runDemoRoast(3)" id="demo-btn-3" class="demo-scenario-btn group flex items-center gap-4 border border-outline-variant/40 bg-surface-container/20 p-4 text-left hover:border-primary-fixed/60 hover:bg-primary-fixed/5 transition-all duration-200 w-full">
+                                    <span class="material-symbols-outlined text-[22px] text-primary-fixed/60 group-hover:text-primary-fixed transition-colors">sports_esports</span>
+                                    <div><div class="font-data-label text-[11px] text-on-surface uppercase tracking-wider">₹5,000 on In-App Purchases</div><div class="font-body-md text-[11px] text-on-surface-variant mt-0.5">Spent real money on fake swords</div></div>
+                                    <span class="material-symbols-outlined text-[16px] text-primary-fixed ml-auto opacity-0 group-hover:opacity-100 transition-opacity">chevron_right</span>
+                                </button>
+                            </div>
+                            <div class="border border-primary-fixed/30 bg-surface-container-lowest flex flex-col min-h-[280px] relative overflow-hidden">
+                                <div class="bg-surface-container border-b border-primary-fixed/20 px-4 py-2 flex items-center justify-between">
+                                    <div class="flex items-center gap-2">
+                                        <span class="w-2 h-2 rounded-full bg-primary-fixed animate-pulse"></span>
+                                        <span class="font-data-label text-[10px] text-primary-fixed uppercase tracking-widest">ROAST_ENGINE // DEMO_MODE</span>
+                                    </div>
+                                    <span id="demo-status-badge" class="font-data-label text-[9px] text-on-surface-variant border border-outline-variant/30 px-2 py-0.5 uppercase">STANDBY</span>
+                                </div>
+                                <div class="flex-1 p-5 font-roast-content text-[13px] leading-relaxed flex flex-col justify-between" id="demo-output-area">
+                                    <div id="demo-output-text" class="text-on-surface-variant italic">
+                                        <span class="text-primary-fixed not-italic">&gt; </span>Select a financial crime above to receive your roast...
+                                    </div>
+                                    <div class="mt-4 pt-4 border-t border-outline-variant/20">
+                                        <div id="demo-verdict" class="hidden">
+                                            <span class="font-data-label text-[9px] text-error uppercase tracking-widest">// VERDICT</span>
+                                            <p id="demo-verdict-text" class="text-error text-[12px] mt-1 font-body-md"></p>
+                                        </div>
+                                        <div class="mt-3 flex items-center justify-between">
+                                            <span class="font-data-label text-[9px] text-outline-variant uppercase">SYS: DEMO_INSTANCE</span>
+                                            <button onclick="handleLandingAction()" class="font-data-label text-[9px] text-primary-fixed border border-primary-fixed/40 px-3 py-1 hover:bg-primary-fixed hover:text-black transition-all uppercase tracking-wider">Register for Full Roast →</button>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
                     </section>
+
+                    <!-- ═══ WHY NOT A SPREADSHEET ═══ -->
+                    <section id="landing-why" class="py-12 border-t border-outline-variant/20">
+                        <div class="flex items-center gap-3 mb-8">
+                            <div class="w-8 h-px bg-primary-fixed"></div>
+                            <span class="font-data-label text-[11px] text-primary-fixed uppercase tracking-[0.3em]">// WHY_NOT_JUST_A_SPREADSHEET</span>
+                        </div>
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 items-stretch">
+                            <div class="border border-error/20 bg-error-container/5 p-6 relative">
+                                <div class="absolute top-0 left-4 -translate-y-1/2 bg-background px-2 font-data-label text-error text-[10px] tracking-widest uppercase">[ OTHER_APPS ]</div>
+                                <ul class="space-y-3 mt-2">
+                                    <li class="flex items-start gap-2 font-body-md text-[12px] text-on-surface-variant"><span class="material-symbols-outlined text-error text-[16px] mt-0.5">close</span>Politely suggests you "spend less on coffee"</li>
+                                    <li class="flex items-start gap-2 font-body-md text-[12px] text-on-surface-variant"><span class="material-symbols-outlined text-error text-[16px] mt-0.5">close</span>Shows colorful pie charts you ignore</li>
+                                    <li class="flex items-start gap-2 font-body-md text-[12px] text-on-surface-variant"><span class="material-symbols-outlined text-error text-[16px] mt-0.5">close</span>Sends you "gentle reminders"</li>
+                                    <li class="flex items-start gap-2 font-body-md text-[12px] text-on-surface-variant"><span class="material-symbols-outlined text-error text-[16px] mt-0.5">close</span>Lets you feel okay about your mistakes</li>
+                                </ul>
+                            </div>
+                            <div class="flex flex-col items-center justify-center gap-3 py-4">
+                                <div class="w-px flex-1 bg-outline-variant/20 hidden md:block"></div>
+                                <div class="border border-primary-fixed/40 bg-primary-fixed/10 px-6 py-3 font-data-label text-[20px] text-primary-fixed font-black tracking-widest">VS</div>
+                                <div class="w-px flex-1 bg-outline-variant/20 hidden md:block"></div>
+                            </div>
+                            <div class="border border-primary-fixed/20 bg-primary-fixed/5 p-6 relative">
+                                <div class="absolute top-0 left-4 -translate-y-1/2 bg-background px-2 font-data-label text-primary-fixed text-[10px] tracking-widest uppercase">[ THE AI FINANCIAL ROASTER ]</div>
+                                <ul class="space-y-3 mt-2">
+                                    <li class="flex items-start gap-2 font-body-md text-[12px] text-on-surface"><span class="material-symbols-outlined text-primary-fixed text-[16px] mt-0.5">check</span>Calls out your Starbucks addiction by name</li>
+                                    <li class="flex items-start gap-2 font-body-md text-[12px] text-on-surface"><span class="material-symbols-outlined text-primary-fixed text-[16px] mt-0.5">check</span>Calculates the exact day you'll go broke</li>
+                                    <li class="flex items-start gap-2 font-body-md text-[12px] text-on-surface"><span class="material-symbols-outlined text-primary-fixed text-[16px] mt-0.5">check</span>Delivers AI-generated savage financial roasts</li>
+                                    <li class="flex items-start gap-2 font-body-md text-[12px] text-on-surface"><span class="material-symbols-outlined text-primary-fixed text-[16px] mt-0.5">check</span>Forces you to face your financial reality</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- ═══ HOW IT WORKS ═══ -->
+                    <section id="landing-how" class="py-12 border-t border-outline-variant/20 mb-8">
+                        <div class="flex items-center gap-3 mb-8">
+                            <div class="w-8 h-px bg-primary-fixed"></div>
+                            <span class="font-data-label text-[11px] text-primary-fixed uppercase tracking-[0.3em]">// ONBOARDING_PROTOCOL</span>
+                        </div>
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                            <div class="flex flex-col gap-3 relative">
+                                <div class="flex items-center gap-3">
+                                    <div class="w-8 h-8 border border-primary-fixed bg-primary-fixed/10 flex items-center justify-center font-data-label text-[12px] text-primary-fixed font-black shrink-0">01</div>
+                                    <div class="flex-1 h-px bg-primary-fixed/20 hidden md:block"></div>
+                                </div>
+                                <span class="material-symbols-outlined text-primary-fixed text-[28px]">person_add</span>
+                                <h3 class="font-data-label text-[12px] text-on-surface uppercase tracking-wider">Register Your Identity</h3>
+                                <p class="font-body-md text-[12px] text-on-surface-variant leading-relaxed">Create a username and password. No email required. Your profile is instantly provisioned in the system.</p>
+                            </div>
+                            <div class="flex flex-col gap-3 relative">
+                                <div class="flex items-center gap-3">
+                                    <div class="w-8 h-8 border border-primary-fixed bg-primary-fixed/10 flex items-center justify-center font-data-label text-[12px] text-primary-fixed font-black shrink-0">02</div>
+                                    <div class="flex-1 h-px bg-primary-fixed/20 hidden md:block"></div>
+                                </div>
+                                <span class="material-symbols-outlined text-primary-fixed text-[28px]">add_card</span>
+                                <h3 class="font-data-label text-[12px] text-on-surface uppercase tracking-wider">Log Your Mistakes</h3>
+                                <p class="font-body-md text-[12px] text-on-surface-variant leading-relaxed">Type expenses naturally or use the form. Log income too. Every rupee is tracked and judged.</p>
+                            </div>
+                            <div class="flex flex-col gap-3">
+                                <div class="flex items-center gap-3">
+                                    <div class="w-8 h-8 border border-primary-fixed bg-primary-fixed/10 flex items-center justify-center font-data-label text-[12px] text-primary-fixed font-black shrink-0">03</div>
+                                </div>
+                                <span class="material-symbols-outlined text-primary-fixed text-[28px]">local_fire_department</span>
+                                <h3 class="font-data-label text-[12px] text-on-surface uppercase tracking-wider">Get Roasted by AI</h3>
+                                <p class="font-body-md text-[12px] text-on-surface-variant leading-relaxed">The Gemini engine analyses your patterns and delivers a personalised, brutal financial reality check.</p>
+                            </div>
+                        </div>
+                        <!-- Final CTA -->
+                        <div class="mt-12 border border-primary-fixed/20 bg-primary-fixed/5 p-6 flex flex-col sm:flex-row items-center justify-between gap-4">
+                            <div>
+                                <p class="font-data-label text-[13px] text-primary-fixed uppercase tracking-wider font-bold">Ready to face your financial reality?</p>
+                                <p class="font-body-md text-[12px] text-on-surface-variant mt-1">It's free. It's instant. It will hurt.</p>
+                            </div>
+                            <button onclick="handleLandingAction()" class="bg-primary-fixed text-black font-data-label text-[12px] uppercase px-8 py-4 font-bold hover:bg-primary-fixed/80 transition-all border border-primary-fixed flex items-center gap-2 shrink-0 glitch-hover">
+                                <span class="material-symbols-outlined text-[18px]">bolt</span>
+                                <span id="landing-cta-btn-text">[ BEGIN REGISTRATION ]</span>
+                            </button>
+                        </div>
+                    </section>
+
+                    <!-- FAQ Section -->
+                    <section id="landing-faq" class="py-12 border-t border-outline-variant/20">
+                        <div class="flex items-center gap-3 mb-8">
+                            <div class="w-8 h-px bg-primary-fixed"></div>
+                            <span class="font-data-label text-[11px] text-primary-fixed uppercase tracking-[0.3em]">// FREQUENTLY_ASKED_QUERIES</span>
+                        </div>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4" id="faq-container">
+
+                            <!-- FAQ Item 1 -->
+                            <div class="faq-item border border-outline-variant/40 bg-surface-container-low/30 hover:border-primary-fixed/40 transition-all duration-300 cursor-pointer" onclick="toggleFaq(this)">
+                                <div class="flex items-center justify-between p-4 gap-3">
+                                    <div class="flex items-center gap-3">
+                                        <span class="font-data-label text-[10px] text-primary-fixed/60 shrink-0">Q_01</span>
+                                        <span class="font-data-label text-[12px] text-on-surface uppercase tracking-wide">Is this actually free?</span>
+                                    </div>
+                                    <span class="material-symbols-outlined text-primary-fixed text-[18px] faq-icon transition-transform duration-300 shrink-0">add</span>
+                                </div>
+                                <div class="faq-answer hidden px-4 pb-4">
+                                    <div class="border-l-2 border-primary-fixed/30 pl-4">
+                                        <p class="font-body-md text-[12px] text-on-surface-variant leading-relaxed">Yes. Completely free. No credit card, no email required. We provide the humiliation at no charge — consider it our gift to your financial ego.</p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- FAQ Item 2 -->
+                            <div class="faq-item border border-outline-variant/40 bg-surface-container-low/30 hover:border-primary-fixed/40 transition-all duration-300 cursor-pointer" onclick="toggleFaq(this)">
+                                <div class="flex items-center justify-between p-4 gap-3">
+                                    <div class="flex items-center gap-3">
+                                        <span class="font-data-label text-[10px] text-primary-fixed/60 shrink-0">Q_02</span>
+                                        <span class="font-data-label text-[12px] text-on-surface uppercase tracking-wide">Is my financial data safe?</span>
+                                    </div>
+                                    <span class="material-symbols-outlined text-primary-fixed text-[18px] faq-icon transition-transform duration-300 shrink-0">add</span>
+                                </div>
+                                <div class="faq-answer hidden px-4 pb-4">
+                                    <div class="border-l-2 border-primary-fixed/30 pl-4">
+                                        <p class="font-body-md text-[12px] text-on-surface-variant leading-relaxed">Your data is stored securely and never sold to third parties. We only use it to generate roasts and analytics for you. The AI judges your finances, not anyone else.</p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- FAQ Item 3 -->
+                            <div class="faq-item border border-outline-variant/40 bg-surface-container-low/30 hover:border-primary-fixed/40 transition-all duration-300 cursor-pointer" onclick="toggleFaq(this)">
+                                <div class="flex items-center justify-between p-4 gap-3">
+                                    <div class="flex items-center gap-3">
+                                        <span class="font-data-label text-[10px] text-primary-fixed/60 shrink-0">Q_03</span>
+                                        <span class="font-data-label text-[12px] text-on-surface uppercase tracking-wide">How does the AI roast work?</span>
+                                    </div>
+                                    <span class="material-symbols-outlined text-primary-fixed text-[18px] faq-icon transition-transform duration-300 shrink-0">add</span>
+                                </div>
+                                <div class="faq-answer hidden px-4 pb-4">
+                                    <div class="border-l-2 border-primary-fixed/30 pl-4">
+                                        <p class="font-body-md text-[12px] text-on-surface-variant leading-relaxed">Powered by Google Gemini, the AI analyses your spending patterns, categories, and frequency. It then generates a brutally honest, personalised commentary on your financial choices — no sugar-coating included.</p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- FAQ Item 4 -->
+                            <div class="faq-item border border-outline-variant/40 bg-surface-container-low/30 hover:border-primary-fixed/40 transition-all duration-300 cursor-pointer" onclick="toggleFaq(this)">
+                                <div class="flex items-center justify-between p-4 gap-3">
+                                    <div class="flex items-center gap-3">
+                                        <span class="font-data-label text-[10px] text-primary-fixed/60 shrink-0">Q_04</span>
+                                        <span class="font-data-label text-[12px] text-on-surface uppercase tracking-wide">Can I log income too?</span>
+                                    </div>
+                                    <span class="material-symbols-outlined text-primary-fixed text-[18px] faq-icon transition-transform duration-300 shrink-0">add</span>
+                                </div>
+                                <div class="faq-answer hidden px-4 pb-4">
+                                    <div class="border-l-2 border-primary-fixed/30 pl-4">
+                                        <p class="font-body-md text-[12px] text-on-surface-variant leading-relaxed">Yes. You can log both expenses and income. The AI will then assess your savings rate and deliver a verdict on whether you're actually building wealth or just coping.</p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- FAQ Item 5 -->
+                            <div class="faq-item border border-outline-variant/40 bg-surface-container-low/30 hover:border-primary-fixed/40 transition-all duration-300 cursor-pointer" onclick="toggleFaq(this)">
+                                <div class="flex items-center justify-between p-4 gap-3">
+                                    <div class="flex items-center gap-3">
+                                        <span class="font-data-label text-[10px] text-primary-fixed/60 shrink-0">Q_05</span>
+                                        <span class="font-data-label text-[12px] text-on-surface uppercase tracking-wide">Will the roasts actually help me?</span>
+                                    </div>
+                                    <span class="material-symbols-outlined text-primary-fixed text-[18px] faq-icon transition-transform duration-300 shrink-0">add</span>
+                                </div>
+                                <div class="faq-answer hidden px-4 pb-4">
+                                    <div class="border-l-2 border-primary-fixed/30 pl-4">
+                                        <p class="font-body-md text-[12px] text-on-surface-variant leading-relaxed">Surprisingly, yes. Studies show that emotional engagement with financial data drives better habits. Getting roasted stings, and that sting is exactly what turns passive logging into active awareness.</p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- FAQ Item 6 -->
+                            <div class="faq-item border border-outline-variant/40 bg-surface-container-low/30 hover:border-primary-fixed/40 transition-all duration-300 cursor-pointer" onclick="toggleFaq(this)">
+                                <div class="flex items-center justify-between p-4 gap-3">
+                                    <div class="flex items-center gap-3">
+                                        <span class="font-data-label text-[10px] text-primary-fixed/60 shrink-0">Q_06</span>
+                                        <span class="font-data-label text-[12px] text-on-surface uppercase tracking-wide">Do I need an email to sign up?</span>
+                                    </div>
+                                    <span class="material-symbols-outlined text-primary-fixed text-[18px] faq-icon transition-transform duration-300 shrink-0">add</span>
+                                </div>
+                                <div class="faq-answer hidden px-4 pb-4">
+                                    <div class="border-l-2 border-primary-fixed/30 pl-4">
+                                        <p class="font-body-md text-[12px] text-on-surface-variant leading-relaxed">No. Just a username and password. Your financial shame is stored anonymously. We ask for zero personal details — the AI only needs your transactions to pass judgment.</p>
+                                    </div>
+                                </div>
+                            </div>
+
+                        </div>
+                    </section>
+
+                    <!-- ═══ FOOTER ═══ -->
+                    <footer id="landing-footer" class="border-t border-outline-variant/40 mt-8" style="margin-left:-1.5rem;width:calc(100% + 3rem);padding-left:1.5rem;padding-right:1.5rem;">
+
+                        <!-- Scan-line top accent -->
+                        <div class="h-px w-full bg-gradient-to-r from-transparent via-primary-fixed/60 to-transparent mb-0"></div>
+
+                        <!-- Main Footer Grid -->
+                        <div class="max-w-container-max mx-auto py-12 grid grid-cols-1 md:grid-cols-12 gap-10">
+
+                            <!-- Brand Column -->
+                            <div class="md:col-span-4 flex flex-col gap-4">
+                                <div class="flex items-center gap-3">
+                                    <div class="relative w-8 h-8 flex items-center justify-center border border-primary-fixed/40 bg-primary-fixed/10">
+                                        <span class="material-symbols-outlined text-primary-fixed text-[18px]">local_fire_department</span>
+                                        <div class="absolute inset-0 bg-primary-fixed/10 animate-pulse" style="animation-duration:3s;"></div>
+                                    </div>
+                                    <span class="font-data-label text-[13px] text-primary-fixed uppercase tracking-[0.2em] font-bold">THE AI FINANCIAL ROASTER</span>
+                                </div>
+                                <p class="font-body-md text-[12px] text-on-surface-variant leading-relaxed max-w-xs">
+                                    AI-powered financial accountability — because your bank statement deserves brutal honesty, not a therapist.
+                                </p>
+                                <!-- Status badge -->
+                                <div class="flex items-center gap-2 mt-1">
+                                    <div class="w-1.5 h-1.5 rounded-full bg-green-400 animate-pulse"></div>
+                                    <span class="font-data-label text-[10px] text-on-surface-variant uppercase tracking-widest">SYS_STATUS: ALL SYSTEMS OPERATIONAL</span>
+                                </div>
+                                <!-- Powered by badge -->
+                                <div class="flex items-center gap-2 border border-outline-variant/30 bg-surface-container-low/30 px-3 py-2 w-fit mt-1">
+                                    <span class="material-symbols-outlined text-primary-fixed/70 text-[14px]">auto_awesome</span>
+                                    <span class="font-data-label text-[10px] text-on-surface-variant uppercase tracking-widest">Powered by Google Gemini AI</span>
+                                </div>
+                            </div>
+
+                            <!-- Quick Links Column -->
+                            <div class="md:col-span-2 flex flex-col gap-3">
+                                <div class="flex items-center gap-2 mb-1">
+                                    <div class="w-4 h-px bg-primary-fixed/60"></div>
+                                    <span class="font-data-label text-[10px] text-primary-fixed uppercase tracking-[0.3em]">NAVIGATE</span>
+                                </div>
+                                <nav class="flex flex-col gap-2">
+                                    <a href="#" onclick="switchLandingSection('features'); return false;" class="font-data-label text-[11px] text-on-surface-variant uppercase tracking-wide hover:text-primary-fixed transition-colors duration-200 flex items-center gap-1.5 group">
+                                        <span class="text-primary-fixed/30 group-hover:text-primary-fixed transition-colors">//</span> Features
+                                    </a>
+                                    <a id="footer-demo-link" href="#" onclick="switchLandingSection('demo'); return false;" class="font-data-label text-[11px] text-on-surface-variant uppercase tracking-wide hover:text-primary-fixed transition-colors duration-200 flex items-center gap-1.5 group">
+                                        <span class="text-primary-fixed/30 group-hover:text-primary-fixed transition-colors">//</span> Demo
+                                    </a>
+                                    <a href="#" onclick="switchLandingSection('why'); return false;" class="font-data-label text-[11px] text-on-surface-variant uppercase tracking-wide hover:text-primary-fixed transition-colors duration-200 flex items-center gap-1.5 group">
+                                        <span class="text-primary-fixed/30 group-hover:text-primary-fixed transition-colors">//</span> Why Us
+                                    </a>
+                                    <a href="#" onclick="switchLandingSection('how'); return false;" class="font-data-label text-[11px] text-on-surface-variant uppercase tracking-wide hover:text-primary-fixed transition-colors duration-200 flex items-center gap-1.5 group">
+                                        <span class="text-primary-fixed/30 group-hover:text-primary-fixed transition-colors">//</span> How It Works
+                                    </a>
+                                    <a href="#" onclick="switchLandingSection('faq'); return false;" class="font-data-label text-[11px] text-on-surface-variant uppercase tracking-wide hover:text-primary-fixed transition-colors duration-200 flex items-center gap-1.5 group">
+                                        <span class="text-primary-fixed/30 group-hover:text-primary-fixed transition-colors">//</span> FAQ
+                                    </a>
+                                </nav>
+                            </div>
+
+
+                            <!-- Legal Column -->
+                            <div class="md:col-span-2 flex flex-col gap-3">
+                                <div class="flex items-center gap-2 mb-1">
+                                    <div class="w-4 h-px bg-primary-fixed/60"></div>
+                                    <span class="font-data-label text-[10px] text-primary-fixed uppercase tracking-[0.3em]">LEGAL</span>
+                                </div>
+                                <nav class="flex flex-col gap-2">
+                                    <a href="#" onclick="openLegalModal('terms'); return false;" class="font-data-label text-[11px] text-on-surface-variant uppercase tracking-wide hover:text-primary-fixed transition-colors duration-200 flex items-center gap-1.5 group">
+                                        <span class="text-primary-fixed/30 group-hover:text-primary-fixed transition-colors">//</span> Terms of Use
+                                    </a>
+                                    <a href="#" onclick="openLegalModal('privacy'); return false;" class="font-data-label text-[11px] text-on-surface-variant uppercase tracking-wide hover:text-primary-fixed transition-colors duration-200 flex items-center gap-1.5 group">
+                                        <span class="text-primary-fixed/30 group-hover:text-primary-fixed transition-colors">//</span> Privacy Policy
+                                    </a>
+                                    <a href="#" onclick="openLegalModal('disclaimer'); return false;" class="font-data-label text-[11px] text-on-surface-variant uppercase tracking-wide hover:text-primary-fixed transition-colors duration-200 flex items-center gap-1.5 group">
+                                        <span class="text-primary-fixed/30 group-hover:text-primary-fixed transition-colors">//</span> Disclaimer
+                                    </a>
+                                    <a href="#" onclick="openLegalModal('cookies'); return false;" class="font-data-label text-[11px] text-on-surface-variant uppercase tracking-wide hover:text-primary-fixed transition-colors duration-200 flex items-center gap-1.5 group">
+                                        <span class="text-primary-fixed/30 group-hover:text-primary-fixed transition-colors">//</span> Cookie Policy
+                                    </a>
+                                </nav>
+                            </div>
+
+                            <!-- Contact Column -->
+                            <div class="md:col-span-4 flex flex-col gap-3">
+                                <div class="flex items-center gap-2 mb-1">
+                                    <div class="w-4 h-px bg-primary-fixed/60"></div>
+                                    <span class="font-data-label text-[10px] text-primary-fixed uppercase tracking-[0.3em]">CONTACT</span>
+                                </div>
+                                <div class="flex flex-col gap-3">
+                                    <div class="border border-outline-variant/30 bg-surface-container-low/20 p-3 hover:border-primary-fixed/40 transition-all duration-300 group">
+                                        <div class="font-data-label text-[9px] text-primary-fixed/60 uppercase tracking-widest mb-1">PRIMARY</div>
+                                        <a href="mailto:monisha.m.info@gmail.com" class="font-data-label text-[11px] text-on-surface-variant group-hover:text-primary-fixed transition-colors duration-200 flex items-center gap-2">
+                                            <span class="material-symbols-outlined text-[13px]">mail</span>
+                                            monisha.m.info@gmail.com
+                                        </a>
+                                    </div>
+                                    <div class="border border-outline-variant/30 bg-surface-container-low/20 p-3 hover:border-primary-fixed/40 transition-all duration-300 group">
+                                        <div class="font-data-label text-[9px] text-primary-fixed/60 uppercase tracking-widest mb-1">SECONDARY</div>
+                                        <a href="mailto:monisha.tech.14@gmail.com" class="font-data-label text-[11px] text-on-surface-variant group-hover:text-primary-fixed transition-colors duration-200 flex items-center gap-2">
+                                            <span class="material-symbols-outlined text-[13px]">mail</span>
+                                            monisha.tech.14@gmail.com
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+
+                        </div>
+
+                        <!-- Bottom Bar -->
+                        <div class="border-t border-outline-variant/20 py-4" style="margin-left:-0px;">
+                            <div class="max-w-container-max mx-auto flex flex-col md:flex-row items-center justify-between gap-3">
+                                <div class="flex items-center gap-3">
+                                    <div class="w-1 h-1 bg-primary-fixed animate-pulse"></div>
+                                    <span class="font-data-label text-[10px] text-on-surface-variant uppercase tracking-widest">
+                                        &copy; <span id="footer-year"></span> The AI Financial Roaster &mdash; All Rights Reserved
+                                    </span>
+                                </div>
+                                <div class="flex items-center gap-4">
+                                    <span class="font-data-label text-[10px] text-on-surface-variant/50 uppercase tracking-widest">Made with <span class="text-error">♥</span> &amp; Sarcasm</span>
+                                    <div class="w-px h-3 bg-outline-variant/40"></div>
+                                    <div class="flex items-center gap-1.5">
+                                        <div class="w-1.5 h-1.5 rounded-full bg-primary-fixed animate-pulse"></div>
+                                        <span class="font-data-label text-[10px] text-primary-fixed uppercase tracking-widest">LIVE</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                    </footer>
+
                 </div>
+
 
                 <!-- 2. ENTRY PROTOCOL TAB -->
                 <div id="tab-entry" class="tab-content hidden space-y-8 py-6">
@@ -617,12 +1352,13 @@
                                     <th class="p-4">Category</th>
                                     <th class="p-4">Description</th>
                                     <th class="p-4 text-right">Amount</th>
+                                    <th class="p-4">Roast</th>
                                     <th class="p-4 text-center">Action</th>
                                 </tr>
                             </thead>
                             <tbody id="logs-table-body" class="font-roast-content text-sm divide-y divide-outline-variant/20">
                                 <tr>
-                                    <td colspan="5" class="p-8 text-center text-on-surface-variant">Loading transaction logs from Supabase Cloud...</td>
+                                    <td colspan="6" class="p-8 text-center text-on-surface-variant">Loading transaction logs from Supabase Cloud...</td>
                                 </tr>
                             </tbody>
                         </table>
@@ -631,10 +1367,13 @@
 
                 <!-- 5. PERSONA SETTINGS TAB -->
                 <div id="tab-settings" class="tab-content hidden space-y-8 py-6">
-                    <div class="mb-10 border-b border-outline-variant/30 pb-6 flex items-end justify-between">
+                    <div class="mb-10 border-b border-outline-variant/30 pb-6 flex flex-col md:flex-row md:items-end justify-between gap-4">
                         <div>
                             <p class="font-headline-md text-[12px] text-outline uppercase tracking-widest mb-2">// SECURITY_AND_AI_PERSONA_PARAMETERS</p>
                             <h1 class="font-headline-lg-mobile md:font-headline-lg text-headline-lg-mobile md:text-headline-lg text-on-surface">SYSTEM_CONFIG</h1>
+                        </div>
+                        <div id="user-profile-indicator" class="glass-panel border border-outline-variant/30 px-4 py-2 text-data-label text-[11px] text-primary-fixed uppercase tracking-widest font-body-md font-bold self-start md:self-auto">
+                            LOGGED IN AS: [NOT AUTHENTICATED]
                         </div>
                     </div>
 
@@ -751,19 +1490,19 @@
             <span class="material-symbols-outlined text-[20px]">home</span>
             <span class="font-data-label text-[9px]">Home</span>
         </button>
-        <button onclick="switchTab('entry')" id="mob-tab-entry" class="flex flex-col items-center justify-center text-on-surface-variant flex-1 h-full gap-1">
+        <button onclick="switchTab('entry')" id="mob-tab-entry" class="flex flex-col items-center justify-center text-on-surface-variant flex-1 h-full gap-1 hidden">
             <span class="material-symbols-outlined text-[20px]">terminal</span>
             <span class="font-data-label text-[9px]">Entry</span>
         </button>
-        <button onclick="switchTab('dashboard')" id="mob-tab-dashboard" class="flex flex-col items-center justify-center text-on-surface-variant flex-1 h-full gap-1">
+        <button onclick="switchTab('dashboard')" id="mob-tab-dashboard" class="flex flex-col items-center justify-center text-on-surface-variant flex-1 h-full gap-1 hidden">
             <span class="material-symbols-outlined text-[20px]">grid_view</span>
             <span class="font-data-label text-[9px]">Dash</span>
         </button>
-        <button onclick="switchTab('logs')" id="mob-tab-logs" class="flex flex-col items-center justify-center text-on-surface-variant flex-1 h-full gap-1">
+        <button onclick="switchTab('logs')" id="mob-tab-logs" class="flex flex-col items-center justify-center text-on-surface-variant flex-1 h-full gap-1 hidden">
             <span class="material-symbols-outlined text-[20px]">receipt_long</span>
             <span class="font-data-label text-[9px]">Logs</span>
         </button>
-        <button onclick="switchTab('settings')" id="mob-tab-settings" class="flex flex-col items-center justify-center text-on-surface-variant flex-1 h-full gap-1">
+        <button onclick="switchTab('settings')" id="mob-tab-settings" class="flex flex-col items-center justify-center text-on-surface-variant flex-1 h-full gap-1 hidden">
             <span class="material-symbols-outlined text-[20px]">tune</span>
             <span class="font-data-label text-[9px]">Config</span>
         </button>
@@ -812,6 +1551,137 @@
         </div>
     </div>
 
+    <!-- Contact Modal (Cyberpunk Styled) -->
+    <div id="contact-modal" class="fixed inset-0 z-[100] bg-background/95 backdrop-blur-md flex items-center justify-center p-6 hidden">
+        <!-- Dot Grid Background inside the screen to keep aesthetics -->
+        <div class="absolute inset-0 pointer-events-none z-0" style="background-image: radial-gradient(circle at 1px 1px, rgba(255,255,255,0.03) 1px, transparent 0); background-size: 24px 24px;"></div>
+        
+        <!-- Contact Panel -->
+        <div class="relative w-full max-w-md glass-panel border border-primary-fixed/40 p-8 flex flex-col gap-6 z-10">
+            <!-- Header -->
+            <div class="flex items-center justify-between border-b border-primary-fixed/20 pb-4">
+                <div class="flex items-center gap-2">
+                    <span class="w-3 h-3 bg-primary-fixed shrink-0 rounded-full animate-pulse"></span>
+                    <h2 class="font-data-label text-data-label tracking-[0.2em] text-primary-fixed uppercase">NODE_00: CONTACT_CHANNELS</h2>
+                </div>
+                <button onclick="closeContactModal()" class="text-on-surface-variant hover:text-primary transition-colors flex items-center">
+                    <span class="material-symbols-outlined text-[20px]">close</span>
+                </button>
+            </div>
+            
+            <p class="font-body-md text-[13px] text-on-surface-variant leading-relaxed">// Establish connection with the system administrator. Copy credentials or send transmission.</p>
+            
+            <!-- Email Channels -->
+            <div class="space-y-4">
+                <!-- Channel 1 -->
+                <div class="flex items-center justify-between p-3 border border-outline-variant/30 bg-surface-container/20 hover:border-primary-fixed/30 transition-all group">
+                    <div class="flex flex-col gap-0.5">
+                        <span class="font-data-label text-[9px] text-primary-fixed/70 uppercase tracking-widest">Primary Channel</span>
+                        <span class="font-body-md text-[14px] text-on-surface font-semibold selection:bg-primary-fixed selection:text-black">monisha.m.info@gmail.com</span>
+                    </div>
+                    <button onclick="copyToClipboard('monisha.m.info@gmail.com', this)" class="px-3 py-1.5 border border-outline-variant/50 text-on-surface-variant hover:border-primary-fixed hover:text-primary-fixed transition-all text-[10px] font-data-label uppercase tracking-wider flex items-center gap-1">
+                        <span class="material-symbols-outlined text-[12px]">content_copy</span>
+                        Copy
+                    </button>
+                </div>
+                
+                <!-- Channel 2 -->
+                <div class="flex items-center justify-between p-3 border border-outline-variant/30 bg-surface-container/20 hover:border-primary-fixed/30 transition-all group">
+                    <div class="flex flex-col gap-0.5">
+                        <span class="font-data-label text-[9px] text-primary-fixed/70 uppercase tracking-widest">Backup Channel</span>
+                        <span class="font-body-md text-[14px] text-on-surface font-semibold selection:bg-primary-fixed selection:text-black">monisha.tech.14@gmail.com</span>
+                    </div>
+                    <button onclick="copyToClipboard('monisha.tech.14@gmail.com', this)" class="px-3 py-1.5 border border-outline-variant/50 text-on-surface-variant hover:border-primary-fixed hover:text-primary-fixed transition-all text-[10px] font-data-label uppercase tracking-wider flex items-center gap-1">
+                        <span class="material-symbols-outlined text-[12px]">content_copy</span>
+                        Copy
+                    </button>
+                </div>
+            </div>
+
+            <!-- Mailto and Dismiss buttons -->
+            <div class="flex gap-4 mt-2">
+                <a href="mailto:monisha.m.info@gmail.com" class="flex-1 bg-primary-fixed text-on-primary-fixed font-data-label text-data-label uppercase py-3 font-bold text-center border border-primary-fixed hover:bg-primary-fixed/80 transition-all">
+                    [ SEND PRIMARY ]
+                </a>
+                <button onclick="closeContactModal()" class="flex-1 border border-outline-variant text-on-surface font-data-label text-data-label uppercase py-3 font-bold hover:bg-surface-container-highest transition-colors duration-200">
+                    [ DISMISS ]
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Legal Modal (Cyberpunk Styled) -->
+    <div id="legal-modal" class="fixed inset-0 z-[100] bg-background/95 backdrop-blur-md flex items-center justify-center p-6 hidden">
+        <!-- Dot Grid Background inside the screen to keep aesthetics -->
+        <div class="absolute inset-0 pointer-events-none z-0" style="background-image: radial-gradient(circle at 1px 1px, rgba(255,255,255,0.03) 1px, transparent 0); background-size: 24px 24px;"></div>
+        
+        <!-- Legal Panel -->
+        <div class="relative w-full max-w-lg glass-panel border border-primary-fixed/40 p-8 flex flex-col gap-6 z-10">
+            <!-- Header -->
+            <div class="flex items-center justify-between border-b border-primary-fixed/20 pb-4">
+                <div class="flex items-center gap-2">
+                    <span class="w-3 h-3 bg-primary-fixed shrink-0 rounded-full animate-pulse"></span>
+                    <h2 class="font-data-label text-data-label tracking-[0.2em] text-primary-fixed uppercase" id="legal-modal-title">NODE_09: LEGAL_PROTOCOL</h2>
+                </div>
+                <button onclick="closeLegalModal()" class="text-on-surface-variant hover:text-primary transition-colors flex items-center">
+                    <span class="material-symbols-outlined text-[20px]">close</span>
+                </button>
+            </div>
+
+            <!-- Tab Switcher -->
+            <div class="flex flex-wrap gap-1 bg-surface-container-low p-1 w-full border border-outline-variant/60">
+                <button type="button" id="legal-tab-terms" onclick="switchLegalTab('terms')" class="flex-1 min-w-[90px] px-2 py-1.5 font-data-label text-[10px] text-center bg-primary-fixed text-black font-bold uppercase transition-all">
+                    TERMS
+                </button>
+                <button type="button" id="legal-tab-privacy" onclick="switchLegalTab('privacy')" class="flex-1 min-w-[90px] px-2 py-1.5 font-data-label text-[10px] text-center text-on-surface-variant font-bold uppercase hover:bg-surface-container-high transition-all">
+                    PRIVACY
+                </button>
+                <button type="button" id="legal-tab-disclaimer" onclick="switchLegalTab('disclaimer')" class="flex-1 min-w-[90px] px-2 py-1.5 font-data-label text-[10px] text-center text-on-surface-variant font-bold uppercase hover:bg-surface-container-high transition-all">
+                    DISCLAIMER
+                </button>
+                <button type="button" id="legal-tab-cookies" onclick="switchLegalTab('cookies')" class="flex-1 min-w-[90px] px-2 py-1.5 font-data-label text-[10px] text-center text-on-surface-variant font-bold uppercase hover:bg-surface-container-high transition-all">
+                    COOKIES
+                </button>
+            </div>
+
+            <!-- Contents -->
+            <div class="border border-outline-variant/30 bg-surface-container/20 p-4">
+                <div id="legal-content-terms" class="legal-tab-pane space-y-4 text-[13px] leading-relaxed text-on-surface-variant font-body-md max-h-[260px] overflow-y-auto pr-2">
+                    <p class="text-primary-fixed uppercase tracking-wider font-bold">1. ACCEPTANCE OF SYSTEM TERMS</p>
+                    <p>By entering the AI Financial Roaster platform, you consent to have your financial choices analyzed, mocked, and roasted by our advanced language models. If your ego is fragile, please terminate connection immediately.</p>
+                    <p class="text-primary-fixed uppercase tracking-wider font-bold">2. SCOPE OF UTILITY</p>
+                    <p>This service operates as a financial reflection and diagnostic mirror. We translate your financial logs (manual inputs or CSVs) into humorous, highly critical critiques. The roast is for entertainment purposes and does not constitute financial advising.</p>
+                    <p class="text-primary-fixed uppercase tracking-wider font-bold">3. NO WARRANTY</p>
+                    <p>The system is provided "AS IS" without warranties of any kind. Use of the generated feedback is at your own risk. We assume zero liability for hurt feelings or immediate budget transformations.</p>
+                </div>
+                <div id="legal-content-privacy" class="legal-tab-pane hidden space-y-4 text-[13px] leading-relaxed text-on-surface-variant font-body-md max-h-[260px] overflow-y-auto pr-2">
+                    <p class="text-primary-fixed uppercase tracking-wider font-bold">1. DATA HARVESTING</p>
+                    <p>We collect credentials (email and hashed passwords) for registration, as well as the income and expense data you explicitly upload or manually enter. Your financial shame remains strictly in your database instance.</p>
+                    <p class="text-primary-fixed uppercase tracking-wider font-bold">2. SECURITY MATRIX</p>
+                    <p>Your database transactions and user profiles are secured using Supabase Row Level Security (RLS). We do not store raw passwords; authentication token storage is managed by Supabase Auth protocols.</p>
+                    <p class="text-primary-fixed uppercase tracking-wider font-bold">3. GEMINI AI API INTERACTIONS</p>
+                    <p>When you trigger the AI Roast module, anonymized versions of your expense category summaries are processed through Google Gemini API models. No personally identifiable details are sent to the LLM backend.</p>
+                </div>
+                <div id="legal-content-disclaimer" class="legal-tab-pane hidden space-y-4 text-[13px] leading-relaxed text-on-surface-variant font-body-md max-h-[260px] overflow-y-auto pr-2">
+                    <p class="text-primary-fixed uppercase tracking-wider font-bold">NOT FINANCIAL ADVICE</p>
+                    <p>THE AI FINANCIAL ROASTER IS AN ENTERTAINMENT AND BUDGET AWARENESS UTILITY. THE CRITIQUES, GRAPHS, ROASTS, AND METRICS GENERATED BY THE SYSTEM DO NOT CONSTITUTE OFFICIAL FINANCIAL, INVESTMENT, LEGAL, OR TAX ADVICE.</p>
+                    <p>Please consult a certified financial planner, accountant, or human therapist before making significant capital allocations or investment relocations based on the sarcastic advice of our AI model.</p>
+                </div>
+                <div id="legal-content-cookies" class="legal-tab-pane hidden space-y-4 text-[13px] leading-relaxed text-on-surface-variant font-body-md max-h-[260px] overflow-y-auto pr-2">
+                    <p class="text-primary-fixed uppercase tracking-wider font-bold">1. SYSTEM TOKENS</p>
+                    <p>We use local storage tokens and standard session cookies to maintain your authenticated state with the database. These are strictly functional and required to keep you logged in.</p>
+                    <p class="text-primary-fixed uppercase tracking-wider font-bold">2. PREFERENCE PERSISTENCE</p>
+                    <p>Cookies and browser storage may also keep track of your active UI tabs or manual log inputs to optimize load times and UI stability across page refreshes.</p>
+                </div>
+            </div>
+
+            <!-- Dismiss Button -->
+            <button onclick="closeLegalModal()" class="w-full border border-outline-variant text-on-surface font-data-label text-data-label uppercase py-3 font-bold hover:bg-surface-container-highest transition-colors duration-200">
+                [ DISMISS PROTOCOL ]
+            </button>
+        </div>
+    </div>
+
     <!-- Fullscreen Registration Page (CASE A) -->
     <div id="registration-screen" class="fixed inset-0 z-[100] bg-background/95 backdrop-blur-md flex items-center justify-center p-6 hidden">
         <!-- Dot Grid Background inside the screen to keep aesthetics -->
@@ -837,25 +1707,40 @@
             
             <p class="font-body-md text-[13px] text-on-surface-variant leading-relaxed" id="auth-form-desc">// Enter credentials to initialize your identity matrix. Once registered, your financial reality will be tracked and shamed accordingly.</p>
             
-            <form id="registration-form" onsubmit="handleRegisterSubmit(event)" class="space-y-6">
+            <form id="registration-form" onsubmit="handleRegisterSubmit(event)" class="space-y-6" autocomplete="off">
                 <!-- Username Input -->
                 <div class="relative" id="reg-username-container">
                     <label class="font-data-label text-data-label text-on-surface-variant block mb-2 uppercase">Username</label>
-                    <input required id="reg-username" class="w-full bg-transparent border-0 border-b border-outline-variant p-2 font-body-md text-on-surface placeholder:text-on-surface-variant/30 focus:ring-0 outline-none transition-all focus:border-primary-fixed" placeholder="e.g., FinancialDisaster99" type="text" />
+                    <input required id="reg-username" autocomplete="off" class="w-full bg-transparent border-0 border-b border-outline-variant p-2 font-body-md text-on-surface placeholder:text-on-surface-variant/30 focus:ring-0 outline-none transition-all focus:border-primary-fixed" placeholder="e.g., FinancialDisaster99" type="text" />
+                    <div class="scan-line"></div>
+                </div>
+
+                <!-- Custom Email Toggle Container -->
+                <div id="custom-email-toggle-container" class="flex items-center gap-2 mt-2">
+                    <input type="checkbox" id="custom-email-toggle" onchange="toggleCustomEmailField()" class="rounded border-outline-variant text-primary-fixed bg-transparent focus:ring-0 focus:ring-offset-0 focus:outline-none checked:bg-primary-fixed checked:border-primary-fixed cursor-pointer" />
+                    <label for="custom-email-toggle" class="font-data-label text-[11px] text-on-surface-variant uppercase cursor-pointer hover:text-on-surface transition-colors select-none">
+                        Advanced: Use Custom Email (Google Auth Style)
+                    </label>
+                </div>
+
+                <!-- Custom Email Input Container -->
+                <div id="custom-email-input-container" class="relative hidden mt-2">
+                    <label class="font-data-label text-data-label text-on-surface-variant block mb-2 uppercase">Custom Email</label>
+                    <input id="custom-email" autocomplete="off" class="w-full bg-transparent border-0 border-b border-outline-variant p-2 font-body-md text-on-surface placeholder:text-on-surface-variant/30 focus:ring-0 outline-none transition-all focus:border-primary-fixed" placeholder="e.g., yourname@domain.com" type="text" />
                     <div class="scan-line"></div>
                 </div>
 
                 <!-- Email/Username Input (shown only in sign-in mode) -->
                 <div class="relative hidden" id="reg-email-container">
                     <label class="font-data-label text-data-label text-on-surface-variant block mb-2 uppercase" id="reg-email-label">Username or Email</label>
-                    <input id="reg-email" class="w-full bg-transparent border-0 border-b border-outline-variant p-2 font-body-md text-on-surface placeholder:text-on-surface-variant/30 focus:ring-0 outline-none transition-all focus:border-primary-fixed" placeholder="e.g., YourUsername or email@domain.com" type="text" />
+                    <input id="reg-email" autocomplete="off" class="w-full bg-transparent border-0 border-b border-outline-variant p-2 font-body-md text-on-surface placeholder:text-on-surface-variant/30 focus:ring-0 outline-none transition-all focus:border-primary-fixed" placeholder="e.g., YourUsername or email@domain.com" type="text" />
                     <div class="scan-line"></div>
                 </div>
 
                 <!-- Password Input -->
                 <div class="relative">
                     <label class="font-data-label text-data-label text-on-surface-variant block mb-2 uppercase">Password</label>
-                    <input required id="reg-password" minlength="6" class="w-full bg-transparent border-0 border-b border-outline-variant p-2 font-body-md text-on-surface placeholder:text-on-surface-variant/30 focus:ring-0 outline-none transition-all focus:border-primary-fixed" placeholder="••••••••" type="password" />
+                    <input required id="reg-password" minlength="6" autocomplete="new-password" class="w-full bg-transparent border-0 border-b border-outline-variant p-2 font-body-md text-on-surface placeholder:text-on-surface-variant/30 focus:ring-0 outline-none transition-all focus:border-primary-fixed" placeholder="••••••••" type="password" />
                     <div class="scan-line"></div>
                 </div>
 
@@ -875,6 +1760,84 @@
 
     <!-- Core SPA Javascript Logic -->
     <script>
+        // Contact modal controls
+        function openContactModal() {
+            const contactModal = document.getElementById('contact-modal');
+            if (contactModal) {
+                contactModal.classList.remove('hidden');
+            }
+        }
+
+        function closeContactModal() {
+            const contactModal = document.getElementById('contact-modal');
+            if (contactModal) {
+                contactModal.classList.add('hidden');
+            }
+        }
+
+        // Legal modal controls
+        function openLegalModal(tabName) {
+            const legalModal = document.getElementById('legal-modal');
+            if (legalModal) {
+                legalModal.classList.remove('hidden');
+                if (tabName) {
+                    switchLegalTab(tabName);
+                }
+            }
+        }
+
+        function closeLegalModal() {
+            const legalModal = document.getElementById('legal-modal');
+            if (legalModal) {
+                legalModal.classList.add('hidden');
+            }
+        }
+
+        function switchLegalTab(tabId) {
+            // Hide all tab panes
+            const panes = document.querySelectorAll('.legal-tab-pane');
+            panes.forEach(pane => pane.classList.add('hidden'));
+
+            // Deactivate all tab buttons
+            const tabs = ['terms', 'privacy', 'disclaimer', 'cookies'];
+            tabs.forEach(t => {
+                const btn = document.getElementById(`legal-tab-${t}`);
+                if (btn) {
+                    btn.className = 'flex-1 min-w-[90px] px-2 py-1.5 font-data-label text-[10px] text-center text-on-surface-variant font-bold uppercase hover:bg-surface-container-high transition-all';
+                }
+            });
+
+            // Show current tab pane
+            const activePane = document.getElementById(`legal-content-${tabId}`);
+            if (activePane) {
+                activePane.classList.remove('hidden');
+            }
+
+            // Activate current tab button
+            const activeBtn = document.getElementById(`legal-tab-${tabId}`);
+            if (activeBtn) {
+                activeBtn.className = 'flex-1 min-w-[90px] px-2 py-1.5 font-data-label text-[10px] text-center bg-primary-fixed text-black font-bold uppercase transition-all';
+            }
+        }
+
+        function copyToClipboard(text, btnElement) {
+            navigator.clipboard.writeText(text).then(() => {
+                showToast('CREDENTIAL COPIED TO BUFFER', 'success');
+                if (btnElement) {
+                    const originalHTML = btnElement.innerHTML;
+                    btnElement.innerHTML = `<span class="material-symbols-outlined text-[12px]">done</span> Copied`;
+                    btnElement.classList.add('border-primary-fixed', 'text-primary-fixed');
+                    setTimeout(() => {
+                        btnElement.innerHTML = originalHTML;
+                        btnElement.classList.remove('border-primary-fixed', 'text-primary-fixed');
+                    }, 2000);
+                }
+            }).catch(err => {
+                console.error('Failed to copy: ', err);
+                showToast('COPY OPERATION FAILED', 'error');
+            });
+        }
+
         // Global variables
         let supabaseClient = null;  // renamed to avoid shadowing the CDN global `supabase`
         let currentSession = null;
@@ -897,6 +1860,11 @@
                     supabaseClient.auth.onAuthStateChange((event, session) => {
                         currentSession = session;
                         updateLandingButton(!!session);
+                        if (!session) {
+                            resetRegistrationFormFields();
+                            resetRegisterSubmitBtn();
+                            clearUserDataState();
+                        }
                     });
 
                     // Initial session check
@@ -917,6 +1885,7 @@
         let currentAuthMode = 'signup';
 
         function switchAuthMode(mode) {
+            resetRegistrationFormFields();
             currentAuthMode = mode;
             const btnSignUp = document.getElementById('auth-mode-signup');
             const btnSignIn = document.getElementById('auth-mode-signin');
@@ -929,6 +1898,14 @@
             const emailLabel = document.getElementById('reg-email-label');
             const emailInput = document.getElementById('reg-email');
 
+            // Custom email elements
+            const customEmailToggleContainer = document.getElementById('custom-email-toggle-container');
+            const customEmailToggle = document.getElementById('custom-email-toggle');
+            if (customEmailToggle) {
+                customEmailToggle.checked = false;
+            }
+            toggleCustomEmailField(); // Hides container and resets required
+
             if (mode === 'signup') {
                 btnSignUp.className = 'flex-1 px-4 py-1.5 font-data-label text-[11px] bg-primary-fixed text-black font-bold uppercase transition-all';
                 btnSignIn.className = 'flex-1 px-4 py-1.5 font-data-label text-[11px] text-on-surface-variant font-bold uppercase hover:bg-surface-container-high transition-all';
@@ -938,6 +1915,10 @@
                 if (emailField) emailField.classList.add('hidden');
                 if (regUsernameInput) regUsernameInput.required = true;
                 if (emailInput) emailInput.required = false;
+
+                // Show custom email toggle container
+                if (customEmailToggleContainer) customEmailToggleContainer.classList.remove('hidden');
+
                 if (submitBtnText) submitBtnText.innerText = '[ INITIATE PROFILE ]';
                 if (submitBtnIcon) submitBtnIcon.innerText = 'how_to_reg';
                 if (formDesc) formDesc.innerText = '// Enter a unique username and password to initialize your identity matrix. Your financial reality will be tracked and shamed accordingly.';
@@ -954,10 +1935,136 @@
                     emailInput.type = 'text';
                     emailInput.placeholder = 'e.g., YourUsername or email@domain.com';
                 }
+
+                // Hide custom email toggle container
+                if (customEmailToggleContainer) customEmailToggleContainer.classList.add('hidden');
+
                 if (emailLabel) emailLabel.innerText = 'USERNAME OR EMAIL';
                 if (submitBtnText) submitBtnText.innerText = '[ AUTHENTICATE MATRIX ]';
                 if (submitBtnIcon) submitBtnIcon.innerText = 'login';
                 if (formDesc) formDesc.innerText = '// Authenticate your identity matrix using your username or email and password.';
+            }
+
+            // Fix button freezing state
+            resetRegisterSubmitBtn();
+        }
+
+        function toggleCustomEmailField() {
+            const customEmailToggle = document.getElementById('custom-email-toggle');
+            const customEmailContainer = document.getElementById('custom-email-input-container');
+            const customEmailInput = document.getElementById('custom-email');
+            if (!customEmailToggle || !customEmailContainer || !customEmailInput) return;
+
+            if (customEmailToggle.checked) {
+                customEmailContainer.classList.remove('hidden');
+                customEmailInput.required = true;
+            } else {
+                customEmailContainer.classList.add('hidden');
+                customEmailInput.required = false;
+                customEmailInput.value = '';
+            }
+        }
+
+        function resetRegisterSubmitBtn() {
+            const submitBtn = document.querySelector('#registration-form button[type="submit"]');
+            if (submitBtn) {
+                submitBtn.disabled = false;
+                submitBtn.style.opacity = '1';
+            }
+        }
+
+        function resetRegistrationFormFields() {
+            const usernameInput = document.getElementById('reg-username');
+            const passwordInput = document.getElementById('reg-password');
+            const emailInput = document.getElementById('reg-email');
+            const customEmailInput = document.getElementById('custom-email');
+            const customEmailToggle = document.getElementById('custom-email-toggle');
+
+            if (usernameInput) usernameInput.value = '';
+            if (passwordInput) passwordInput.value = '';
+            if (emailInput) emailInput.value = '';
+            if (customEmailInput) customEmailInput.value = '';
+            if (customEmailToggle) customEmailToggle.checked = false;
+        }
+
+        function clearUserDataState() {
+            expensesData = [];
+            incomeData = [];
+            
+            try {
+                localStorage.clear();
+            } catch (e) {
+                console.error("Failed to clear localStorage:", e);
+            }
+
+            const burnAmt = document.getElementById('burn-amount');
+            if (burnAmt) burnAmt.innerText = '₹0.00';
+            
+            const runwayD = document.getElementById('runway-days');
+            if (runwayD) runwayD.innerHTML = '0 <span class="text-headline-md text-on-surface-variant">DAYS</span>';
+            
+            const netBal = document.getElementById('net-balance-amount');
+            if (netBal) netBal.innerText = '₹0.00';
+            
+            const totInc = document.getElementById('total-income-amount');
+            if (totInc) totInc.innerText = '₹0.00';
+            
+            const dbCritique = document.getElementById('dashboard-critique');
+            if (dbCritique) dbCritique.innerText = 'Awaiting data input to begin financial assessment.';
+
+            const balanceBorder = document.getElementById('net-balance-card-border');
+            const balanceIcon = document.getElementById('net-balance-icon');
+            if (balanceBorder) {
+                balanceBorder.className = "border border-outline-variant bg-surface-container/30 p-6 flex flex-col justify-between relative overflow-hidden";
+            }
+            if (balanceIcon) {
+                balanceIcon.className = "material-symbols-outlined text-[56px] text-primary-fixed";
+            }
+
+            const burnBar = document.getElementById('burn-segmented-bar');
+            if (burnBar) burnBar.innerHTML = '';
+            const runwayBar = document.getElementById('runway-segmented-bar');
+            if (runwayBar) runwayBar.innerHTML = '';
+
+            const recentList = document.getElementById('dashboard-recent-list');
+            if (recentList) {
+                recentList.innerHTML = '<p class="p-6 text-center text-on-surface-variant text-sm">No recent transactions. Start wasting money to see entries here.</p>';
+            }
+            const recentIncomeList = document.getElementById('dashboard-recent-income-list');
+            if (recentIncomeList) {
+                recentIncomeList.innerHTML = '<p class="p-6 text-center text-on-surface-variant text-sm">No income logged yet. Earn some money to see entries here.</p>';
+            }
+
+            const tableBody = document.getElementById('logs-table-body');
+            if (tableBody) {
+                tableBody.innerHTML = `
+                    <tr>
+                        <td colspan="6" class="p-8 text-center text-on-surface-variant">No transactions stored in database. Manual logs required.</td>
+                    </tr>
+                `;
+            }
+
+            const chatTranscript = document.getElementById('chat-transcript');
+            if (chatTranscript) {
+                chatTranscript.innerHTML = `
+                    <div class="flex gap-4">
+                        <span class="text-primary-fixed flex-shrink-0">[SYS_LOG]:</span>
+                        <div class="text-on-surface leading-relaxed">
+                            Ask me anything about your budget, query categories (e.g. "Roast my coffee spending"), or write manual entries (e.g. "spent 250 on coffee") to auto-parse them.
+                        </div>
+                    </div>
+                `;
+            }
+        }
+
+        function updateUserProfileIndicator() {
+            const indicator = document.getElementById('user-profile-indicator');
+            if (!indicator) return;
+            if (currentSession && currentSession.user) {
+                const username = currentSession.user.user_metadata?.username || currentSession.user.email || 'UNKNOWN';
+                indicator.innerText = `LOGGED IN AS: ${username.toUpperCase()}`;
+            } else {
+                indicator.innerText = 'LOGGED IN AS: [NOT AUTHENTICATED]';
             }
         }
 
@@ -967,7 +2074,24 @@
                 btnText.innerText = hasSession ? '[ LOG & SHAME ME ]' : '[ ACCOUNT REGISTRATION ]';
             }
 
-            // Show/Hide logout buttons in side nav and mobile nav
+            // Toggle demo elements based on auth state
+            const navDemoLink = document.getElementById('nav-live-demo-link');
+            const heroDemoBtn = document.getElementById('hero-try-demo-btn');
+            const landingDemoSec = document.getElementById('landing-demo');
+            const footerDemoLink = document.getElementById('footer-demo-link');
+
+            if (hasSession) {
+                if (navDemoLink) navDemoLink.classList.add('hidden');
+                if (heroDemoBtn) heroDemoBtn.classList.add('hidden');
+                if (landingDemoSec) landingDemoSec.classList.add('hidden');
+                if (footerDemoLink) footerDemoLink.classList.add('hidden');
+            } else {
+                if (navDemoLink) navDemoLink.classList.remove('hidden');
+                if (heroDemoBtn) heroDemoBtn.classList.remove('hidden');
+                if (landingDemoSec) landingDemoSec.classList.remove('hidden');
+                if (footerDemoLink) footerDemoLink.classList.remove('hidden');
+            }
+
             const sideLogout = document.getElementById('side-tab-logout');
             const mobLogout = document.getElementById('mob-tab-logout');
             if (sideLogout) {
@@ -984,6 +2108,58 @@
                     mobLogout.classList.add('hidden');
                 }
             }
+            
+            updateUserProfileIndicator();
+
+            // Show/hide the entire sidebar and main offset based on auth state
+            const desktopSidebar = document.getElementById('desktop-sidebar');
+            const mainCanvas = document.getElementById('main-canvas');
+            if (desktopSidebar && mainCanvas) {
+                if (hasSession) {
+                    desktopSidebar.style.display = 'flex';
+                    mainCanvas.style.paddingLeft = '16rem'; /* 256px = w-64 */
+                } else {
+                    desktopSidebar.style.display = 'none';
+                    mainCanvas.style.paddingLeft = '0';
+                }
+            }
+
+            const protectedTabIds = ['landing', 'entry', 'dashboard', 'logs', 'settings'];
+            protectedTabIds.forEach(tabId => {
+                // Sidebar: fully show or fully hide
+                const sideBtn = document.getElementById(`side-tab-${tabId}`);
+                if (sideBtn) {
+                    if (hasSession) {
+                        sideBtn.classList.remove('hidden');
+                        sideBtn.disabled = false;
+                    } else {
+                        sideBtn.classList.add('hidden');
+                        sideBtn.disabled = true;
+                    }
+                }
+
+                // Mobile nav: fully show or fully hide
+                const mobBtn = document.getElementById(`mob-tab-${tabId}`);
+                if (mobBtn) {
+                    if (hasSession) {
+                        mobBtn.classList.remove('hidden');
+                        mobBtn.disabled = false;
+                    } else {
+                        mobBtn.classList.add('hidden');
+                        mobBtn.disabled = true;
+                    }
+                }
+            });
+
+            // Show/hide the nav status indicator based on auth state
+            const navStatusContainer = document.getElementById('nav-status-container');
+            if (navStatusContainer) {
+                if (hasSession) {
+                    navStatusContainer.classList.remove('hidden');
+                } else {
+                    navStatusContainer.classList.add('hidden');
+                }
+            }
         }
 
         async function handleLogout() {
@@ -993,7 +2169,9 @@
                 const { error } = await supabaseClient.auth.signOut();
                 if (error) throw error;
                 currentSession = null;
+                clearUserDataState();
                 updateLandingButton(false);
+                resetRegistrationFormFields();
                 showToast('DE-AUTHENTICATION COMPLETE. ACCESS RESTRICTED.', 'success');
                 _doSwitchTab('landing');
             } catch (err) {
@@ -1003,16 +2181,62 @@
         }
 
         function handleLandingAction() {
+            resetRegisterSubmitBtn();
+            resetRegistrationFormFields();
             if (currentSession) {
                 switchTab('entry');
             } else {
-                switchAuthMode('signup'); // Default to register
+                switchAuthMode('signup');
                 document.getElementById('registration-screen').classList.remove('hidden');
             }
         }
 
+        function toggleFaq(item) {
+            const answer = item.querySelector('.faq-answer');
+            const icon = item.querySelector('.faq-icon');
+            const isOpen = !answer.classList.contains('hidden');
+
+            // Close all other open FAQs
+            document.querySelectorAll('.faq-item').forEach(function(other) {
+                if (other !== item) {
+                    other.querySelector('.faq-answer').classList.add('hidden');
+                    other.querySelector('.faq-icon').textContent = 'add';
+                    other.querySelector('.faq-icon').style.transform = 'rotate(0deg)';
+                    other.classList.remove('border-primary-fixed/60');
+                }
+            });
+
+            if (isOpen) {
+                answer.classList.add('hidden');
+                icon.textContent = 'add';
+                icon.style.transform = 'rotate(0deg)';
+                item.classList.remove('border-primary-fixed/60');
+            } else {
+                answer.classList.remove('hidden');
+                icon.textContent = 'remove';
+                icon.style.transform = 'rotate(180deg)';
+                item.classList.add('border-primary-fixed/60');
+            }
+        }
+
+        // Footer nav: smooth scroll to a landing section by id suffix
+        function switchLandingSection(sectionId) {
+            var el = document.getElementById('landing-' + sectionId);
+            if (el) {
+                el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }
+        }
+
+        // Populate footer year
+        (function() {
+            var yearEl = document.getElementById('footer-year');
+            if (yearEl) yearEl.textContent = new Date().getFullYear();
+        })();
+
         function hideRegistration() {
             document.getElementById('registration-screen').classList.add('hidden');
+            resetRegistrationFormFields();
+            resetRegisterSubmitBtn();
         }
 
         async function handleRegisterSubmit(event) {
@@ -1039,16 +2263,24 @@
 
                     showToast('INITIATING PROFILE REGISTRATION...', 'success');
 
-                    // Use backend admin-signup (email auto-generated from username)
+                    // Use backend admin-signup (email auto-generated from username, pre-confirmed — no email verification needed)
+                    const signupBody = { username, password };
+
+                    // Optional custom email override
+                    const customEmailToggle = document.getElementById('custom-email-toggle');
+                    const customEmailInput = document.getElementById('custom-email');
+                    if (customEmailToggle && customEmailToggle.checked && customEmailInput) {
+                        const emailVal = customEmailInput.value.trim();
+                        if (emailVal) signupBody.email = emailVal;
+                    }
+
                     const signupRes = await fetch('/api/admin-signup', {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ username, password })
+                        body: JSON.stringify(signupBody)
                     });
                     const signupData = await signupRes.json();
-                    if (!signupRes.ok) {
-                        throw new Error(signupData.error || 'Signup failed.');
-                    }
+                    if (!signupRes.ok) throw new Error(signupData.error || 'Registration failed.');
 
                     showToast('PROFILE CREATED. AUTHENTICATING...', 'success');
 
@@ -1057,8 +2289,8 @@
                     const { data: signInData, error: signInError } = await supabaseClient.auth.signInWithPassword({ email: internalEmail, password });
                     if (signInError) throw signInError;
                     if (!signInData.session) throw new Error('Could not retrieve active session after signup.');
-
                     currentSession = signInData.session;
+                    clearUserDataState();
                     updateLandingButton(true);
                     hideRegistration();
                     showToast('IDENTITY MATRIX LOCKED IN. WELCOME, OPERATOR.', 'success');
@@ -1094,6 +2326,7 @@
                     if (!signInData.session) throw new Error('Could not retrieve active session.');
 
                     currentSession = signInData.session;
+                    clearUserDataState();
                     updateLandingButton(true);
                     hideRegistration();
                     showToast('IDENTITY MATRIX LOCKED IN. WELCOME, OPERATOR.', 'success');
@@ -1157,6 +2390,8 @@
 
         // "REGISTER NOW" button on the access denied screen → close denied screen, open registration
         function dismissAccessDenied() {
+            resetRegistrationFormFields();
+            resetRegisterSubmitBtn();
             document.getElementById('access-denied-screen').classList.add('hidden');
             document.getElementById('registration-screen').classList.remove('hidden');
         }
@@ -1182,20 +2417,24 @@
 
             // Update Desktop Side Nav highlight
             document.querySelectorAll('nav[class*="space-y-1"] button').forEach(btn => {
-                btn.className = btn.className.replace('bg-primary-container/10 text-primary-fixed border-l-4 border-primary-fixed', 'text-on-surface-variant border-l-4 border-transparent');
+                btn.classList.remove('bg-primary-container/10', 'text-primary-fixed', 'border-primary-fixed');
+                btn.classList.add('text-on-surface-variant', 'border-transparent');
             });
             const activeSideBtn = document.getElementById(`side-tab-${tabId}`);
             if (activeSideBtn) {
-                activeSideBtn.className = activeSideBtn.className.replace('text-on-surface-variant border-l-4 border-transparent', 'bg-primary-container/10 text-primary-fixed border-l-4 border-primary-fixed');
+                activeSideBtn.classList.remove('text-on-surface-variant', 'border-transparent');
+                activeSideBtn.classList.add('bg-primary-container/10', 'text-primary-fixed', 'border-primary-fixed');
             }
 
             // Update Mobile Navigation highlight
             document.querySelectorAll('nav[class*="md:hidden"] button').forEach(btn => {
-                btn.className = btn.className.replace('text-primary-fixed font-bold', 'text-on-surface-variant');
+                btn.classList.remove('text-primary-fixed', 'font-bold');
+                btn.classList.add('text-on-surface-variant');
             });
             const activeMobBtn = document.getElementById(`mob-tab-${tabId}`);
             if (activeMobBtn) {
-                activeMobBtn.className = activeMobBtn.className.replace('text-on-surface-variant', 'text-primary-fixed font-bold');
+                activeMobBtn.classList.remove('text-on-surface-variant');
+                activeMobBtn.classList.add('text-primary-fixed', 'font-bold');
             }
 
             // If entering dashboard or logs, fetch latest data
@@ -1449,7 +2688,7 @@
             if (data.length === 0) {
                 tableBody.innerHTML = `
                     <tr>
-                        <td colspan="5" class="p-8 text-center text-on-surface-variant">No transactions stored in database. Manual logs required.</td>
+                        <td colspan="6" class="p-8 text-center text-on-surface-variant">No transactions stored in database. Manual logs required.</td>
                     </tr>
                 `;
                 return;
@@ -1476,6 +2715,7 @@
                     <td class="p-4"><span class="border border-outline-variant px-2 py-0.5 bg-surface-container font-data-label text-[10px] text-on-surface-variant uppercase">${item.category}</span></td>
                     <td class="p-4 text-on-surface font-semibold">${item.description || '-'}</td>
                     <td class="p-4 text-right ${amountClass} font-bold">${amountText}</td>
+                    <td class="p-4 text-on-surface-variant italic font-roast-content max-w-md break-words">${item.roast || '-'}</td>
                     <td class="p-4 text-center">
                         <button onclick="${deleteFnName}(${item.id})" class="text-error-container hover:text-error transition-colors p-1" title="Delete entry">
                             <span class="material-symbols-outlined text-[18px]">delete</span>
@@ -1688,49 +2928,32 @@
             return container;
         }
 
-        // Settings config actions: API key
         async function loadConfig() {
+            if (!currentSession) return;
             try {
-                const response = await fetch('/api/config');
+                const response = await fetch('/api/user-preferences', {
+                    headers: { 'Authorization': 'Bearer ' + currentSession.access_token }
+                });
                 const config = await response.json();
-                
-                // Update key input status text
-                const statusText = document.getElementById('api-key-status-text');
                 const navStatus = document.getElementById('nav-status-label');
                 const dbIndicator = document.getElementById('nav-db-indicator');
                 
-                if (config.hasApiKey) {
-                    if (statusText) {
-                        statusText.innerText = `Gemini active. Configured key: ${config.geminiApiKey}`;
-                        statusText.className = 'text-xs text-primary-fixed mt-2';
-                    }
+                if (config.persona) {
                     navStatus.innerText = `STATUS: ${config.persona.toUpperCase()}`;
                     navStatus.className = 'text-data-label text-primary-fixed uppercase tracking-widest font-body-md';
                     dbIndicator.className = 'w-2 h-2 rounded-full bg-primary-fixed animate-pulse';
-                } else {
-                    if (statusText) {
-                        statusText.innerText = 'No GEMINI_API_KEY configured. Mock roasts will be used.';
-                        statusText.className = 'text-xs text-error mt-2';
-                    }
-                    navStatus.innerText = `STATUS: ${config.persona.toUpperCase()} (MOCKED)`;
-                    navStatus.className = 'text-data-label text-error uppercase tracking-widest font-body-md';
-                    dbIndicator.className = 'w-2 h-2 rounded-full bg-error animate-pulse';
                 }
 
                 // Update settings selectors
                 const radio = document.querySelector(`input[name="persona-type"][value="${config.persona}"]`);
                 if (radio) {
                     radio.checked = true;
-                    // Reset styling on selectors
                     updateRadioStyles(config.persona);
                 }
-
-                // Update toggles
-                document.getElementById('chk-daily-brief').checked = config.dailyBriefing;
-                document.getElementById('chk-realtime-shame').checked = config.realtimeShame;
                 
                 // Set dashboard badge
-                document.getElementById('active-persona-badge').innerText = `ENGINE: ${config.persona.toUpperCase()}`;
+                const badge = document.getElementById('active-persona-badge');
+                if (badge) badge.innerText = `ENGINE: ${config.persona.toUpperCase()}`;
 
             } catch (err) {
                 console.error(err);
@@ -1767,37 +2990,17 @@
             });
         }
 
-        async function saveApiKey() {
-            const keyInput = document.getElementById('input-api-key');
-            const geminiApiKey = keyInput.value.trim();
-            if (!geminiApiKey) {
-                showToast('Please enter a valid API Key.', 'error');
-                return;
-            }
-
-            try {
-                const response = await fetch('/api/config', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ geminiApiKey })
-                });
-                if (response.ok) {
-                    keyInput.value = '';
-                    showToast('API Key updated successfully.', 'success');
-                    loadConfig();
-                    refreshData();
-                }
-            } catch (err) {
-                console.error(err);
-            }
-        }
 
         async function updatePersonaSetting(persona) {
             updateRadioStyles(persona);
+            if (!currentSession) return;
             try {
-                await fetch('/api/config', {
+                await fetch('/api/user-preferences', {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
+                    headers: { 
+                        'Content-Type': 'application/json',
+                        'Authorization': 'Bearer ' + currentSession.access_token
+                    },
                     body: JSON.stringify({ persona })
                 });
                 loadConfig();
@@ -1808,19 +3011,7 @@
         }
 
         async function updateToggleSettings() {
-            const dailyBriefing = document.getElementById('chk-daily-brief').checked;
-            const realtimeShame = document.getElementById('chk-realtime-shame').checked;
-            
-            try {
-                await fetch('/api/config', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ dailyBriefing, realtimeShame })
-                });
-                loadConfig();
-            } catch (err) {
-                console.error(err);
-            }
+            // Deprecated backend toggle updates
         }
 
         // Reboot Wiping DB
@@ -1845,8 +3036,561 @@
             }
         }
 
+        // ═══ INTERACTIVE SYSTEM MODULES & ATTITUDES ═══
+        let activeModuleIndex = -1;
+
+        function activateModule(index) {
+            const container = document.getElementById('module-panel-container');
+            const cards = [0, 1, 2, 3];
+            
+            if (activeModuleIndex === index) {
+                // Collapse container
+                container.style.maxHeight = '0px';
+                container.style.opacity = '0';
+                
+                // Reset card styling
+                cards.forEach(i => {
+                    const card = document.getElementById(`module-card-${i}`);
+                    const bar = document.getElementById(`module-bar-${i}`);
+                    const icon = document.getElementById(`module-icon-${i}`);
+                    
+                    card.classList.remove('border-primary-fixed', 'bg-primary-fixed/10', 'shadow-[0_0_20px_rgba(186,246,0,0.15)]');
+                    card.classList.add('border-outline-variant/30', 'bg-surface-container/20');
+                    bar.classList.remove('scale-x-100');
+                    bar.classList.add('scale-x-0');
+                    if (icon) {
+                        icon.textContent = 'expand_more';
+                        icon.classList.remove('text-primary-fixed');
+                        icon.classList.add('text-primary-fixed/40');
+                    }
+                });
+                
+                activeModuleIndex = -1;
+                return;
+            }
+            
+            activeModuleIndex = index;
+            
+            // Update all cards
+            cards.forEach(i => {
+                const card = document.getElementById(`module-card-${i}`);
+                const bar = document.getElementById(`module-bar-${i}`);
+                const icon = document.getElementById(`module-icon-${i}`);
+                const panel = document.getElementById(`module-panel-${i}`);
+                
+                if (i === index) {
+                    // Activate card styles
+                    card.classList.remove('border-outline-variant/30', 'bg-surface-container/20');
+                    card.classList.add('border-primary-fixed', 'bg-primary-fixed/10', 'shadow-[0_0_20px_rgba(186,246,0,0.15)]');
+                    bar.classList.remove('scale-x-0');
+                    bar.classList.add('scale-x-100');
+                    if (icon) {
+                        icon.textContent = 'expand_less';
+                        icon.classList.remove('text-primary-fixed/40');
+                        icon.classList.add('text-primary-fixed');
+                    }
+                    if (panel) panel.classList.remove('hidden');
+                } else {
+                    // Deactivate card styles
+                    card.classList.remove('border-primary-fixed', 'bg-primary-fixed/10', 'shadow-[0_0_20px_rgba(186,246,0,0.15)]');
+                    card.classList.add('border-outline-variant/30', 'bg-surface-container/20');
+                    bar.classList.remove('scale-x-100');
+                    bar.classList.add('scale-x-0');
+                    if (icon) {
+                        icon.textContent = 'expand_more';
+                        icon.classList.remove('text-primary-fixed');
+                        icon.classList.add('text-primary-fixed/40');
+                    }
+                    if (panel) panel.classList.add('hidden');
+                }
+            });
+            
+            // Expand container and scroll
+            container.style.maxHeight = '2000px';
+            container.style.opacity = '1';
+            
+            setTimeout(() => {
+                container.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+            }, 100);
+        }
+
+        // Module 01: Expense Parsing Simulation
+        let expenseParseIndex = 0;
+        const PARSE_SIMULATIONS = [
+            {
+                input: "ordered Biryani on Zomato for ₹1,200",
+                entities: {
+                    amount: 1200,
+                    currency: "INR",
+                    category: "Food & Dining",
+                    description: "Biryani on Zomato",
+                    parsed_successfully: true
+                },
+                roast: "₹1,200 on Biryani? Did it come with gold leaf, or are you just funding the delivery app's stock price? Cooking a basic meal at home costs under ₹50. You paid a 2400% premium for pure, unadulterated laziness."
+            },
+            {
+                input: "swiped ₹8,500 at Zara for a date night outfit",
+                entities: {
+                    amount: 8500,
+                    currency: "INR",
+                    category: "Shopping & Luxury",
+                    description: "Zara date night outfit",
+                    parsed_successfully: true
+                },
+                roast: "₹8,500 to impress someone who will probably notice your crushing anxiety about the bill way before they notice the brand tag. Hope that linen fabric absorbs the sweat of financial desperation."
+            },
+            {
+                input: "spent 4500 on Uber because it was raining",
+                entities: {
+                    amount: 4500,
+                    currency: "INR",
+                    category: "Logistics & Travel",
+                    description: "Uber during rain",
+                    parsed_successfully: true
+                },
+                roast: "₹4,500 for a single taxi ride? You could have bought a designer umbrella, high-quality rainboots, and a small inflatable raft for that price. A few raindrops fall and your entire budget dissolves."
+            }
+        ];
+
+        let parseSimTimer = null;
+
+        function simulateExpenseParse() {
+            const outputEl = document.getElementById('parse-sim-output');
+            if (!outputEl) return;
+
+            if (parseSimTimer) clearTimeout(parseSimTimer);
+
+            const sim = PARSE_SIMULATIONS[expenseParseIndex];
+            expenseParseIndex = (expenseParseIndex + 1) % PARSE_SIMULATIONS.length;
+
+            outputEl.innerHTML = '';
+            
+            let i = 0;
+            const inputText = `> entering_query: "${sim.input}"`;
+            
+            const inputDiv = document.createElement('div');
+            inputDiv.className = 'text-primary-fixed font-mono mb-2';
+            outputEl.appendChild(inputDiv);
+
+            function typeInput() {
+                if (i < inputText.length) {
+                    inputDiv.textContent += inputText[i];
+                    i++;
+                    parseSimTimer = setTimeout(typeInput, 20);
+                } else {
+                    const logDiv = document.createElement('div');
+                    logDiv.className = 'text-on-surface-variant font-mono text-[10px] space-y-1 mb-2 mt-2';
+                    logDiv.innerHTML = `
+                        <div>[sys] tokenizing text sequence... [OK]</div>
+                        <div>[sys] extracting financial entities... [OK]</div>
+                        <div>[sys] mapping category: <span class="text-secondary font-bold">${sim.entities.category}</span></div>
+                    `;
+                    outputEl.appendChild(logDiv);
+                    
+                    parseSimTimer = setTimeout(showJson, 600);
+                }
+            }
+
+            function showJson() {
+                const jsonTitle = document.createElement('div');
+                jsonTitle.className = 'text-outline-variant font-mono text-[10px] mb-1';
+                jsonTitle.textContent = '// PARSED_ENTITIES_JSON';
+                outputEl.appendChild(jsonTitle);
+
+                const jsonPre = document.createElement('pre');
+                jsonPre.className = 'bg-surface-container/40 p-2.5 border border-outline-variant/30 text-on-surface font-mono text-[11px] mb-3 overflow-x-auto';
+                
+                const jsonStr = JSON.stringify(sim.entities, null, 2);
+                jsonPre.innerHTML = jsonStr
+                    .replace(/"([^"]+)":/g, '<span class="text-primary-fixed">"$1"</span>:')
+                    .replace(/: "([^"]+)"/g, ': <span class="text-secondary">"$1"</span>')
+                    .replace(/: (\d+)/g, ': <span class="text-error font-bold">$1</span>')
+                    .replace(/: (true|false)/g, ': <span class="text-green-400 font-bold">$1</span>');
+
+                outputEl.appendChild(jsonPre);
+
+                parseSimTimer = setTimeout(showRoast, 800);
+            }
+
+            function showRoast() {
+                const roastTitle = document.createElement('div');
+                roastTitle.className = 'text-error font-mono text-[10px] uppercase mb-1 tracking-wider font-bold';
+                roastTitle.textContent = '>> INSTANT_ROAST_ENGINE_OUTPUT';
+                outputEl.appendChild(roastTitle);
+
+                const roastText = document.createElement('div');
+                roastText.className = 'text-on-surface font-roast-content italic border-l-2 border-error/50 pl-3 leading-relaxed py-1';
+                outputEl.appendChild(roastText);
+
+                let rIndex = 0;
+                function typeRoast() {
+                    if (rIndex < sim.roast.length) {
+                        roastText.textContent += sim.roast[rIndex];
+                        rIndex++;
+                        parseSimTimer = setTimeout(typeRoast, 12);
+                    }
+                }
+                typeRoast();
+            }
+
+            typeInput();
+        }
+
+        // Module 02: AI Roast Engine Simulation
+        let roastEngineIndex = 0;
+        const ROAST_SIMULATIONS = [
+            {
+                profileName: "PROFILE: THE LIFESTYLE INFLATOR",
+                stats: {
+                    monthly_income: "₹45,000",
+                    monthly_expenses: "₹48,500",
+                    net_savings: "-₹3,500",
+                    major_leak: "Shopping (₹18,000)"
+                },
+                roast: "You make ₹45,000 and spend ₹48,500. You are running a charity where you are the sole donor and credit card companies are the beneficiaries. You spent ₹18k renting clothes and buying aesthetic room decors to look wealthy in 10-second TikTok videos. Your savings account is in the ICU."
+            },
+            {
+                profileName: "PROFILE: THE CRYPTO SHILL",
+                stats: {
+                    monthly_income: "₹60,000",
+                    monthly_expenses: "₹72,000",
+                    net_savings: "-₹12,000",
+                    major_leak: "Shitcoins (₹25,000)"
+                },
+                roast: "You invested ₹25k in a memecoin named after a dog hoping to buy a sports car, but now you can't even afford public transit. Your diet consists of instant noodles, yet you describe yourself as an 'asset manager.' The only asset you're managing is a compounding deficit."
+            },
+            {
+                profileName: "PROFILE: THE SUBSCRIPTION HOARDER",
+                stats: {
+                    monthly_income: "₹40,000",
+                    monthly_expenses: "₹38,000",
+                    net_savings: "₹2,000",
+                    major_leak: "11 Active Subscriptions (₹6,500)"
+                },
+                roast: "You pay for Netflix, Prime, Disney+, Spotify, Gym (visited once in January), Notion Pro, and a cheese club. You have ₹2k left. If Netflix increases its fee by ₹200, you will be technically insolvent. Cancel the gym, you aren't going. Cancel the cheese, you're lactose intolerant anyway."
+            }
+        ];
+
+        let roastEngineTimer = null;
+
+        function simulateRoastEngine() {
+            const outputEl = document.getElementById('roast-engine-output');
+            if (!outputEl) return;
+
+            if (roastEngineTimer) clearTimeout(roastEngineTimer);
+
+            const sim = ROAST_SIMULATIONS[roastEngineIndex];
+            roastEngineIndex = (roastEngineIndex + 1) % ROAST_SIMULATIONS.length;
+
+            outputEl.innerHTML = '';
+
+            let logIndex = 0;
+            const logs = [
+                `> [sys] establishing connection to Gemini 2.0 Flash... [OK]`,
+                `> [sys] gathering user transaction metadata...`,
+                `> [sys] analyzing income: ${sim.stats.monthly_income} | expenses: ${sim.stats.monthly_expenses}`,
+                `> [sys] primary leak flagged: ${sim.stats.major_leak}`,
+                `> [sys] generating targeted critique... [OK]`
+            ];
+
+            function typeLogs() {
+                if (logIndex < logs.length) {
+                    const logLine = document.createElement('div');
+                    logLine.className = 'font-mono text-[10px] text-outline-variant mb-1';
+                    logLine.textContent = logs[logIndex];
+                    outputEl.appendChild(logLine);
+                    logIndex++;
+                    roastEngineTimer = setTimeout(typeLogs, 200);
+                } else {
+                    const div = document.createElement('div');
+                    div.className = 'border-b border-outline-variant/30 my-2';
+                    outputEl.appendChild(div);
+                    
+                    const roastText = document.createElement('div');
+                    roastText.className = 'text-primary-fixed font-roast-content leading-relaxed';
+                    roastText.innerHTML = '<span class="text-on-surface-variant not-italic font-mono text-[11px]">&gt; Gemini: </span>';
+                    outputEl.appendChild(roastText);
+
+                    const textSpan = document.createElement('span');
+                    textSpan.className = 'text-on-surface font-roast-content';
+                    roastText.appendChild(textSpan);
+
+                    let rIndex = 0;
+                    function typeRoast() {
+                        if (rIndex < sim.roast.length) {
+                            textSpan.textContent += sim.roast[rIndex];
+                            rIndex++;
+                            roastEngineTimer = setTimeout(typeRoast, 12);
+                        }
+                    }
+                    typeRoast();
+                }
+            }
+
+            typeLogs();
+        }
+
+        // Module 03: Runway Calculator Simulation
+        function updateRunwayDemo(value) {
+            const expenseVal = document.getElementById('runway-expense-val');
+            const daysVal = document.getElementById('runway-days-val');
+            const pctVal = document.getElementById('runway-pct-val');
+            const demoBar = document.getElementById('runway-demo-bar');
+            
+            if (!expenseVal || !daysVal || !pctVal || !demoBar) return;
+            
+            const val = parseFloat(value);
+            const income = 35000;
+            const savings = 60000;
+            
+            // Format and update expense value
+            expenseVal.textContent = '₹' + val.toLocaleString('en-IN');
+            
+            // Update percentage
+            const pct = Math.round((val / income) * 100);
+            pctVal.textContent = pct + '%';
+            
+            // Calculate runway
+            if (val === 0) {
+                daysVal.textContent = '∞ DAYS';
+                daysVal.className = 'font-data-label text-[18px] text-primary-fixed font-black';
+            } else if (val <= income) {
+                daysVal.textContent = '∞ DAYS (SURPLUS)';
+                daysVal.className = 'font-data-label text-[16px] text-primary-fixed font-black';
+            } else {
+                const deficit = val - income;
+                const days = Math.round(savings / (deficit / 30));
+                
+                if (days > 90) {
+                    daysVal.textContent = days + ' DAYS';
+                    daysVal.className = 'font-data-label text-[18px] text-green-400 font-black';
+                } else if (days > 30) {
+                    daysVal.textContent = days + ' DAYS';
+                    daysVal.className = 'font-data-label text-[18px] text-amber-400 font-black';
+                } else {
+                    daysVal.textContent = days + ' DAYS';
+                    daysVal.className = 'font-data-label text-[18px] text-error font-black animate-pulse';
+                }
+            }
+            
+            // Update burn bar blocks (5 blocks)
+            const blocks = demoBar.children;
+            const filledCount = val === 0 ? 0 : Math.max(1, Math.min(5, Math.ceil(pct / 20)));
+            
+            for (let i = 0; i < blocks.length; i++) {
+                const block = blocks[i];
+                if (i < filledCount) {
+                    if (i < 2) {
+                        block.className = 'flex-1 bg-primary-fixed transition-colors duration-150';
+                    } else if (i === 2) {
+                        block.className = 'flex-1 bg-yellow-400 transition-colors duration-150';
+                    } else if (i === 3) {
+                        block.className = 'flex-1 bg-orange-500 transition-colors duration-150';
+                    } else {
+                        block.className = 'flex-1 bg-error transition-colors duration-150';
+                    }
+                } else {
+                    block.className = 'flex-1 bg-surface-bright transition-colors duration-150';
+                }
+            }
+        }
+
+        // Module 04: Persona Engine (3 Attitudes)
+        let attitudeTimer = null;
+        const ATTITUDE_RESPONSES = {
+            aggressive: {
+                label: "AGGRESSIVE CRITIQUE MODE",
+                dotClass: "bg-error",
+                text: "₹5,000 on pixels? Are you serious? You bought virtual outfits for a game character while wearing socks with actual holes in them in real life. That money could have paid your electricity bill, but you wanted a glowing sword that does the exact same damage as the free one. Wake up! Your checking account is on life support."
+            },
+            sarcastic: {
+                label: "SARCASTIC JUDGMENT MODE",
+                dotClass: "bg-primary-fixed",
+                text: "Oh, stellar choice! ₹5,000 on gaming skins. I'm sure your future landlord will gladly accept legendary weapon skins instead of cash for rent. At least when you're bankrupt, your digital character will look absolutely fabulous. Truly a masterclass in wealth management. Teach me your ways, financial wizard."
+            },
+            supportive: {
+                label: "SUPPORTIVE CODDLING MODE",
+                dotClass: "bg-on-surface",
+                text: "Hey, it's great that you're supporting game developers! They really need your ₹5,000. Sure, it was 15% of your income, and yes, you'll have to eat instant noodles for the next two weeks, but look on the bright side: your character has a cool glow effect now! We all have priorities, even if yours are completely unhinged."
+            }
+        };
+
+        function selectAttitude(mode) {
+            const aggBtn = document.getElementById('attitude-aggressive');
+            const sarBtn = document.getElementById('attitude-sarcastic');
+            const supBtn = document.getElementById('attitude-supportive');
+            const dot = document.getElementById('attitude-dot');
+            const label = document.getElementById('attitude-mode-label');
+            const output = document.getElementById('attitude-output');
+            
+            if (!aggBtn || !sarBtn || !supBtn || !dot || !label || !output) return;
+            
+            if (attitudeTimer) clearTimeout(attitudeTimer);
+            
+            // Reset button classes
+            aggBtn.className = "attitude-btn group text-left p-5 border border-error/40 bg-error-container/5 hover:border-error/70 hover:bg-error-container/10 transition-all duration-200 relative overflow-hidden focus:outline-none";
+            sarBtn.className = "attitude-btn group text-left p-5 border border-primary-fixed/40 bg-primary-fixed/5 hover:border-primary-fixed/70 hover:bg-primary-fixed/10 transition-all duration-200 relative overflow-hidden focus:outline-none";
+            supBtn.className = "attitude-btn group text-left p-5 border border-outline-variant/40 bg-surface-container/20 hover:border-on-surface-variant/60 hover:bg-surface-container-high transition-all duration-200 relative overflow-hidden focus:outline-none";
+            
+            // Set active styles
+            if (mode === 'aggressive') {
+                aggBtn.className = "attitude-btn group text-left p-5 border-2 border-error bg-error-container/20 shadow-[0_0_15px_rgba(255,180,171,0.25)] transition-all duration-200 relative overflow-hidden focus:outline-none";
+            } else if (mode === 'sarcastic') {
+                sarBtn.className = "attitude-btn group text-left p-5 border-2 border-primary-fixed bg-primary-fixed/15 shadow-[0_0_15px_rgba(186,246,0,0.25)] transition-all duration-200 relative overflow-hidden focus:outline-none";
+            } else if (mode === 'supportive') {
+                supBtn.className = "attitude-btn group text-left p-5 border-2 border-on-surface-variant bg-surface-container-high shadow-[0_0_15px_rgba(229,226,225,0.15)] transition-all duration-200 relative overflow-hidden focus:outline-none";
+            }
+            
+            const config = ATTITUDE_RESPONSES[mode];
+            
+            // Update status dot and label
+            dot.className = `w-2 h-2 rounded-full ${config.dotClass} animate-pulse`;
+            label.textContent = config.label;
+            label.className = `font-data-label text-[10px] uppercase tracking-widest ${mode === 'aggressive' ? 'text-error' : mode === 'sarcastic' ? 'text-primary-fixed' : 'text-on-surface'}`;
+            
+            // Typewriter effect
+            output.innerHTML = '<span class="text-on-surface-variant font-mono text-[11px]">&gt; INITIATING PERSONALITY RESPONSE...</span>';
+            
+            attitudeTimer = setTimeout(() => {
+                output.innerHTML = '';
+                const promptSpan = document.createElement('span');
+                promptSpan.className = 'text-primary-fixed font-mono text-[11px]';
+                promptSpan.textContent = '> ';
+                output.appendChild(promptSpan);
+                
+                const textSpan = document.createElement('span');
+                textSpan.className = 'text-on-surface font-roast-content';
+                output.appendChild(textSpan);
+                
+                let charIndex = 0;
+                function type() {
+                    if (charIndex < config.text.length) {
+                        textSpan.textContent += config.text[charIndex];
+                        charIndex++;
+                        attitudeTimer = setTimeout(type, 12);
+                    }
+                }
+                type();
+            }, 400);
+        }
+
+        // ═══ LANDING: Live Demo Roast ═══
+        const DEMO_ROASTS = [
+            {
+                label: '₹800/day Starbucks',
+                roast: `Oh, so you're spending ₹800 daily on coffee that costs ₹30 to make at home. That's ₹24,000 a month — roughly half a fresher's salary — evaporating into a paper cup with your name misspelled on it. Starbucks isn't your morning ritual. It's a subscription service for being bad with money.`,
+                verdict: `PROJECTED ANNUAL DAMAGE: ₹2,92,000. Could've bought a motorcycle. You chose oat milk.`
+            },
+            {
+                label: '₹12,000 Amazon Haul',
+                roast: `₹12,000 on Amazon "necessities." Let me guess — a cable organizer for a desk you never sit at, an air fryer you'll use twice, and three phone cases for a phone you're already planning to upgrade. Amazon Prime Day didn't save you money. It just made you spend faster.`,
+                verdict: `IMPULSE COEFFICIENT: 94.7%. Your "Add to Cart" finger should be medically evaluated.`
+            },
+            {
+                label: '₹3,500 Zomato Week',
+                roast: `₹3,500 on Zomato in a single week. That's ₹500 a day outsourcing the revolutionary task of heating food. Your kitchen appliances are decorative at this point. You could meal prep Sunday and save ₹2,800 — but instead you'll pay a stranger ₹50 to deliver ₹300 biryani while you sit 400 metres from a functioning stove.`,
+                verdict: `KITCHEN UTILIZATION: 3%. The cockroaches in your pantry are better fed than your savings.`
+            },
+            {
+                label: '₹5,000 In-App Purchases',
+                roast: `₹5,000 on in-app purchases. You traded real, legally-earned money for digital swords, fake currency, and premium battle passes in games that will shut down servers in 2 years. The developers live in California. You live in a rented flat. They bought a Porsche. You bought a legendary skin.`,
+                verdict: `ROI ON FAKE SWORDS: ₹0. Negative net worth impact: IMMEASURABLE.`
+            }
+        ];
+
+        let demoTypingTimer = null;
+
+        function runDemoRoast(index) {
+            // Highlight selected button
+            document.querySelectorAll('.demo-scenario-btn').forEach((btn, i) => {
+                if (i === index) {
+                    btn.className = btn.className.replace('border-outline-variant/40', 'border-primary-fixed/60').replace('bg-surface-container/20', 'bg-primary-fixed/5');
+                } else {
+                    btn.className = btn.className.replace('border-primary-fixed/60', 'border-outline-variant/40').replace('bg-primary-fixed/5', 'bg-surface-container/20');
+                }
+            });
+
+            const roastData = DEMO_ROASTS[index];
+            const outputEl = document.getElementById('demo-output-text');
+            const verdictEl = document.getElementById('demo-verdict');
+            const verdictTextEl = document.getElementById('demo-verdict-text');
+            const statusBadge = document.getElementById('demo-status-badge');
+
+            // Clear existing timer
+            if (demoTypingTimer) clearTimeout(demoTypingTimer);
+
+            // Reset state
+            verdictEl.classList.add('hidden');
+            statusBadge.textContent = 'PROCESSING...';
+            statusBadge.className = 'font-data-label text-[9px] text-primary-fixed border border-primary-fixed/40 px-2 py-0.5 uppercase animate-pulse';
+            outputEl.innerHTML = '<span class="text-primary-fixed not-italic">&gt; </span><span class="text-primary-fixed">ANALYSING FINANCIAL CRIME...</span><span class="terminal-cursor"></span>';
+
+            // Simulate processing delay, then typewriter
+            demoTypingTimer = setTimeout(() => {
+                const fullText = roastData.roast;
+                let i = 0;
+                outputEl.innerHTML = '<span class="text-primary-fixed not-italic">&gt; </span>';
+                const roastSpan = document.createElement('span');
+                roastSpan.className = 'text-on-surface';
+                outputEl.appendChild(roastSpan);
+
+                function type() {
+                    if (i < fullText.length) {
+                        roastSpan.textContent += fullText[i];
+                        i++;
+                        demoTypingTimer = setTimeout(type, 18);
+                    } else {
+                        // Show verdict
+                        statusBadge.textContent = 'ROAST DELIVERED';
+                        statusBadge.className = 'font-data-label text-[9px] text-primary-fixed border border-primary-fixed px-2 py-0.5 uppercase';
+                        verdictTextEl.textContent = roastData.verdict;
+                        verdictEl.classList.remove('hidden');
+                    }
+                }
+                type();
+            }, 800);
+        }
+
+        // ═══ LANDING: Animated Stat Counters ═══
+        function animateCounter(id, target, duration) {
+            const el = document.getElementById(id);
+            if (!el) return;
+            let start = 0;
+            const step = Math.ceil(target / (duration / 50));
+            const timer = setInterval(() => {
+                start = Math.min(start + step, target);
+                el.textContent = start.toLocaleString('en-IN');
+                if (start >= target) clearInterval(timer);
+            }, 50);
+        }
+
+        function runStatCounters() {
+            animateCounter('stat-counter-1', 12847, 2000);
+            animateCounter('stat-counter-2', 9341, 2200);
+            animateCounter('stat-counter-3', 4203, 1800);
+        }
+
         // Initialize App
         window.onload = function() {
+            resetRegistrationFormFields();
+
+            // Observe the registration-screen to wipe inputs when opened/mounted
+            const regScreen = document.getElementById('registration-screen');
+            if (regScreen) {
+                const observer = new MutationObserver((mutations) => {
+                    mutations.forEach((mutation) => {
+                        if (mutation.attributeName === 'class') {
+                            const isHidden = regScreen.classList.contains('hidden');
+                            if (!isHidden) {
+                                resetRegistrationFormFields();
+                                resetRegisterSubmitBtn();
+                            }
+                        }
+                    });
+                });
+                observer.observe(regScreen, { attributes: true });
+            }
+
             // Load configs first
             loadConfig();
             // Load data
@@ -1855,6 +3599,8 @@
             initSupabase();
             // Default select Landing tab (bypass guard — landing is public)
             _doSwitchTab('landing');
+            // Animate stat counters after a short delay
+            setTimeout(runStatCounters, 400);
         };
     </script>
 </body>
