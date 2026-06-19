@@ -1878,6 +1878,7 @@
                 }
             } catch (err) {
                 console.error("Failed to initialize Supabase:", err);
+                showToast("Failed to initialize Supabase: " + err.message, "error");
                 updateLandingButton(false);
             }
         }
